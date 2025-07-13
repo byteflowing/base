@@ -1,0 +1,10 @@
+DbType: "postgres"
+Postgres:
+  Host: "192.168.88.3"
+  User: "postgres"
+  Password: "Postgres123456"
+  DBName: "postgres"
+  SSLMode: false
+  Port: 5432
+  TimeZone: "Asia/Shanghai"
+  Schema:   "dev"
