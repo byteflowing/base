@@ -595,84 +595,50 @@ func (x *PagingGetLoginLogOptions) GetStatuses() []LoginStatus {
 	return nil
 }
 
-type SendPhoneCaptchaReq struct {
-	Type  CaptchaType `protobuf:"varint,1,opt,name=type" json:"type,omitempty"`
-	Phone string      `protobuf:"bytes,2,opt,name=phone" json:"phone,omitempty"`
+type SendLoginCaptchaReq struct {
+	Sender MessageSender `protobuf:"varint,1,opt,name=sender" json:"sender,omitempty"` // 发送验证码程序 短信，邮箱
+	Phone  *string       `protobuf:"bytes,2,opt,name=phone" json:"phone,omitempty"`    // 手机
+	Email  *string       `protobuf:"bytes,3,opt,name=email" json:"email,omitempty"`    // 邮箱
 }
 
-func (x *SendPhoneCaptchaReq) Reset() { *x = SendPhoneCaptchaReq{} }
+func (x *SendLoginCaptchaReq) Reset() { *x = SendLoginCaptchaReq{} }
 
-func (x *SendPhoneCaptchaReq) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
+func (x *SendLoginCaptchaReq) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
 
-func (x *SendPhoneCaptchaReq) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+func (x *SendLoginCaptchaReq) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *SendPhoneCaptchaReq) GetType() CaptchaType {
+func (x *SendLoginCaptchaReq) GetSender() MessageSender {
 	if x != nil {
-		return x.Type
+		return x.Sender
 	}
-	return CaptchaType_CAPTCHA_TYPE_UNSPECIFIED
+	return MessageSender_MESSAGE_SENDER_UNSPECIFIED
 }
 
-func (x *SendPhoneCaptchaReq) GetPhone() string {
-	if x != nil {
-		return x.Phone
-	}
-	return ""
-}
-
-type SendPhoneCaptchaResp struct {
-	Common *CommonResp `protobuf:"bytes,255,opt,name=common" json:"common,omitempty"`
-}
-
-func (x *SendPhoneCaptchaResp) Reset() { *x = SendPhoneCaptchaResp{} }
-
-func (x *SendPhoneCaptchaResp) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
-
-func (x *SendPhoneCaptchaResp) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
-
-func (x *SendPhoneCaptchaResp) GetCommon() *CommonResp {
-	if x != nil {
-		return x.Common
-	}
-	return nil
-}
-
-type SendEmailCaptchaReq struct {
-	Type  CaptchaType `protobuf:"varint,1,opt,name=type" json:"type,omitempty"`
-	Email string      `protobuf:"bytes,2,opt,name=email" json:"email,omitempty"`
-}
-
-func (x *SendEmailCaptchaReq) Reset() { *x = SendEmailCaptchaReq{} }
-
-func (x *SendEmailCaptchaReq) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
-
-func (x *SendEmailCaptchaReq) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
-
-func (x *SendEmailCaptchaReq) GetType() CaptchaType {
-	if x != nil {
-		return x.Type
-	}
-	return CaptchaType_CAPTCHA_TYPE_UNSPECIFIED
-}
-
-func (x *SendEmailCaptchaReq) GetEmail() string {
-	if x != nil {
-		return x.Email
+func (x *SendLoginCaptchaReq) GetPhone() string {
+	if x != nil && x.Phone != nil {
+		return *x.Phone
 	}
 	return ""
 }
 
-type SendEmailCaptchaResp struct {
+func (x *SendLoginCaptchaReq) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
+	}
+	return ""
+}
+
+type SendLoginCaptchaResp struct {
 	Common *CommonResp `protobuf:"bytes,255,opt,name=common" json:"common,omitempty"`
 }
 
-func (x *SendEmailCaptchaResp) Reset() { *x = SendEmailCaptchaResp{} }
+func (x *SendLoginCaptchaResp) Reset() { *x = SendLoginCaptchaResp{} }
 
-func (x *SendEmailCaptchaResp) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
+func (x *SendLoginCaptchaResp) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
 
-func (x *SendEmailCaptchaResp) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+func (x *SendLoginCaptchaResp) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
 
-func (x *SendEmailCaptchaResp) GetCommon() *CommonResp {
+func (x *SendLoginCaptchaResp) GetCommon() *CommonResp {
 	if x != nil {
 		return x.Common
 	}

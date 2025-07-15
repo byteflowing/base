@@ -5,7 +5,7 @@ import (
 	base "github.com/byteflowing/base/kitex_gen/base"
 )
 
-// BaseServiceImpl implements the last pkg interface defined in the IDL.
+// BaseServiceImpl implements the last service interface defined in the IDL.
 type BaseServiceImpl struct{}
 
 // SendCaptcha implements the BaseServiceImpl interface.
@@ -26,14 +26,8 @@ func (s *BaseServiceImpl) PagingGetSmsMessages(ctx context.Context, req *base.Pa
 	return
 }
 
-// SendPhoneCaptcha implements the BaseServiceImpl interface.
-func (s *BaseServiceImpl) SendPhoneCaptcha(ctx context.Context, req *base.SendPhoneCaptchaReq) (resp *base.SendPhoneCaptchaResp, err error) {
-	// TODO: Your code here...
-	return
-}
-
-// SendEmailCaptcha implements the BaseServiceImpl interface.
-func (s *BaseServiceImpl) SendEmailCaptcha(ctx context.Context, req *base.SendEmailCaptchaReq) (resp *base.SendEmailCaptchaResp, err error) {
+// SendLoginCaptcha implements the BaseServiceImpl interface.
+func (s *BaseServiceImpl) SendLoginCaptcha(ctx context.Context, req *base.SendLoginCaptchaReq) (resp *base.SendLoginCaptchaResp, err error) {
 	// TODO: Your code here...
 	return
 }

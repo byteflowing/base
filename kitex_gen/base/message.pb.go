@@ -265,14 +265,15 @@ func (x *PagingGetSmsMessageOptions) GetSigns() []string {
 }
 
 type SendCaptchaReq struct {
-	CaptchaType CaptchaType        `protobuf:"varint,1,opt,name=captcha_type" json:"captcha_type,omitempty"` // [必选]验证码类型
-	MsgType     CaptchaCombination `protobuf:"varint,2,opt,name=msg_type" json:"msg_type,omitempty"`         // [必选]消息类型
-	Sender      MessageSender      `protobuf:"varint,3,opt,name=sender" json:"sender,omitempty"`             // [必选]发送程序
-	Phone       *string            `protobuf:"bytes,4,opt,name=phone" json:"phone,omitempty"`                // [必选]手机号码
-	Email       *string            `protobuf:"bytes,5,opt,name=email" json:"email,omitempty"`                // [可选]邮箱
-	Provider    *SmsProvider       `protobuf:"varint,6,opt,name=provider" json:"provider,omitempty"`         // [可选]SMS供应商，默认阿里云
-	Template    *string            `protobuf:"bytes,7,opt,name=template" json:"template,omitempty"`          // [可选]模板，默认配置文件中定义值
-	Sign        *string            `protobuf:"bytes,8,opt,name=sign" json:"sign,omitempty"`                  // [可选]签名，默认配置文件中定义值
+	CaptchaType  CaptchaType        `protobuf:"varint,1,opt,name=captcha_type" json:"captcha_type,omitempty"`   // [必选]验证码类型
+	MsgType      CaptchaCombination `protobuf:"varint,2,opt,name=msg_type" json:"msg_type,omitempty"`           // [必选]消息类型
+	Sender       MessageSender      `protobuf:"varint,3,opt,name=sender" json:"sender,omitempty"`               // [必选]发送程序
+	Phone        *string            `protobuf:"bytes,4,opt,name=phone" json:"phone,omitempty"`                  // [必选]手机号码
+	Email        *string            `protobuf:"bytes,5,opt,name=email" json:"email,omitempty"`                  // [可选]邮箱
+	Provider     *SmsProvider       `protobuf:"varint,6,opt,name=provider" json:"provider,omitempty"`           // [可选]SMS供应商，默认阿里云
+	Template     *string            `protobuf:"bytes,7,opt,name=template" json:"template,omitempty"`            // [可选]模板，默认配置文件中定义值
+	Sign         *string            `protobuf:"bytes,8,opt,name=sign" json:"sign,omitempty"`                    // [可选]签名，默认配置文件中定义值
+	CaptchaCount *uint32            `protobuf:"varint,9,opt,name=captcha_count" json:"captcha_count,omitempty"` // [可选]验证码位数
 }
 
 func (x *SendCaptchaReq) Reset() { *x = SendCaptchaReq{} }
@@ -335,6 +336,13 @@ func (x *SendCaptchaReq) GetSign() string {
 		return *x.Sign
 	}
 	return ""
+}
+
+func (x *SendCaptchaReq) GetCaptchaCount() uint32 {
+	if x != nil && x.CaptchaCount != nil {
+		return *x.CaptchaCount
+	}
+	return 0
 }
 
 type SendCaptchaResp struct {

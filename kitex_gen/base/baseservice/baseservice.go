@@ -12,7 +12,7 @@ import (
 	proto "github.com/cloudwego/prutal"
 )
 
-var errInvalidMessageType = errors.New("invalid message type for pkg method handler")
+var errInvalidMessageType = errors.New("invalid message type for service method handler")
 
 var serviceMethods = map[string]kitex.MethodInfo{
 	"SendCaptcha": kitex.NewMethodInfo(
@@ -36,17 +36,10 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
-	"SendPhoneCaptcha": kitex.NewMethodInfo(
-		sendPhoneCaptchaHandler,
-		newSendPhoneCaptchaArgs,
-		newSendPhoneCaptchaResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingUnary),
-	),
-	"SendEmailCaptcha": kitex.NewMethodInfo(
-		sendEmailCaptchaHandler,
-		newSendEmailCaptchaArgs,
-		newSendEmailCaptchaResult,
+	"SendLoginCaptcha": kitex.NewMethodInfo(
+		sendLoginCaptchaHandler,
+		newSendLoginCaptchaArgs,
+		newSendLoginCaptchaResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
@@ -547,52 +540,52 @@ func (p *PagingGetSmsMessagesResult) GetResult() interface{} {
 	return p.Success
 }
 
-func sendPhoneCaptchaHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+func sendLoginCaptchaHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	switch s := arg.(type) {
 	case *streaming.Args:
 		st := s.Stream
-		req := new(base.SendPhoneCaptchaReq)
+		req := new(base.SendLoginCaptchaReq)
 		if err := st.RecvMsg(req); err != nil {
 			return err
 		}
-		resp, err := handler.(base.BaseService).SendPhoneCaptcha(ctx, req)
+		resp, err := handler.(base.BaseService).SendLoginCaptcha(ctx, req)
 		if err != nil {
 			return err
 		}
 		return st.SendMsg(resp)
-	case *SendPhoneCaptchaArgs:
-		success, err := handler.(base.BaseService).SendPhoneCaptcha(ctx, s.Req)
+	case *SendLoginCaptchaArgs:
+		success, err := handler.(base.BaseService).SendLoginCaptcha(ctx, s.Req)
 		if err != nil {
 			return err
 		}
-		realResult := result.(*SendPhoneCaptchaResult)
+		realResult := result.(*SendLoginCaptchaResult)
 		realResult.Success = success
 		return nil
 	default:
 		return errInvalidMessageType
 	}
 }
-func newSendPhoneCaptchaArgs() interface{} {
-	return &SendPhoneCaptchaArgs{}
+func newSendLoginCaptchaArgs() interface{} {
+	return &SendLoginCaptchaArgs{}
 }
 
-func newSendPhoneCaptchaResult() interface{} {
-	return &SendPhoneCaptchaResult{}
+func newSendLoginCaptchaResult() interface{} {
+	return &SendLoginCaptchaResult{}
 }
 
-type SendPhoneCaptchaArgs struct {
-	Req *base.SendPhoneCaptchaReq
+type SendLoginCaptchaArgs struct {
+	Req *base.SendLoginCaptchaReq
 }
 
-func (p *SendPhoneCaptchaArgs) Marshal(out []byte) ([]byte, error) {
+func (p *SendLoginCaptchaArgs) Marshal(out []byte) ([]byte, error) {
 	if !p.IsSetReq() {
 		return out, nil
 	}
 	return proto.Marshal(p.Req)
 }
 
-func (p *SendPhoneCaptchaArgs) Unmarshal(in []byte) error {
-	msg := new(base.SendPhoneCaptchaReq)
+func (p *SendLoginCaptchaArgs) Unmarshal(in []byte) error {
+	msg := new(base.SendLoginCaptchaReq)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -600,38 +593,38 @@ func (p *SendPhoneCaptchaArgs) Unmarshal(in []byte) error {
 	return nil
 }
 
-var SendPhoneCaptchaArgs_Req_DEFAULT *base.SendPhoneCaptchaReq
+var SendLoginCaptchaArgs_Req_DEFAULT *base.SendLoginCaptchaReq
 
-func (p *SendPhoneCaptchaArgs) GetReq() *base.SendPhoneCaptchaReq {
+func (p *SendLoginCaptchaArgs) GetReq() *base.SendLoginCaptchaReq {
 	if !p.IsSetReq() {
-		return SendPhoneCaptchaArgs_Req_DEFAULT
+		return SendLoginCaptchaArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-func (p *SendPhoneCaptchaArgs) IsSetReq() bool {
+func (p *SendLoginCaptchaArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *SendPhoneCaptchaArgs) GetFirstArgument() interface{} {
+func (p *SendLoginCaptchaArgs) GetFirstArgument() interface{} {
 	return p.Req
 }
 
-type SendPhoneCaptchaResult struct {
-	Success *base.SendPhoneCaptchaResp
+type SendLoginCaptchaResult struct {
+	Success *base.SendLoginCaptchaResp
 }
 
-var SendPhoneCaptchaResult_Success_DEFAULT *base.SendPhoneCaptchaResp
+var SendLoginCaptchaResult_Success_DEFAULT *base.SendLoginCaptchaResp
 
-func (p *SendPhoneCaptchaResult) Marshal(out []byte) ([]byte, error) {
+func (p *SendLoginCaptchaResult) Marshal(out []byte) ([]byte, error) {
 	if !p.IsSetSuccess() {
 		return out, nil
 	}
 	return proto.Marshal(p.Success)
 }
 
-func (p *SendPhoneCaptchaResult) Unmarshal(in []byte) error {
-	msg := new(base.SendPhoneCaptchaResp)
+func (p *SendLoginCaptchaResult) Unmarshal(in []byte) error {
+	msg := new(base.SendLoginCaptchaResp)
 	if err := proto.Unmarshal(in, msg); err != nil {
 		return err
 	}
@@ -639,133 +632,22 @@ func (p *SendPhoneCaptchaResult) Unmarshal(in []byte) error {
 	return nil
 }
 
-func (p *SendPhoneCaptchaResult) GetSuccess() *base.SendPhoneCaptchaResp {
+func (p *SendLoginCaptchaResult) GetSuccess() *base.SendLoginCaptchaResp {
 	if !p.IsSetSuccess() {
-		return SendPhoneCaptchaResult_Success_DEFAULT
+		return SendLoginCaptchaResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-func (p *SendPhoneCaptchaResult) SetSuccess(x interface{}) {
-	p.Success = x.(*base.SendPhoneCaptchaResp)
+func (p *SendLoginCaptchaResult) SetSuccess(x interface{}) {
+	p.Success = x.(*base.SendLoginCaptchaResp)
 }
 
-func (p *SendPhoneCaptchaResult) IsSetSuccess() bool {
+func (p *SendLoginCaptchaResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *SendPhoneCaptchaResult) GetResult() interface{} {
-	return p.Success
-}
-
-func sendEmailCaptchaHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	switch s := arg.(type) {
-	case *streaming.Args:
-		st := s.Stream
-		req := new(base.SendEmailCaptchaReq)
-		if err := st.RecvMsg(req); err != nil {
-			return err
-		}
-		resp, err := handler.(base.BaseService).SendEmailCaptcha(ctx, req)
-		if err != nil {
-			return err
-		}
-		return st.SendMsg(resp)
-	case *SendEmailCaptchaArgs:
-		success, err := handler.(base.BaseService).SendEmailCaptcha(ctx, s.Req)
-		if err != nil {
-			return err
-		}
-		realResult := result.(*SendEmailCaptchaResult)
-		realResult.Success = success
-		return nil
-	default:
-		return errInvalidMessageType
-	}
-}
-func newSendEmailCaptchaArgs() interface{} {
-	return &SendEmailCaptchaArgs{}
-}
-
-func newSendEmailCaptchaResult() interface{} {
-	return &SendEmailCaptchaResult{}
-}
-
-type SendEmailCaptchaArgs struct {
-	Req *base.SendEmailCaptchaReq
-}
-
-func (p *SendEmailCaptchaArgs) Marshal(out []byte) ([]byte, error) {
-	if !p.IsSetReq() {
-		return out, nil
-	}
-	return proto.Marshal(p.Req)
-}
-
-func (p *SendEmailCaptchaArgs) Unmarshal(in []byte) error {
-	msg := new(base.SendEmailCaptchaReq)
-	if err := proto.Unmarshal(in, msg); err != nil {
-		return err
-	}
-	p.Req = msg
-	return nil
-}
-
-var SendEmailCaptchaArgs_Req_DEFAULT *base.SendEmailCaptchaReq
-
-func (p *SendEmailCaptchaArgs) GetReq() *base.SendEmailCaptchaReq {
-	if !p.IsSetReq() {
-		return SendEmailCaptchaArgs_Req_DEFAULT
-	}
-	return p.Req
-}
-
-func (p *SendEmailCaptchaArgs) IsSetReq() bool {
-	return p.Req != nil
-}
-
-func (p *SendEmailCaptchaArgs) GetFirstArgument() interface{} {
-	return p.Req
-}
-
-type SendEmailCaptchaResult struct {
-	Success *base.SendEmailCaptchaResp
-}
-
-var SendEmailCaptchaResult_Success_DEFAULT *base.SendEmailCaptchaResp
-
-func (p *SendEmailCaptchaResult) Marshal(out []byte) ([]byte, error) {
-	if !p.IsSetSuccess() {
-		return out, nil
-	}
-	return proto.Marshal(p.Success)
-}
-
-func (p *SendEmailCaptchaResult) Unmarshal(in []byte) error {
-	msg := new(base.SendEmailCaptchaResp)
-	if err := proto.Unmarshal(in, msg); err != nil {
-		return err
-	}
-	p.Success = msg
-	return nil
-}
-
-func (p *SendEmailCaptchaResult) GetSuccess() *base.SendEmailCaptchaResp {
-	if !p.IsSetSuccess() {
-		return SendEmailCaptchaResult_Success_DEFAULT
-	}
-	return p.Success
-}
-
-func (p *SendEmailCaptchaResult) SetSuccess(x interface{}) {
-	p.Success = x.(*base.SendEmailCaptchaResp)
-}
-
-func (p *SendEmailCaptchaResult) IsSetSuccess() bool {
-	return p.Success != nil
-}
-
-func (p *SendEmailCaptchaResult) GetResult() interface{} {
+func (p *SendLoginCaptchaResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -2363,21 +2245,11 @@ func (p *kClient) PagingGetSmsMessages(ctx context.Context, Req *base.PagingGetS
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) SendPhoneCaptcha(ctx context.Context, Req *base.SendPhoneCaptchaReq) (r *base.SendPhoneCaptchaResp, err error) {
-	var _args SendPhoneCaptchaArgs
+func (p *kClient) SendLoginCaptcha(ctx context.Context, Req *base.SendLoginCaptchaReq) (r *base.SendLoginCaptchaResp, err error) {
+	var _args SendLoginCaptchaArgs
 	_args.Req = Req
-	var _result SendPhoneCaptchaResult
-	if err = p.c.Call(ctx, "SendPhoneCaptcha", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) SendEmailCaptcha(ctx context.Context, Req *base.SendEmailCaptchaReq) (r *base.SendEmailCaptchaResp, err error) {
-	var _args SendEmailCaptchaArgs
-	_args.Req = Req
-	var _result SendEmailCaptchaResult
-	if err = p.c.Call(ctx, "SendEmailCaptcha", &_args, &_result); err != nil {
+	var _result SendLoginCaptchaResult
+	if err = p.c.Call(ctx, "SendLoginCaptcha", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

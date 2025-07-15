@@ -14,8 +14,7 @@ type Client interface {
 	SendCaptcha(ctx context.Context, Req *base.SendCaptchaReq, callOptions ...callopt.Option) (r *base.SendCaptchaResp, err error)
 	VerifyCaptcha(ctx context.Context, Req *base.VerifyCaptchaReq, callOptions ...callopt.Option) (r *base.VerifyCaptchaResp, err error)
 	PagingGetSmsMessages(ctx context.Context, Req *base.PagingGetSmsMessagesReq, callOptions ...callopt.Option) (r *base.PagingGetSmsMessagesResp, err error)
-	SendPhoneCaptcha(ctx context.Context, Req *base.SendPhoneCaptchaReq, callOptions ...callopt.Option) (r *base.SendPhoneCaptchaResp, err error)
-	SendEmailCaptcha(ctx context.Context, Req *base.SendEmailCaptchaReq, callOptions ...callopt.Option) (r *base.SendEmailCaptchaResp, err error)
+	SendLoginCaptcha(ctx context.Context, Req *base.SendLoginCaptchaReq, callOptions ...callopt.Option) (r *base.SendLoginCaptchaResp, err error)
 	Login(ctx context.Context, Req *base.LoginReq, callOptions ...callopt.Option) (r *base.LoginResp, err error)
 	Logout(ctx context.Context, Req *base.LogoutReq, callOptions ...callopt.Option) (r *base.LogoutResp, err error)
 	ForceLogoutBySessionId(ctx context.Context, Req *base.ForceLogoutBySessionIdReq, callOptions ...callopt.Option) (r *base.ForceLogoutBySessionIdResp, err error)
@@ -32,7 +31,7 @@ type Client interface {
 	PagingGetLoginLogs(ctx context.Context, Req *base.PagingGetLoginLogsReq, callOptions ...callopt.Option) (r *base.PagingGetLoginLogsResp, err error)
 }
 
-// NewClient creates a client for the pkg defined in IDL.
+// NewClient creates a client for the service defined in IDL.
 func NewClient(destService string, opts ...client.Option) (Client, error) {
 	var options []client.Option
 	options = append(options, client.WithDestService(destService))
@@ -48,7 +47,7 @@ func NewClient(destService string, opts ...client.Option) (Client, error) {
 	}, nil
 }
 
-// MustNewClient creates a client for the pkg defined in IDL. It panics if any error occurs.
+// MustNewClient creates a client for the service defined in IDL. It panics if any error occurs.
 func MustNewClient(destService string, opts ...client.Option) Client {
 	kc, err := NewClient(destService, opts...)
 	if err != nil {
@@ -76,14 +75,9 @@ func (p *kBaseServiceClient) PagingGetSmsMessages(ctx context.Context, Req *base
 	return p.kClient.PagingGetSmsMessages(ctx, Req)
 }
 
-func (p *kBaseServiceClient) SendPhoneCaptcha(ctx context.Context, Req *base.SendPhoneCaptchaReq, callOptions ...callopt.Option) (r *base.SendPhoneCaptchaResp, err error) {
+func (p *kBaseServiceClient) SendLoginCaptcha(ctx context.Context, Req *base.SendLoginCaptchaReq, callOptions ...callopt.Option) (r *base.SendLoginCaptchaResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SendPhoneCaptcha(ctx, Req)
-}
-
-func (p *kBaseServiceClient) SendEmailCaptcha(ctx context.Context, Req *base.SendEmailCaptchaReq, callOptions ...callopt.Option) (r *base.SendEmailCaptchaResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SendEmailCaptcha(ctx, Req)
+	return p.kClient.SendLoginCaptcha(ctx, Req)
 }
 
 func (p *kBaseServiceClient) Login(ctx context.Context, Req *base.LoginReq, callOptions ...callopt.Option) (r *base.LoginResp, err error) {

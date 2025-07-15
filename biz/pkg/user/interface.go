@@ -6,8 +6,7 @@ import (
 )
 
 type User interface {
-	SendPhoneCaptcha(ctx context.Context, req *base.SendPhoneCaptchaReq) (resp *base.SendPhoneCaptchaResp, err error)
-	SendEmailCaptcha(ctx context.Context, req *base.SendEmailCaptchaReq) (resp *base.SendEmailCaptchaResp, err error)
+	SendLoginCaptcha(ctx context.Context, req *base.SendLoginCaptchaReq) (res *base.SendLoginCaptchaResp, err error)
 	Login(ctx context.Context, req *base.LoginReq) (resp *base.LoginResp, err error)
 	Logout(ctx context.Context, req *base.LogoutReq) (resp *base.LogoutResp, err error)
 	ForceLogoutBySessionId(ctx context.Context, req *base.ForceLogoutBySessionIdReq) (resp *base.LogoutResp, err error)
