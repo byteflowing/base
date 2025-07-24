@@ -33,28 +33,34 @@ func (x CaptchaType) String() string {
 	return strconv.Itoa(int(x))
 }
 
+// 枚举值这里组合比较多，使用bitmask
+// 每个枚举值向左位移一位
+// 使用的时候需要使用"|"进行按位运算
 type CaptchaCombination int32
 
 const (
 	CaptchaCombination_CAPTCHA_COMBINATION_UNSPECIFIED CaptchaCombination = 0
-	CaptchaCombination_CAPTCHA_COMBINATION_NUMBER      CaptchaCombination = 2
-	CaptchaCombination_CAPTCHA_COMBINATION_LETTER      CaptchaCombination = 3
-	CaptchaCombination_CAPTCHA_COMBINATION_MIX         CaptchaCombination = 4
+	CaptchaCombination_CAPTCHA_COMBINATION_NUMBER      CaptchaCombination = 1
+	CaptchaCombination_CAPTCHA_COMBINATION_UPPERCASE   CaptchaCombination = 2
+	CaptchaCombination_CAPTCHA_COMBINATION_LOWERCASE   CaptchaCombination = 4
+	CaptchaCombination_CAPTCHA_COMBINATION_SYMBOL      CaptchaCombination = 8
 )
 
 // Enum value maps for CaptchaCombination.
 var CaptchaCombination_name = map[int32]string{
 	0: "CAPTCHA_COMBINATION_UNSPECIFIED",
-	2: "CAPTCHA_COMBINATION_NUMBER",
-	3: "CAPTCHA_COMBINATION_LETTER",
-	4: "CAPTCHA_COMBINATION_MIX",
+	1: "CAPTCHA_COMBINATION_NUMBER",
+	2: "CAPTCHA_COMBINATION_UPPERCASE",
+	4: "CAPTCHA_COMBINATION_LOWERCASE",
+	8: "CAPTCHA_COMBINATION_SYMBOL",
 }
 
 var CaptchaCombination_value = map[string]int32{
 	"CAPTCHA_COMBINATION_UNSPECIFIED": 0,
-	"CAPTCHA_COMBINATION_NUMBER":      2,
-	"CAPTCHA_COMBINATION_LETTER":      3,
-	"CAPTCHA_COMBINATION_MIX":         4,
+	"CAPTCHA_COMBINATION_NUMBER":      1,
+	"CAPTCHA_COMBINATION_UPPERCASE":   2,
+	"CAPTCHA_COMBINATION_LOWERCASE":   4,
+	"CAPTCHA_COMBINATION_SYMBOL":      8,
 }
 
 func (x CaptchaCombination) String() string {

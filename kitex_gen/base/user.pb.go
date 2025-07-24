@@ -629,6 +629,7 @@ func (x *SendLoginCaptchaReq) GetEmail() string {
 }
 
 type SendLoginCaptchaResp struct {
+	Token  string      `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
 	Common *CommonResp `protobuf:"bytes,255,opt,name=common" json:"common,omitempty"`
 }
 
@@ -637,6 +638,13 @@ func (x *SendLoginCaptchaResp) Reset() { *x = SendLoginCaptchaResp{} }
 func (x *SendLoginCaptchaResp) Marshal(in []byte) ([]byte, error) { return prutal.MarshalAppend(in, x) }
 
 func (x *SendLoginCaptchaResp) Unmarshal(in []byte) error { return prutal.Unmarshal(in, x) }
+
+func (x *SendLoginCaptchaResp) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
 
 func (x *SendLoginCaptchaResp) GetCommon() *CommonResp {
 	if x != nil {
@@ -652,6 +660,7 @@ type LoginReq struct {
 	Password   *string   `protobuf:"bytes,4,opt,name=password" json:"password,omitempty"`
 	Captcha    *string   `protobuf:"bytes,5,opt,name=captcha" json:"captcha,omitempty"`
 	WechatCode *string   `protobuf:"bytes,6,opt,name=wechat_code" json:"wechat_code,omitempty"`
+	Token      *string   `protobuf:"bytes,7,opt,name=token" json:"token,omitempty"`
 	Agent      *Agent    `protobuf:"bytes,255,opt,name=agent" json:"agent,omitempty"`
 }
 
@@ -699,6 +708,13 @@ func (x *LoginReq) GetCaptcha() string {
 func (x *LoginReq) GetWechatCode() string {
 	if x != nil && x.WechatCode != nil {
 		return *x.WechatCode
+	}
+	return ""
+}
+
+func (x *LoginReq) GetToken() string {
+	if x != nil && x.Token != nil {
+		return *x.Token
 	}
 	return ""
 }

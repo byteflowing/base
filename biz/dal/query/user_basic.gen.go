@@ -44,7 +44,6 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	_userBasic.Addr = field.NewString(tableName, "addr")
 	_userBasic.Status = field.NewInt16(tableName, "status")
 	_userBasic.Source = field.NewInt16(tableName, "source")
-	_userBasic.Type = field.NewInt16(tableName, "type")
 	_userBasic.Level = field.NewInt16(tableName, "level")
 	_userBasic.PhoneVerified = field.NewInt16(tableName, "phone_verified")
 	_userBasic.EmailVerified = field.NewInt16(tableName, "email_verified")
@@ -77,7 +76,6 @@ type userBasic struct {
 	Addr          field.String
 	Status        field.Int16
 	Source        field.Int16
-	Type          field.Int16
 	Level         field.Int16
 	PhoneVerified field.Int16
 	EmailVerified field.Int16
@@ -116,7 +114,6 @@ func (u *userBasic) updateTableName(table string) *userBasic {
 	u.Addr = field.NewString(table, "addr")
 	u.Status = field.NewInt16(table, "status")
 	u.Source = field.NewInt16(table, "source")
-	u.Type = field.NewInt16(table, "type")
 	u.Level = field.NewInt16(table, "level")
 	u.PhoneVerified = field.NewInt16(table, "phone_verified")
 	u.EmailVerified = field.NewInt16(table, "email_verified")
@@ -149,7 +146,7 @@ func (u *userBasic) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userBasic) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 23)
+	u.fieldMap = make(map[string]field.Expr, 22)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["number"] = u.Number
 	u.fieldMap["name"] = u.Name
@@ -166,7 +163,6 @@ func (u *userBasic) fillFieldMap() {
 	u.fieldMap["addr"] = u.Addr
 	u.fieldMap["status"] = u.Status
 	u.fieldMap["source"] = u.Source
-	u.fieldMap["type"] = u.Type
 	u.fieldMap["level"] = u.Level
 	u.fieldMap["phone_verified"] = u.PhoneVerified
 	u.fieldMap["email_verified"] = u.EmailVerified

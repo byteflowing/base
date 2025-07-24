@@ -11,7 +11,6 @@ import (
 	"github.com/byteflowing/base/biz/dal"
 	"github.com/byteflowing/base/biz/pkg/message"
 	"github.com/byteflowing/base/biz/pkg/user"
-	"github.com/byteflowing/base/biz/service"
 	"github.com/byteflowing/go-common/orm"
 	"github.com/byteflowing/go-common/redis"
 	"github.com/google/wire"
@@ -20,65 +19,65 @@ import (
 
 // Injectors from wire.go:
 
-func New(confFile string) service.Service {
+func New(confFile string) *Service {
 	configConfig := config.New(confFile)
-	messageConfig := &configConfig.Message
+	messageConfig := configConfig.Message
+	redisConfig := configConfig.RDB
+	redisRedis := redis.New(redisConfig)
 	ormConfig := configConfig.DB
 	db := orm.New(ormConfig)
 	query := dal.New(db)
-	redisConfig := configConfig.Redis
-	redisRedis := redis.New(redisConfig)
 	opts := &message.Opts{
-		Conf:  messageConfig,
-		Db:    query,
-		Redis: redisRedis,
+		Config: messageConfig,
+		RDB:    redisRedis,
+		DB:     query,
 	}
 	messageMessage := message.New(opts)
-	userConfig := &configConfig.User
+	userConfig := configConfig.User
 	userOpts := &user.Opts{
-		Conf:    userConfig,
-		Db:      query,
-		Redis:   redisRedis,
+		Config:  userConfig,
+		DB:      query,
+		RDB:     redisRedis,
 		Message: messageMessage,
 	}
 	userUser := user.New(userOpts)
-	serviceOpts := &service.Opts{
-		Conf:    configConfig,
+	serviceOpts := &ServiceOpts{
+		Config:  configConfig,
 		Message: messageMessage,
 		User:    userUser,
 	}
-	serviceService := service.New(serviceOpts)
-	return serviceService
+	service := NewService(serviceOpts)
+	return service
 }
 
-func New2(conf *config.Config, orm2 *gorm.DB, redis2 *redis.Redis) service.Service {
-	messageConfig := &conf.Message
+func New2(conf *config.Config, orm2 *gorm.DB, redis2 *redis.Redis) *Service {
+	messageConfig := conf.Message
 	query := dal.New(orm2)
 	opts := &message.Opts{
-		Conf:  messageConfig,
-		Db:    query,
-		Redis: redis2,
+		Config: messageConfig,
+		RDB:    redis2,
+		DB:     query,
 	}
 	messageMessage := message.New(opts)
-	userConfig := &conf.User
+	userConfig := conf.User
 	userOpts := &user.Opts{
-		Conf:    userConfig,
-		Db:      query,
-		Redis:   redis2,
+		Config:  userConfig,
+		DB:      query,
+		RDB:     redis2,
 		Message: messageMessage,
 	}
 	userUser := user.New(userOpts)
-	serviceOpts := &service.Opts{
-		Conf:    conf,
+	serviceOpts := &ServiceOpts{
+		Config:  conf,
 		Message: messageMessage,
 		User:    userUser,
 	}
-	serviceService := service.New(serviceOpts)
-	return serviceService
+	service := NewService(serviceOpts)
+	return service
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(redis.New, orm.New, dal.New, config.New, service.New, message.New, user.New, wire.Struct(new(service.Opts), "*"), wire.Struct(new(user.Opts), "*"), wire.Struct(new(message.Opts), "*"), wire.FieldsOf(new(*config.Config), "DB", "Redis", "Message", "User"))
+var providerSet = wire.NewSet(redis.New, orm.New, dal.New, config.New, NewService, message.New, user.New, wire.Struct(new(ServiceOpts), "*"), wire.Struct(new(user.Opts), "*"), wire.Struct(new(message.Opts), "*"), wire.FieldsOf(new(*config.Config), "DB", "RDB", "Message", "User"))
 
-var providerSet2 = wire.NewSet(dal.New, service.New, message.New, user.New, wire.Struct(new(service.Opts), "*"), wire.Struct(new(user.Opts), "*"), wire.Struct(new(message.Opts), "*"), wire.FieldsOf(new(*config.Config), "User", "Message"))
+var providerSet2 = wire.NewSet(dal.New, NewService, message.New, user.New, wire.Struct(new(ServiceOpts), "*"), wire.Struct(new(user.Opts), "*"), wire.Struct(new(message.Opts), "*"), wire.FieldsOf(new(*config.Config), "User", "Message"))

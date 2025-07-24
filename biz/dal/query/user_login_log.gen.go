@@ -37,7 +37,6 @@ func newUserLoginLog(db *gorm.DB, opts ...gen.DOOption) userLoginLog {
 	_userLoginLog.Location = field.NewString(tableName, "location")
 	_userLoginLog.Agent = field.NewString(tableName, "agent")
 	_userLoginLog.Device = field.NewString(tableName, "device")
-	_userLoginLog.ExpiredAt = field.NewInt64(tableName, "expired_at")
 	_userLoginLog.DeletedAt = field.NewInt64(tableName, "deleted_at")
 	_userLoginLog.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_userLoginLog.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -60,7 +59,6 @@ type userLoginLog struct {
 	Location  field.String
 	Agent     field.String
 	Device    field.String
-	ExpiredAt field.Int64
 	DeletedAt field.Int64
 	UpdatedAt field.Int64
 	CreatedAt field.Int64
@@ -89,7 +87,6 @@ func (u *userLoginLog) updateTableName(table string) *userLoginLog {
 	u.Location = field.NewString(table, "location")
 	u.Agent = field.NewString(table, "agent")
 	u.Device = field.NewString(table, "device")
-	u.ExpiredAt = field.NewInt64(table, "expired_at")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.CreatedAt = field.NewInt64(table, "created_at")
@@ -121,7 +118,7 @@ func (u *userLoginLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (u *userLoginLog) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 13)
+	u.fieldMap = make(map[string]field.Expr, 12)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["uid"] = u.UID
 	u.fieldMap["session_id"] = u.SessionID
@@ -131,7 +128,6 @@ func (u *userLoginLog) fillFieldMap() {
 	u.fieldMap["location"] = u.Location
 	u.fieldMap["agent"] = u.Agent
 	u.fieldMap["device"] = u.Device
-	u.fieldMap["expired_at"] = u.ExpiredAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["created_at"] = u.CreatedAt

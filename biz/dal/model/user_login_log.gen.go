@@ -17,7 +17,6 @@ type UserLoginLog struct {
 	Location  *string `gorm:"column:location;type:character varying(100)" json:"location"`
 	Agent     *string `gorm:"column:agent;type:character varying(100)" json:"agent"`
 	Device    *string `gorm:"column:device;type:character varying(100)" json:"device"`
-	ExpiredAt int64   `gorm:"column:expired_at;type:bigint;not null" json:"expired_at"`
 	DeletedAt *int64  `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
 	UpdatedAt int64   `gorm:"column:updated_at;type:bigint;not null" json:"updated_at"`
 	CreatedAt int64   `gorm:"column:created_at;type:bigint;not null" json:"created_at"`

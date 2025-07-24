@@ -32,18 +32,19 @@ func newMessageSms(db *gorm.DB, opts ...gen.DOOption) messageSms {
 	_messageSms.MsgType = field.NewInt16(tableName, "msg_type")
 	_messageSms.MsgStatus = field.NewInt16(tableName, "msg_status")
 	_messageSms.CaptchaType = field.NewInt16(tableName, "captcha_type")
-	_messageSms.CaptchaCombination = field.NewInt16(tableName, "captcha_combination")
 	_messageSms.Provider = field.NewInt32(tableName, "provider")
 	_messageSms.Template = field.NewString(tableName, "template")
 	_messageSms.Sign = field.NewString(tableName, "sign")
 	_messageSms.RequestID = field.NewString(tableName, "request_id")
+	_messageSms.BizID = field.NewString(tableName, "biz_id")
 	_messageSms.Phone = field.NewString(tableName, "phone")
 	_messageSms.SenderID = field.NewInt64(tableName, "sender_id")
-	_messageSms.Msg = field.NewString(tableName, "msg")
-	_messageSms.LetterCount = field.NewInt32(tableName, "letter_count")
-	_messageSms.MsgCount = field.NewInt32(tableName, "msg_count")
-	_messageSms.SendTime = field.NewInt64(tableName, "send_time")
-	_messageSms.ReceiveTime = field.NewInt64(tableName, "receive_time")
+	_messageSms.Params = field.NewString(tableName, "params")
+	_messageSms.Content = field.NewString(tableName, "content")
+	_messageSms.ErrCode = field.NewString(tableName, "err_code")
+	_messageSms.ErrMsg = field.NewString(tableName, "err_msg")
+	_messageSms.SendDate = field.NewString(tableName, "send_date")
+	_messageSms.ReceiveDate = field.NewString(tableName, "receive_date")
 	_messageSms.DeletedAt = field.NewInt64(tableName, "deleted_at")
 	_messageSms.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_messageSms.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -56,26 +57,27 @@ func newMessageSms(db *gorm.DB, opts ...gen.DOOption) messageSms {
 type messageSms struct {
 	messageSmsDo messageSmsDo
 
-	ALL                field.Asterisk
-	ID                 field.Int64
-	MsgType            field.Int16
-	MsgStatus          field.Int16
-	CaptchaType        field.Int16
-	CaptchaCombination field.Int16
-	Provider           field.Int32
-	Template           field.String
-	Sign               field.String
-	RequestID          field.String
-	Phone              field.String
-	SenderID           field.Int64
-	Msg                field.String
-	LetterCount        field.Int32
-	MsgCount           field.Int32
-	SendTime           field.Int64
-	ReceiveTime        field.Int64
-	DeletedAt          field.Int64
-	UpdatedAt          field.Int64
-	CreatedAt          field.Int64
+	ALL         field.Asterisk
+	ID          field.Int64
+	MsgType     field.Int16
+	MsgStatus   field.Int16
+	CaptchaType field.Int16
+	Provider    field.Int32
+	Template    field.String
+	Sign        field.String
+	RequestID   field.String
+	BizID       field.String
+	Phone       field.String
+	SenderID    field.Int64
+	Params      field.String
+	Content     field.String
+	ErrCode     field.String
+	ErrMsg      field.String
+	SendDate    field.String
+	ReceiveDate field.String
+	DeletedAt   field.Int64
+	UpdatedAt   field.Int64
+	CreatedAt   field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -96,18 +98,19 @@ func (m *messageSms) updateTableName(table string) *messageSms {
 	m.MsgType = field.NewInt16(table, "msg_type")
 	m.MsgStatus = field.NewInt16(table, "msg_status")
 	m.CaptchaType = field.NewInt16(table, "captcha_type")
-	m.CaptchaCombination = field.NewInt16(table, "captcha_combination")
 	m.Provider = field.NewInt32(table, "provider")
 	m.Template = field.NewString(table, "template")
 	m.Sign = field.NewString(table, "sign")
 	m.RequestID = field.NewString(table, "request_id")
+	m.BizID = field.NewString(table, "biz_id")
 	m.Phone = field.NewString(table, "phone")
 	m.SenderID = field.NewInt64(table, "sender_id")
-	m.Msg = field.NewString(table, "msg")
-	m.LetterCount = field.NewInt32(table, "letter_count")
-	m.MsgCount = field.NewInt32(table, "msg_count")
-	m.SendTime = field.NewInt64(table, "send_time")
-	m.ReceiveTime = field.NewInt64(table, "receive_time")
+	m.Params = field.NewString(table, "params")
+	m.Content = field.NewString(table, "content")
+	m.ErrCode = field.NewString(table, "err_code")
+	m.ErrMsg = field.NewString(table, "err_msg")
+	m.SendDate = field.NewString(table, "send_date")
+	m.ReceiveDate = field.NewString(table, "receive_date")
 	m.DeletedAt = field.NewInt64(table, "deleted_at")
 	m.UpdatedAt = field.NewInt64(table, "updated_at")
 	m.CreatedAt = field.NewInt64(table, "created_at")
@@ -137,23 +140,24 @@ func (m *messageSms) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *messageSms) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 19)
+	m.fieldMap = make(map[string]field.Expr, 20)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["msg_type"] = m.MsgType
 	m.fieldMap["msg_status"] = m.MsgStatus
 	m.fieldMap["captcha_type"] = m.CaptchaType
-	m.fieldMap["captcha_combination"] = m.CaptchaCombination
 	m.fieldMap["provider"] = m.Provider
 	m.fieldMap["template"] = m.Template
 	m.fieldMap["sign"] = m.Sign
 	m.fieldMap["request_id"] = m.RequestID
+	m.fieldMap["biz_id"] = m.BizID
 	m.fieldMap["phone"] = m.Phone
 	m.fieldMap["sender_id"] = m.SenderID
-	m.fieldMap["msg"] = m.Msg
-	m.fieldMap["letter_count"] = m.LetterCount
-	m.fieldMap["msg_count"] = m.MsgCount
-	m.fieldMap["send_time"] = m.SendTime
-	m.fieldMap["receive_time"] = m.ReceiveTime
+	m.fieldMap["params"] = m.Params
+	m.fieldMap["content"] = m.Content
+	m.fieldMap["err_code"] = m.ErrCode
+	m.fieldMap["err_msg"] = m.ErrMsg
+	m.fieldMap["send_date"] = m.SendDate
+	m.fieldMap["receive_date"] = m.ReceiveDate
 	m.fieldMap["deleted_at"] = m.DeletedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt
 	m.fieldMap["created_at"] = m.CreatedAt

@@ -24,8 +24,7 @@ type UserBasic struct {
 	Addr          *string `gorm:"column:addr;type:character varying(255)" json:"addr"`
 	Status        int16   `gorm:"column:status;type:smallint;not null" json:"status"`
 	Source        int16   `gorm:"column:source;type:smallint;not null" json:"source"`
-	Type          *int16  `gorm:"column:type;type:smallint" json:"type"`
-	Level         *int16  `gorm:"column:level;type:smallint" json:"level"`
+	Level         int16   `gorm:"column:level;type:smallint;not null" json:"level"`
 	PhoneVerified int16   `gorm:"column:phone_verified;type:smallint;not null" json:"phone_verified"`
 	EmailVerified int16   `gorm:"column:email_verified;type:smallint;not null" json:"email_verified"`
 	DeletedAt     *int64  `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
