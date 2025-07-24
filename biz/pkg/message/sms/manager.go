@@ -93,7 +93,7 @@ func (s *Manager) GetSender(provider base.SmsProvider) (sender Sender, err error
 	var ok bool
 	sender, ok = s.senders[provider]
 	if !ok {
-		return nil, constant.ErrNotImplemented
+		return nil, constant.ErrNotActive
 	}
 	return sender, nil
 }

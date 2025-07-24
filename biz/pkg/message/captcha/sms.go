@@ -58,7 +58,7 @@ func NewSmsCaptcha(opts *SmsCaptchaOption) Captcha {
 func (s *SmsCaptcha) Send(ctx context.Context, req *base.SendCaptchaReq) (resp *base.SendCaptchaResp, err error) {
 	slidingLimiter, ok := s.slidingLimiters[req.CaptchaType]
 	if !ok {
-		return nil, constant.ErrNotImplemented
+		return nil, constant.ErrNotActive
 	}
 	ok, window, err := slidingLimiter.Allow(ctx, *req.Phone)
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *SmsCaptcha) Send(ctx context.Context, req *base.SendCaptchaReq) (resp *
 func (s *SmsCaptcha) Verify(ctx context.Context, req *base.VerifyCaptchaReq) (bool, error) {
 	prefix, ok := s.prefixes[req.CaptchaType]
 	if !ok {
-		return false, constant.ErrNotImplemented
+		return false, constant.ErrNotActive
 	}
 	key := fmt.Sprintf("%s:%s", prefix, req.Token)
 	v, ok, err := s.store.Get(ctx, key)

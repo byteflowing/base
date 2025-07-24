@@ -55,7 +55,7 @@ type Impl struct {
 func (i *Impl) getCaptcha(s base.MessageSender) (captcha.Captcha, error) {
 	c, ok := i.captcha[s]
 	if !ok {
-		return nil, constant.ErrNotImplemented
+		return nil, constant.ErrNotActive
 	}
 	return c, nil
 }
