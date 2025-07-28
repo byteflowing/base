@@ -6,4 +6,5 @@ import "github.com/byteflowing/go-common/ecode"
 
 var (
 	ErrCaptchaTriesTooMany = ecode.NewCode(100, "ERR_CAPTCHA_TRIES_TOO_MANY")
+	ErrCaptchaNotExist     = ecode.NewCode(101, "ERR_CAPTCHA_NOT_EXIST")
 )

@@ -2,6 +2,7 @@ package captcha
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -62,6 +63,9 @@ func (i *Impl) Verify(ctx context.Context, token, Captcha string) (ok bool, err 
 	key := i.getCaptchaKey(token)
 	storedToken, err := i.rdb.Get(ctx, key).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return false, ecode.ErrCaptchaNotExist
+		}
 		return false, err
 	}
 	if i.config.CaseSensitive {
