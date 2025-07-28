@@ -1,3 +1,0 @@
-[submodule "3rd/idl"]
-	path = 3rd/idl
-	url = git@github.com:byteflowing/idl.git

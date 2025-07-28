@@ -13,8 +13,8 @@ func main() {
 	}
 	db := orm.New(c)
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "../../biz/dal/query",
-		ModelPkgPath:      "../../biz/dal/model",
+		OutPath:           "../../pkg/dal/query",
+		ModelPkgPath:      "../../pkg/dal/model",
 		WithUnitTest:      false,
 		FieldNullable:     true,
 		FieldCoverable:    true,
@@ -28,9 +28,6 @@ func main() {
 		g.GenerateModelAs("user_basic", "UserBasic"),
 		g.GenerateModelAs("user_auth", "UserAuth"),
 		g.GenerateModelAs("user_login_log", "UserLoginLog"),
-	)
-	g.ApplyBasic(
-		g.GenerateModelAs("message_sms", "MessageSms"),
 	)
 	g.Execute()
 }
