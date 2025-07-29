@@ -24,7 +24,8 @@ type Impl struct {
 }
 
 func New(rdb *redis.Redis, c *Config) Captcha {
-	limiter := redis.NewLimiter(rdb, c.KeyPrefix, c.ToWindows())
+	limiterKey := fmt.Sprintf("%s:%s", c.KeyPrefix, "l")
+	limiter := redis.NewLimiter(rdb, limiterKey, c.ToWindows())
 	return &Impl{
 		config:  c,
 		rdb:     rdb,
@@ -77,11 +78,11 @@ func (i *Impl) Verify(ctx context.Context, token, Captcha string) (ok bool, err 
 }
 
 func (i *Impl) getCaptchaKey(token string) string {
-	return fmt.Sprintf("%s:captcha:%s", i.config.KeyPrefix, token)
+	return fmt.Sprintf("%s:c{%s}", i.config.KeyPrefix, token)
 }
 
 func (i *Impl) allowVerify(ctx context.Context, token string) (ok bool, err error) {
-	key := fmt.Sprintf("%s:err:%s", i.config.KeyPrefix, token)
+	key := fmt.Sprintf("%s:e:%s", i.config.KeyPrefix, token)
 	return i.rdb.AllowFixedLimit(ctx, key, time.Duration(i.config.ErrTryLimit)*time.Second, i.config.Keeping)
 }
 
