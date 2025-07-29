@@ -13,8 +13,8 @@ func main() {
 	}
 	db := orm.New(c)
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "../../pkg/dal/query",
-		ModelPkgPath:      "../../pkg/dal/model",
+		OutPath:           "../../dal/query",
+		ModelPkgPath:      "../../dal/model",
 		WithUnitTest:      false,
 		FieldNullable:     true,
 		FieldCoverable:    true,
