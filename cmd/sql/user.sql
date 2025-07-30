@@ -56,6 +56,7 @@ CREATE TABLE user_login_log
     location   VARCHAR(100),                     -- '[可选] 位置'
     agent      VARCHAR(255),                     -- '[可选] 登录软件信息'
     device     VARCHAR(255),                     -- '[可选] 登录设备信息'
+    expired_at BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 过期时间，毫秒时间戳'
     deleted_at BIGINT,                           -- '[可选] 删除时间，毫秒时间戳'
     updated_at BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 更新时间，毫秒时间戳'
     created_at BIGINT       NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
