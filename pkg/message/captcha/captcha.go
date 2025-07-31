@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/byteflowing/base/constant"
 	"github.com/byteflowing/base/ecode"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/redis"
@@ -78,11 +79,11 @@ func (i *Impl) Verify(ctx context.Context, token, Captcha string) (ok bool, err 
 }
 
 func (i *Impl) getCaptchaKey(token string) string {
-	return fmt.Sprintf("%s:c{%s}", i.config.KeyPrefix, token)
+	return fmt.Sprintf("%s:%s:{%s}", i.config.KeyPrefix, constant.CaptchaFlag, token)
 }
 
 func (i *Impl) allowVerify(ctx context.Context, token string) (ok bool, err error) {
-	key := fmt.Sprintf("%s:e:%s", i.config.KeyPrefix, token)
+	key := fmt.Sprintf("%s:%s:{%s}", i.config.KeyPrefix, constant.CaptchaErrFlag, token)
 	return i.rdb.AllowFixedLimit(ctx, key, time.Duration(i.config.ErrTryLimit)*time.Second, i.config.Keeping)
 }
 
