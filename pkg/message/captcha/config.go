@@ -27,7 +27,8 @@ func (c *Config) ToWindows() []*redis.Window {
 }
 
 type LimitRule struct {
-	Duration uint32 // 短信发送限制时间周期，单位s
-	Limit    uint32 // 周期内的限制次数
-	Tag      string // 限制的标签，方便识别
+	Duration   uint32 // 短信发送限制时间周期，单位s
+	Limit      uint32 // 周期内的限制次数
+	Tag        string // 限制的标签，方便识别
+	RetryAfter uint64 // 作为返回值有效，还有多少秒可以重试
 }

@@ -3,8 +3,11 @@ module github.com/byteflowing/base
 go 1.24.4
 
 require (
-	github.com/byteflowing/go-common v0.0.0-20250729023747-961c42f6e0d9
+	github.com/byteflowing/go-common v0.0.0-20250802073511-525106d82f68
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	gorm.io/gen v0.3.27
+	gorm.io/gorm v1.30.1
+	gorm.io/plugin/dbresolver v1.6.2
 )
 
 require (
@@ -87,8 +90,6 @@ require (
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/driver/sqlite v1.6.0 // indirect
 	gorm.io/driver/sqlserver v1.6.1 // indirect
-	gorm.io/gorm v1.30.1 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/dbresolver v1.6.2 // indirect
 	gorm.io/rawsql v1.0.2 // indirect
 )

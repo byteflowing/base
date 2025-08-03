@@ -88,15 +88,16 @@ func (i *Impl) allowVerify(ctx context.Context, token string) (ok bool, err erro
 }
 
 func (i *Impl) allow(ctx context.Context, target string) (ok bool, rule *LimitRule, err error) {
-	ok, w, err := i.limiter.Allow(ctx, target)
+	ok, w, after, err := i.limiter.Allow(ctx, target)
 	if err != nil {
 		return false, nil, err
 	}
 	if !ok {
 		rule = &LimitRule{
-			Duration: uint32(w.Duration.Seconds()),
-			Limit:    w.Limit,
-			Tag:      w.Tag,
+			Duration:   uint32(w.Duration.Seconds()),
+			Limit:      w.Limit,
+			Tag:        w.Tag,
+			RetryAfter: uint64(after),
 		}
 		return false, rule, nil
 	}
