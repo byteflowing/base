@@ -7,21 +7,21 @@ import (
 	"github.com/byteflowing/go-common/crypto"
 )
 
-type EmailPassword struct {
+type NamePassword struct {
 	passHasher crypto.PasswordHasher
 	repo       Repo
 	jwtService *JwtService
 }
 
-func (e *EmailPassword) AuthType() AuthType {
-	return AuthTypeEmailPassword
+func (u *NamePassword) AuthType() AuthType {
+	return AuthTypeNamePassword
 }
 
-func (e *EmailPassword) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
-	if req.AuthType != AuthTypeEmailPassword {
+func (u *NamePassword) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
+	if req.AuthType != AuthTypeNamePassword {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)
+	userBasic, err := u.repo.GetUserBasicByName(ctx, req.Identifier)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (e *EmailPassword) Authenticate(ctx context.Context, req *SignInReq) (resp 
 	if userBasic.Password == nil {
 		return nil, ecode.ErrUserPasswordNotSet
 	}
-	ok, err := e.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
+	ok, err := u.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (e *EmailPassword) Authenticate(ctx context.Context, req *SignInReq) (resp 
 		return nil, ecode.ErrUserPasswordMisMatch
 	}
 	// 生成jwt token
-	accessToken, refreshToken, err := e.jwtService.GenerateToken(ctx, userBasic, req)
+	accessToken, refreshToken, err := u.jwtService.GenerateToken(ctx, userBasic, req)
 	if err != nil {
 		return nil, err
 	}

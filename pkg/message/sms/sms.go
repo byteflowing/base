@@ -50,7 +50,7 @@ func (i *Impl) SendCaptcha(ctx context.Context, req *SendCaptchaReq) (token stri
 }
 
 func (i *Impl) VerifyCaptcha(ctx context.Context, req *VerifyCaptchaReq) (ok bool, err error) {
-	return i.captcha.Verify(ctx, req.token, req.captcha)
+	return i.captcha.Verify(ctx, req.Token, req.Captcha)
 }
 
 func newProvider(c *ProviderConfig) Provider {

@@ -17,29 +17,29 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:           db,
-		UserAuth:     newUserAuth(db, opts...),
-		UserBasic:    newUserBasic(db, opts...),
-		UserLoginLog: newUserLoginLog(db, opts...),
+		db:          db,
+		UserAuth:    newUserAuth(db, opts...),
+		UserBasic:   newUserBasic(db, opts...),
+		UserSignLog: newUserSignLog(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	UserAuth     userAuth
-	UserBasic    userBasic
-	UserLoginLog userLoginLog
+	UserAuth    userAuth
+	UserBasic   userBasic
+	UserSignLog userSignLog
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:           db,
-		UserAuth:     q.UserAuth.clone(db),
-		UserBasic:    q.UserBasic.clone(db),
-		UserLoginLog: q.UserLoginLog.clone(db),
+		db:          db,
+		UserAuth:    q.UserAuth.clone(db),
+		UserBasic:   q.UserBasic.clone(db),
+		UserSignLog: q.UserSignLog.clone(db),
 	}
 }
 
@@ -53,24 +53,24 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:           db,
-		UserAuth:     q.UserAuth.replaceDB(db),
-		UserBasic:    q.UserBasic.replaceDB(db),
-		UserLoginLog: q.UserLoginLog.replaceDB(db),
+		db:          db,
+		UserAuth:    q.UserAuth.replaceDB(db),
+		UserBasic:   q.UserBasic.replaceDB(db),
+		UserSignLog: q.UserSignLog.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	UserAuth     IUserAuthDo
-	UserBasic    IUserBasicDo
-	UserLoginLog IUserLoginLogDo
+	UserAuth    IUserAuthDo
+	UserBasic   IUserBasicDo
+	UserSignLog IUserSignLogDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		UserAuth:     q.UserAuth.WithContext(ctx),
-		UserBasic:    q.UserBasic.WithContext(ctx),
-		UserLoginLog: q.UserLoginLog.WithContext(ctx),
+		UserAuth:    q.UserAuth.WithContext(ctx),
+		UserBasic:   q.UserBasic.WithContext(ctx),
+		UserSignLog: q.UserSignLog.WithContext(ctx),
 	}
 }
 

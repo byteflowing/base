@@ -2,43 +2,46 @@ package user
 
 import (
 	"context"
-	"github.com/byteflowing/base/dal/model"
 
+	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
+	"github.com/byteflowing/go-common/redis"
 )
 
 type Authenticator interface {
-	AuthType() Type
-	Authenticate(ctx context.Context, req *LoginReq) (resp *LoginResp, err error)
+	AuthType() AuthType
+	Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error)
 }
 
 type User interface {
-	Login(ctx context.Context, req *LoginReq) (resp *LoginResp, err error)
-	Logout(ctx context.Context) (err error)
-	LogoutBySessionId(ctx context.Context, sessionId string) (err error)
+	SignIn(ctx context.Context, req *SignInReq) (resp *SignInResp, err error)
+	SignOut(ctx context.Context) (err error)
+	SignOutBySessionId(ctx context.Context, sessionId string) (err error)
 	Refresh(ctx context.Context, refreshToken string) (newToken string, err error)
 	VerifyToken(ctx context.Context, token string) (err error)
-	GetOnlineLoginLog(ctx context.Context, uid uint64) (logs []*model.UserLoginLog, err error)
-	PagingGetLoginLogs(ctx context.Context, req *PagingGetLoginLogsReq) (resp *PagingGetLoginLogsResp, err error)
+	GetActiveSignInLog(ctx context.Context, uid uint64) (logs []*model.UserSignLog, err error)
+	PagingGetSignInLogs(ctx context.Context, req *PagingGetSignInLogsReq) (resp *PagingGetSignInLogsResp, err error)
 }
 
 type Impl struct {
-	handlers map[Type]Authenticator
+	handlers map[AuthType]Authenticator
+	rdb      *redis.Redis
+	config   *Config
 }
 
 func NewUserService(db *query.Query) User {
 	return &Impl{}
 }
 
-func (i *Impl) Login(ctx context.Context, req *LoginReq) (resp *LoginResp, err error) {
+func (i *Impl) SignIn(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
 	return nil, nil
 }
 
-func (i *Impl) Logout(ctx context.Context) (err error) {
+func (i *Impl) SignOut(ctx context.Context) (err error) {
 	return nil
 }
 
-func (i *Impl) LogoutBySessionId(ctx context.Context, sessionId string) (err error) {
+func (i *Impl) SignOutBySessionId(ctx context.Context, sessionId string) (err error) {
 	return nil
 }
 
@@ -50,10 +53,10 @@ func (i *Impl) VerifyToken(ctx context.Context, token string) (err error) {
 	return nil
 }
 
-func (i *Impl) GetOnlineLoginLog(ctx context.Context, uid uint64) (logs []*model.UserLoginLog, err error) {
+func (i *Impl) GetActiveSignInLog(ctx context.Context, uid uint64) (logs []*model.UserSignLog, err error) {
 	return nil, nil
 }
 
-func (i *Impl) PagingGetLoginLogs(ctx context.Context, req *PagingGetLoginLogsReq) (resp *PagingGetLoginLogsResp, err error) {
+func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *PagingGetSignInLogsReq) (resp *PagingGetSignInLogsResp, err error) {
 	return nil, err
 }

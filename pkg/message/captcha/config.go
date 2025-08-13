@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	KeyPrefix     string       // 验证码在redis中存储的前缀
+	CaptchaPrefix string       // 验证码在redis中存储的前缀
+	ErrPrefix     string       // 记录验证码错误次数key前缀
 	Keeping       uint32       // 验证码保留时长，单位s
 	CaseSensitive bool         // 大小写敏感
 	ErrTryLimit   uint32       // 可以尝试几次验证，超过后删除验证码

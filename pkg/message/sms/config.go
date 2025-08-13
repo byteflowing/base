@@ -19,7 +19,7 @@ type ProviderConfig struct {
 	Vendor         string  // 短信供应商 "ali", "volc"
 	AccessKey      string  // ak
 	SecretKey      string  // sk
-	SecurityToken  *string // sts场景的security token
+	SecurityToken  *string // sts场景的security Token
 	SendMessageQPS uint32  // 发送接口qps
 }
 

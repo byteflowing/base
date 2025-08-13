@@ -17,6 +17,6 @@ type SendCaptchaReq struct {
 }
 
 type VerifyCaptchaReq struct {
-	token   string
-	captcha string
+	Token   string
+	Captcha string
 }

@@ -4,21 +4,21 @@ import (
 	"context"
 
 	"github.com/byteflowing/base/ecode"
-	"github.com/byteflowing/base/pkg/message/sms"
+	"github.com/byteflowing/base/pkg/message/mail"
 )
 
-type PhoneCaptcha struct {
-	sms        sms.Sms
+type EmailCaptcha struct {
+	mail       mail.Mail
 	repo       Repo
 	jwtService *JwtService
 }
 
-func (p *PhoneCaptcha) AuthType() AuthType {
-	return AuthTypePhoneCaptcha
+func (e *EmailCaptcha) AuthType() AuthType {
+	return AuthTypeEmailCaptcha
 }
 
-func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
-	if req.AuthType != AuthTypePhoneCaptcha {
+func (e *EmailCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
+	if req.AuthType != AuthTypeEmailCaptcha {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	if req.CaptchaToken == "" {
@@ -27,7 +27,7 @@ func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *
 	if len(req.Credential) == 0 {
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
-	ok, err := p.sms.VerifyCaptcha(ctx, &sms.VerifyCaptchaReq{
+	ok, err := e.mail.VerifyCaptcha(ctx, &mail.VerifyCaptchaReq{
 		Token:   req.CaptchaToken,
 		Captcha: req.Credential,
 	})
@@ -37,12 +37,12 @@ func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *
 	if !ok {
 		return nil, ecode.ErrUserCaptchaMisMatch
 	}
-	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.Identifier)
+	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)
 	if err != nil {
 		return nil, err
 	}
 	// 生成jwt token
-	accessToken, refreshToken, err := p.jwtService.GenerateToken(ctx, userBasic, req)
+	accessToken, refreshToken, err := e.jwtService.GenerateToken(ctx, userBasic, req)
 	if err != nil {
 		return nil, err
 	}

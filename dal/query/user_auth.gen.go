@@ -33,7 +33,8 @@ func newUserAuth(db *gorm.DB, opts ...gen.DOOption) userAuth {
 	_userAuth.Type = field.NewInt16(tableName, "type")
 	_userAuth.Status = field.NewInt16(tableName, "status")
 	_userAuth.Identifier = field.NewString(tableName, "identifier")
-	_userAuth.Token = field.NewString(tableName, "token")
+	_userAuth.Credential = field.NewString(tableName, "credential")
+	_userAuth.UnionID = field.NewString(tableName, "union_id")
 	_userAuth.DeletedAt = field.NewInt64(tableName, "deleted_at")
 	_userAuth.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_userAuth.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -52,7 +53,8 @@ type userAuth struct {
 	Type       field.Int16
 	Status     field.Int16
 	Identifier field.String
-	Token      field.String
+	Credential field.String
+	UnionID    field.String
 	DeletedAt  field.Int64
 	UpdatedAt  field.Int64
 	CreatedAt  field.Int64
@@ -77,7 +79,8 @@ func (u *userAuth) updateTableName(table string) *userAuth {
 	u.Type = field.NewInt16(table, "type")
 	u.Status = field.NewInt16(table, "status")
 	u.Identifier = field.NewString(table, "identifier")
-	u.Token = field.NewString(table, "token")
+	u.Credential = field.NewString(table, "credential")
+	u.UnionID = field.NewString(table, "union_id")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.CreatedAt = field.NewInt64(table, "created_at")
@@ -105,13 +108,14 @@ func (u *userAuth) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userAuth) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 9)
+	u.fieldMap = make(map[string]field.Expr, 10)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["uid"] = u.UID
 	u.fieldMap["type"] = u.Type
 	u.fieldMap["status"] = u.Status
 	u.fieldMap["identifier"] = u.Identifier
-	u.fieldMap["token"] = u.Token
+	u.fieldMap["credential"] = u.Credential
+	u.fieldMap["union_id"] = u.UnionID
 	u.fieldMap["deleted_at"] = u.DeletedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["created_at"] = u.CreatedAt

@@ -4,7 +4,7 @@ CREATE TABLE user_basic
     number         VARCHAR(50),                       -- '[必选] 用户编号'
     name           VARCHAR(50)  NOT NULL DEFAULT '',  -- '[必选] 用户名'
     alias          VARCHAR(50)  NOT NULL DEFAULT '',  -- '[必选] 昵称'
-    password       VARCHAR(128),                      -- '[可选] 密码'
+    password       VARCHAR(100),                      -- '[可选] 密码'
     avatar         VARCHAR(255),                      -- '[可选] 头像'
     gender         SMALLINT,                          -- '[可选] 性别'
     phone          VARCHAR(20)  NOT NULL DEFAULT '',  -- '[必选] 手机号码'
@@ -36,8 +36,9 @@ CREATE TABLE user_auth
     uid        BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 用户id'
     type       SMALLINT     NOT NULL DEFAULT 0,  -- '[必选] 认证类型枚举'
     status     SMALLINT     NOT NULL DEFAULT 0,  -- '[必选] 状态枚举'
-    identifier VARCHAR(100) NOT NULL DEFAULT '', -- '[必选] 认证id'
-    token      VARCHAR(128) NOT NULL DEFAULT '', -- '[必选] 认证密文'
+    identifier VARCHAR(100) NOT NULL DEFAULT '', -- '[必选] 认证id, openid等'
+    credential VARCHAR(128) NOT NULL DEFAULT '', -- '[必选] 认证密文，session_key等'
+    union_id   VARCHAR(100),                     -- '[可选] 微信登录的unionid'
     deleted_at BIGINT,                           -- '[可选] 删除时间，毫秒时间戳'
     updated_at BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 更新时间，毫秒时间戳'
     created_at BIGINT       NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
@@ -45,21 +46,24 @@ CREATE TABLE user_auth
 CREATE INDEX idx_auth_uid ON user_auth (uid);
 CREATE INDEX idx_auth_identifier ON user_auth (identifier);
 
-CREATE TABLE user_login_log
+CREATE TABLE user_sign_log
 (
-    id         BIGSERIAL PRIMARY KEY,
-    uid        BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 用户id'
-    session_id VARCHAR(128) NOT NULL DEFAULT '', -- '[必选] session_id'
-    type       SMALLINT     NOT NULL DEFAULT 0,  -- '[必选] 认证类型枚举'
-    status     SMALLINT     NOT NULL DEFAULT 0,  -- '[必选] 状态枚举'
-    ip         VARCHAR(128),                     -- '[可选] 登录ip'
-    location   VARCHAR(100),                     -- '[可选] 位置'
-    agent      VARCHAR(255),                     -- '[可选] 登录软件信息'
-    device     VARCHAR(255),                     -- '[可选] 登录设备信息'
-    expired_at BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 过期时间，毫秒时间戳'
-    deleted_at BIGINT,                           -- '[可选] 删除时间，毫秒时间戳'
-    updated_at BIGINT       NOT NULL DEFAULT 0,  -- '[必选] 更新时间，毫秒时间戳'
-    created_at BIGINT       NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
+    id                 BIGSERIAL PRIMARY KEY,
+    uid                BIGINT   NOT NULL DEFAULT 0,  -- '[必选] 用户id'
+    type               SMALLINT NOT NULL DEFAULT 0,  -- '[必选] 认证类型枚举'
+    status             SMALLINT NOT NULL DEFAULT 0,  -- '[必选] 状态枚举'
+    ip                 VARCHAR(128),                 -- '[可选] 登录ip'
+    location           VARCHAR(100),                 -- '[可选] 位置'
+    agent              VARCHAR(255),                 -- '[可选] 登录软件信息'
+    device             VARCHAR(255),                 -- '[可选] 登录设备信息'
+    access_session_id  CHAR(36) NOT NULL DEFAULT '', -- '[必选] access_session_id'
+    refresh_session_id CHAR(36) NOT NULL DEFAULT '', -- '[必选] refresh_session_id'
+    access_expired_at  BIGINT   NOT NULL DEFAULT 0,  -- '[必选] 过期时间，毫秒时间戳'
+    refresh_expired_at BIGINT   NOT NULL DEFAULT 0,  -- '[必选] 刷新截止时间，毫秒时间戳'
+    deleted_at         BIGINT,                       -- '[可选] 删除时间，毫秒时间戳'
+    updated_at         BIGINT   NOT NULL DEFAULT 0,  -- '[必选] 更新时间，毫秒时间戳'
+    created_at         BIGINT   NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
 );
-CREATE INDEX idx_login_log_uid ON user_login_log (uid);
-CREATE INDEX idx_login_log_session_id ON user_login_log (session_id);
+CREATE INDEX idx_sign_log_uid ON user_sign_log (uid);
+CREATE INDEX idx_sign_log_access_session_id ON user_sign_log (access_session_id);
+CREATE INDEX idx_sign_log_refresh_session_id ON user_sign_log (refresh_session_id);

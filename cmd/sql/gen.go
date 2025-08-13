@@ -27,7 +27,7 @@ func main() {
 	g.ApplyBasic(
 		g.GenerateModelAs("user_basic", "UserBasic"),
 		g.GenerateModelAs("user_auth", "UserAuth"),
-		g.GenerateModelAs("user_login_log", "UserLoginLog"),
+		g.GenerateModelAs("user_sign_log", "UserSignLog"),
 	)
 	g.Execute()
 }

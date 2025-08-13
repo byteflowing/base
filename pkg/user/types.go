@@ -6,75 +6,102 @@ import (
 	"github.com/byteflowing/base/dal/model"
 )
 
-type Type int
+type AuthType int
 
 const (
-	AuthTypeUserNamePassword Type = iota + 1
+	AuthTypeNamePassword AuthType = iota + 1
 	AuthTypeEmailPassword
 	AuthTypePhoneCaptcha
+	AuthTypeEmailCaptcha
 	AuthTypeWechat
 )
 
-type LoginStatus int
+type SessionStatus int
 
 const (
-	LoginStatusOnline LoginStatus = iota + 1
-	LoginStatusOffline
+	SessionStatusSignIn SessionStatus = iota + 1
+	SessionStatusSignOut
+	SessionStatusKickedOut
+	SessionStatusForceSignOut
 )
 
-type LoginReq struct {
+type Status int
+
+const (
+	StatusOk = iota + 1
+	StatusDisabled
+)
+
+type Source int
+
+const (
+	SourceWebsite Source = iota + 1 // 网站
+	SourceApp                       // app
+	SourceWechat                    // 微信
+	SourceAdmin                     // 管理员添加
+)
+
+type AuthStatus int
+
+const (
+	AuthStatusOk AuthStatus = iota + 1
+	AuthStatusDisabled
+)
+
+type SignInReq struct {
 	// 认证类型，例如 "password", "email", "wechat"
-	AuthType Type
+	AuthType AuthType
 	// 用户名、邮箱、手机号、openId 等
+	// 根据AuthType这里可以是邮箱，账号，验证码token，openId等
 	Identifier string
 	// 密码、验证码、token 等
+	// 如果是验证码登录，这里是验证码
 	Credential string
-	// 第三方补充参数，如 unionId, appId
-	Metadata map[string]string
+	// 如果通过验证码登录，这里是验证码在redis中的key
+	CaptchaToken string
 	// 登录 IP
-	IP string
+	IP *string
 	// 用户位置
-	Location string
+	Location *string
 	// UA 信息
-	UserAgent string
+	UserAgent *string
 	// 设备信息
-	Device string
+	Device *string
 	// jwt除标准字段外的自定义字段
-	// 自定义字段必须以“x_”开头，且必须小写snake_case
-	// e.g. x_user_id x_app_id x_uid
-	ExtraJwtClaims map[string]any
+	ExtraJwtClaims interface{}
 }
 
-type LoginResp struct {
+type SignInResp struct {
 	// jwt token
 	// claims为jwt的RegisteredClaims+'x_'开头的自定义字段
 	// iss 签发方 "user-service"
 	// sub user表number字段
-	// aud 接收方，“wechat”, "web", "app"...
+	// aud 暂时不用
 	// exp 过期时间秒级时间戳
 	// nbf 暂时使用签发时间填充(立刻生效)秒级时间戳
 	// iat 签发时间秒级时间戳
 	// jti 使用uuid填充代表session_id
-	// x_ 自定义字段，调用方自行填充和使用
-	Token string
+	// 自定义字段，调用方自行填充和使用
+	AccessToken  string
+	RefreshToken string
 }
 
-type PagingGetLoginLogsReq struct {
+type PagingGetSignInLogsReq struct {
 	Page     uint32
 	Size     uint32
 	Asc      bool
 	UID      *uint64
-	AuthType []Type
-	Status   []LoginStatus
+	AuthType []AuthType
+	Status   []SessionStatus
 }
 
-type PagingGetLoginLogsResp struct {
+type PagingGetSignInLogsResp struct {
 	TotalCount  uint64
 	TotalPages  uint32
 	PageSize    uint32
 	PageNum     uint32
 	CurrentPage uint32
-	Logs        []*model.UserLoginLog
+	Logs        []*model.UserSignLog
 }
 
 type Session struct {
