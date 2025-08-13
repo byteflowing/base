@@ -13,6 +13,14 @@ type PhoneCaptcha struct {
 	jwtService *JwtService
 }
 
+func NewPhoneCaptcha(sms sms.Sms, repo Repo, jwtService *JwtService) Authenticator {
+	return &PhoneCaptcha{
+		sms:        sms,
+		repo:       repo,
+		jwtService: jwtService,
+	}
+}
+
 func (p *PhoneCaptcha) AuthType() AuthType {
 	return AuthTypePhoneCaptcha
 }

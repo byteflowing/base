@@ -13,6 +13,14 @@ type EmailCaptcha struct {
 	jwtService *JwtService
 }
 
+func NewEmailCaptcha(mail mail.Mail, repo Repo, jwtService *JwtService) Authenticator {
+	return &EmailCaptcha{
+		mail:       mail,
+		repo:       repo,
+		jwtService: jwtService,
+	}
+}
+
 func (e *EmailCaptcha) AuthType() AuthType {
 	return AuthTypeEmailCaptcha
 }

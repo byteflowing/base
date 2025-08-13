@@ -13,6 +13,14 @@ type WeChat struct {
 	mini       *mini.Client
 }
 
+func NewWeChat(repo Repo, jwtService *JwtService, mini *mini.Client) Authenticator {
+	return &WeChat{
+		repo:       repo,
+		jwtService: jwtService,
+		mini:       mini,
+	}
+}
+
 func (w *WeChat) AuthType() AuthType {
 	return AuthTypeWechat
 }

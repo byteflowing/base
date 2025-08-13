@@ -3,8 +3,8 @@ module github.com/byteflowing/base
 go 1.24.4
 
 require (
-	github.com/byteflowing/go-common v0.0.0-20250813081507-b2bc3355eefa
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/byteflowing/go-common v0.0.0-20250813111414-853f28a553ee
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.30.1
 	gorm.io/plugin/dbresolver v1.6.2

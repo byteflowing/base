@@ -13,6 +13,5 @@ type BlockListConfig struct {
 }
 
 type Config struct {
-	SignInLimit  *LimitRule // 登录限制配置
-	RefreshLimit *LimitRule // 刷新token限制配置
+	BlockList *BlockListConfig
 }

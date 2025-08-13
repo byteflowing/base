@@ -13,6 +13,14 @@ type NamePassword struct {
 	jwtService *JwtService
 }
 
+func NewNamePassword(passHasher crypto.PasswordHasher, repo Repo, jwtService *JwtService) Authenticator {
+	return &NamePassword{
+		passHasher: passHasher,
+		repo:       repo,
+		jwtService: jwtService,
+	}
+}
+
 func (u *NamePassword) AuthType() AuthType {
 	return AuthTypeNamePassword
 }

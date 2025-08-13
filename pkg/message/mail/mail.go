@@ -74,12 +74,21 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *VerifyCaptchaReq) (ok boo
 	return i.captcha.Verify(ctx, req.Token, req.Captcha)
 }
 
+func (i *Impl) getClientChan(vendor Vendor) (ch chan *mail.SMTP, err error) {
+	clientChan, ok := i.clients[vendor]
+	if !ok {
+		return nil, fmt.Errorf("unsupported vendor type: %s", vendor)
+	}
+	return clientChan, nil
+}
+
 func (i *Impl) getSMTP(ctx context.Context, vendor Vendor) (*mail.SMTP, error) {
-	if _, ok := i.clients[vendor]; !ok {
-		return nil, fmt.Errorf("no such vendor client: %s", vendor)
+	clientChan, err := i.getClientChan(vendor)
+	if err != nil {
+		return nil, err
 	}
 	select {
-	case client := <-i.clients[vendor]:
+	case client := <-clientChan:
 		return client, nil
 	default:
 	}
