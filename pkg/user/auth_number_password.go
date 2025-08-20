@@ -23,15 +23,15 @@ func NewNumberPassword(passHasher crypto.PasswordHasher, repo Repo, jwtService *
 	}
 }
 
-func (u *NumberPassword) AuthType() enumsv1.AuthType {
+func (n *NumberPassword) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD
 }
 
-func (u *NumberPassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (n *NumberPassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	userBasic, err := u.repo.GetUserBasicByNumber(ctx, req.Identifier)
+	userBasic, err := n.repo.GetUserBasicByNumber(ctx, req.Identifier)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (u *NumberPassword) Authenticate(ctx context.Context, req *userv1.SignInReq
 	if userBasic.Password == nil {
 		return nil, ecode.ErrUserPasswordNotSet
 	}
-	ok, err := u.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
+	ok, err := n.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -51,11 +51,11 @@ func (u *NumberPassword) Authenticate(ctx context.Context, req *userv1.SignInReq
 		return nil, ecode.ErrUserPasswordMisMatch
 	}
 	// 生成jwt token
-	accessToken, refreshToken, err := u.jwtService.GenerateToken(ctx, &GenerateJwtReq{
+	accessToken, refreshToken, err := n.jwtService.GenerateToken(ctx, &GenerateJwtReq{
 		UserBasic:      userBasic,
 		SignInReq:      req,
 		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD,
+		AuthType:       n.AuthType(),
 	})
 	if err != nil {
 		return nil, err

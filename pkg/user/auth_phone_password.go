@@ -58,7 +58,7 @@ func (p *PhonePassword) Authenticate(ctx context.Context, req *userv1.SignInReq)
 		UserBasic:      userBasic,
 		SignInReq:      req,
 		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       enumsv1.AuthType_AUTH_TYPE_PHONE_PASSWORD,
+		AuthType:       p.AuthType(),
 	})
 	if err != nil {
 		return nil, err

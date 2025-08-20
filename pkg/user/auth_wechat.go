@@ -51,7 +51,7 @@ func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp 
 		UserBasic:      userBasic,
 		SignInReq:      req,
 		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       enumsv1.AuthType_AUTH_TYPE_WECHAT,
+		AuthType:       w.AuthType(),
 		AppId:          res.Appid,
 		OpenId:         res.Openid,
 		UnionId:        res.UnionId,
