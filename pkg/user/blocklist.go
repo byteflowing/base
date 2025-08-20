@@ -2,11 +2,10 @@ package user
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
-	"github.com/byteflowing/base/ecode"
+	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/redis"
 )
 
@@ -14,29 +13,17 @@ type BlockList interface {
 	Add(ctx context.Context, sessionID string, ttl time.Duration) error
 	BatchAdd(ctx context.Context, sessions []*SessionItem) error
 	Exists(ctx context.Context, sessionID string) (bool, error)
-	CheckTokenLimit(ctx context.Context, uid uint64, t LimitType) error
 }
-
-type LimitType string
-
-const (
-	LimitTypeSignIn  LimitType = "signIn"
-	LimitTypeRefresh LimitType = "refresh"
-)
 
 type RedisBlockList struct {
 	rdb             *redis.Redis
 	blockListPrefix string
-	signInLimit     *LimitRule
-	refreshLimit    *LimitRule
 }
 
-func NewRedisBlockList(rdb *redis.Redis, c *BlockListConfig) *RedisBlockList {
+func NewRedisBlockList(rdb *redis.Redis, c *configv1.UserBlockList) *RedisBlockList {
 	return &RedisBlockList{
 		rdb:             rdb,
-		blockListPrefix: c.BlockListPrefix,
-		signInLimit:     c.SignInLimit,
-		refreshLimit:    c.RefreshLimit,
+		blockListPrefix: c.Prefix,
 	}
 }
 
@@ -67,30 +54,4 @@ func (r *RedisBlockList) Exists(ctx context.Context, sessionID string) (bool, er
 
 func (r *RedisBlockList) getBlockListKey(sessionID string) string {
 	return fmt.Sprintf("%s:{%s}", r.blockListPrefix, sessionID)
-}
-
-func (r *RedisBlockList) CheckTokenLimit(ctx context.Context, uid uint64, t LimitType) error {
-	var key string
-	var duration time.Duration
-	var limit uint32
-	switch t {
-	case LimitTypeSignIn:
-		key = fmt.Sprintf("%s:%d", r.signInLimit.Prefix, uid)
-		duration = time.Duration(r.signInLimit.Duration) * time.Second
-		limit = r.signInLimit.Limit
-	case LimitTypeRefresh:
-		key = fmt.Sprintf("%s:%d", r.refreshLimit.Prefix, uid)
-		duration = time.Duration(r.refreshLimit.Duration) * time.Second
-		limit = r.refreshLimit.Limit
-	default:
-		return errors.New("invalid limit type")
-	}
-	ok, err := r.rdb.AllowFixedLimit(ctx, key, duration, limit)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return ecode.ErrTooManyRequests
-	}
-	return nil
 }

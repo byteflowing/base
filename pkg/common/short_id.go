@@ -1,35 +1,36 @@
 package common
 
-import "github.com/byteflowing/go-common/idx"
+import (
+	configv1 "github.com/byteflowing/base/gen/config/v1"
+	"github.com/byteflowing/go-common/idx"
+)
 
 type ShortIDGenerator struct {
 	shortIDGen  *idx.ShortIDGenerator
-	globalIDGen *idx.GlobalIDGenerator
+	globalIDGen GlobalIdGenerator
 }
 
-func NewShortIDGenerator(globalID *idx.GlobalIDGenerator, opts *idx.ShotIDGeneratorOpts) *ShortIDGenerator {
-	shortIDGenerator, err := idx.NewShortIdGenerator(opts)
+func NewShortIDGenerator(globalIDGen GlobalIdGenerator, c *configv1.ShortId) *ShortIDGenerator {
+	shortIDGenerator, err := idx.NewShortIdGenerator(&idx.ShotIDGeneratorOpts{
+		Alphabet:  c.Alphabet,
+		MinLength: uint8(c.MinLength),
+		Blocklist: c.BlockList,
+	})
 	if err != nil {
 		panic(err)
 	}
 	return &ShortIDGenerator{
 		shortIDGen:  shortIDGenerator,
-		globalIDGen: globalID,
+		globalIDGen: globalIDGen,
 	}
 }
 
-func (s *ShortIDGenerator) GetID() string {
-	// 这里基本上不会出错
-	globalID, err := s.globalIDGen.NextID()
+func (s *ShortIDGenerator) GetID() (id string, err error) {
+	globalID, err := s.globalIDGen.GetID()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	// 这里不太会报错
-	id, err := s.shortIDGen.Encode([]uint64{uint64(globalID)})
-	if err != nil {
-		panic(err)
-	}
-	return id
+	return s.shortIDGen.Encode([]uint64{uint64(globalID)})
 }
 
 func (s *ShortIDGenerator) Decode(id string) []uint64 {

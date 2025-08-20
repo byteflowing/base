@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	configv1 "github.com/byteflowing/base/gen/config/v1"
+	messagev1 "github.com/byteflowing/base/gen/message/v1"
 	"github.com/byteflowing/go-common/3rd/aliyun/sms"
 	"github.com/byteflowing/go-common/ratelimit"
 )
@@ -14,7 +16,7 @@ type Ali struct {
 	rateLimiter *ratelimit.Limiter
 }
 
-func NewAli(c *ProviderConfig) *Ali {
+func NewAli(c *configv1.SmsProvider) *Ali {
 	cli, err := sms.New(&sms.Opts{
 		AccessKeyId:     c.AccessKey,
 		AccessKeySecret: c.AccessKey,
@@ -25,19 +27,19 @@ func NewAli(c *ProviderConfig) *Ali {
 	}
 	return &Ali{
 		cli:         cli,
-		rateLimiter: ratelimit.NewLimiter(1*time.Second, uint64(c.SendMessageQPS), uint64(c.SendMessageQPS)),
+		rateLimiter: ratelimit.NewLimiter(1*time.Second, uint64(c.Limit), uint64(c.Limit)),
 	}
 }
 
-func (a *Ali) SendMessage(ctx context.Context, req *SendMessageReq) (err error) {
+func (a *Ali) SendSms(ctx context.Context, req *messagev1.SendSmsReq) (err error) {
 	if err = a.rateLimiter.Wait(ctx); err != nil {
 		return
 	}
 	resp, err := a.cli.SendSms(&sms.SendSmsReq{
-		PhoneNumbers:  req.PhoneNumber,
+		PhoneNumbers:  req.PhoneNumber.Number,
 		SignName:      req.SignName,
 		TemplateCode:  req.TemplateCode,
-		TemplateParam: req.TemplateParam,
+		TemplateParam: req.TemplateParams,
 	})
 	if err != nil {
 		return

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package config.v1;
+
+import "enums/v1/message.proto";
+import "validation/v1/predefined_rules.proto";
+import "google/protobuf/duration.proto";
+import "buf/validate/validate.proto";
+
+
+message SMTP {
+  // 主机地址 e.g. mail.example.com
+  string host = 1 [(buf.validate.field).string.hostname = true];
+  // 端口号
+  int32 port = 2 [(buf.validate.field).int32.gt = 0];
+  // 用户名
+  string user_name = 3 [(buf.validate.field).string.(validation.v1.required_50) = true];
+  // 密码
+  string password = 4 [(buf.validate.field).string.(validation.v1.required_50) = true];
+  // 测试时可以跳过tls
+  bool skip_tls = 5;
+  // 超时时间
+  google.protobuf.Duration timeout = 6 [(buf.validate.field).duration.gte = {seconds: 1}];
+}
+
+message MailProvider {
+  // 服务商
+  enums.v1.MailVendor vendor = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 账号用于区分多账号
+  string account = 2 [(buf.validate.field).string.(validation.v1.required_50) = true];
+  // 限流的时间间隔
+  google.protobuf.Duration limit_duration = 3 [(buf.validate.field).duration.gte = {seconds: 1}];
+  // 限流的最大值
+  int64 limit_max = 4 [
+    (buf.validate.field).int64 = {
+      gt: 0
+      lte: 100
+    }
+  ];
+  // 最大连接数
+  int64 max_connections = 5 [
+    (buf.validate.field).int64 = {
+      gt: 0
+      lte: 100
+    }
+  ];
+  // smtp配置
+  SMTP smtp = 6 [(buf.validate.field).required = true];
+}
+
+message Mail {
+  repeated MailProvider providers = 1;
+}

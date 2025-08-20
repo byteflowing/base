@@ -3,15 +3,10 @@ package common
 import (
 	"context"
 	"fmt"
-	"time"
 
+	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/redis"
 )
-
-type DistributedLockConfig struct {
-	TTL    uint32 // 锁的过期时间,单位s
-	Prefix string // key前缀
-}
 
 type DistributedLock interface {
 	Lock(ctx context.Context, target string) (identifier string, err error)
@@ -19,13 +14,20 @@ type DistributedLock interface {
 	ReNew(ctx context.Context, target, identifier string) error
 }
 
+func NewDistributedLock(rdb *redis.Redis, c *configv1.DistributedLock) DistributedLock {
+	return &RedisDistributedLock{
+		rdb:    rdb,
+		config: c,
+	}
+}
+
 type RedisDistributedLock struct {
 	rdb    *redis.Redis
-	config *DistributedLockConfig
+	config *configv1.DistributedLock
 }
 
 func (r *RedisDistributedLock) Lock(ctx context.Context, target string) (identifier string, err error) {
-	return r.rdb.Lock(ctx, r.getKey(target), time.Duration(r.config.TTL)*time.Second)
+	return r.rdb.Lock(ctx, r.getKey(target), r.config.Ttl.AsDuration())
 }
 
 func (r *RedisDistributedLock) Unlock(ctx context.Context, target, identifier string) error {
@@ -33,7 +35,7 @@ func (r *RedisDistributedLock) Unlock(ctx context.Context, target, identifier st
 }
 
 func (r *RedisDistributedLock) ReNew(ctx context.Context, target, identifier string) error {
-	return r.rdb.RenewLock(ctx, r.getKey(target), identifier, time.Duration(r.config.TTL)*time.Second)
+	return r.rdb.RenewLock(ctx, r.getKey(target), identifier, r.config.Ttl.AsDuration())
 }
 
 func (r *RedisDistributedLock) getKey(target string) string {

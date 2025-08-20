@@ -30,14 +30,15 @@ func newUserSignLog(db *gorm.DB, opts ...gen.DOOption) userSignLog {
 	_userSignLog.ALL = field.NewAsterisk(tableName)
 	_userSignLog.ID = field.NewInt64(tableName, "id")
 	_userSignLog.UID = field.NewInt64(tableName, "uid")
-	_userSignLog.AccessSessionID = field.NewString(tableName, "access_session_id")
-	_userSignLog.RefreshSessionID = field.NewString(tableName, "refresh_session_id")
 	_userSignLog.Type = field.NewInt16(tableName, "type")
 	_userSignLog.Status = field.NewInt16(tableName, "status")
+	_userSignLog.Identifier = field.NewString(tableName, "identifier")
 	_userSignLog.IP = field.NewString(tableName, "ip")
 	_userSignLog.Location = field.NewString(tableName, "location")
 	_userSignLog.Agent = field.NewString(tableName, "agent")
 	_userSignLog.Device = field.NewString(tableName, "device")
+	_userSignLog.AccessSessionID = field.NewString(tableName, "access_session_id")
+	_userSignLog.RefreshSessionID = field.NewString(tableName, "refresh_session_id")
 	_userSignLog.AccessExpiredAt = field.NewInt64(tableName, "access_expired_at")
 	_userSignLog.RefreshExpiredAt = field.NewInt64(tableName, "refresh_expired_at")
 	_userSignLog.DeletedAt = field.NewInt64(tableName, "deleted_at")
@@ -55,14 +56,15 @@ type userSignLog struct {
 	ALL              field.Asterisk
 	ID               field.Int64
 	UID              field.Int64
-	AccessSessionID  field.String
-	RefreshSessionID field.String
 	Type             field.Int16
 	Status           field.Int16
+	Identifier       field.String
 	IP               field.String
 	Location         field.String
 	Agent            field.String
 	Device           field.String
+	AccessSessionID  field.String
+	RefreshSessionID field.String
 	AccessExpiredAt  field.Int64
 	RefreshExpiredAt field.Int64
 	DeletedAt        field.Int64
@@ -86,14 +88,15 @@ func (u *userSignLog) updateTableName(table string) *userSignLog {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
 	u.UID = field.NewInt64(table, "uid")
-	u.AccessSessionID = field.NewString(table, "access_session_id")
-	u.RefreshSessionID = field.NewString(table, "refresh_session_id")
 	u.Type = field.NewInt16(table, "type")
 	u.Status = field.NewInt16(table, "status")
+	u.Identifier = field.NewString(table, "identifier")
 	u.IP = field.NewString(table, "ip")
 	u.Location = field.NewString(table, "location")
 	u.Agent = field.NewString(table, "agent")
 	u.Device = field.NewString(table, "device")
+	u.AccessSessionID = field.NewString(table, "access_session_id")
+	u.RefreshSessionID = field.NewString(table, "refresh_session_id")
 	u.AccessExpiredAt = field.NewInt64(table, "access_expired_at")
 	u.RefreshExpiredAt = field.NewInt64(table, "refresh_expired_at")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
@@ -125,17 +128,18 @@ func (u *userSignLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userSignLog) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 15)
+	u.fieldMap = make(map[string]field.Expr, 16)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["uid"] = u.UID
-	u.fieldMap["access_session_id"] = u.AccessSessionID
-	u.fieldMap["refresh_session_id"] = u.RefreshSessionID
 	u.fieldMap["type"] = u.Type
 	u.fieldMap["status"] = u.Status
+	u.fieldMap["identifier"] = u.Identifier
 	u.fieldMap["ip"] = u.IP
 	u.fieldMap["location"] = u.Location
 	u.fieldMap["agent"] = u.Agent
 	u.fieldMap["device"] = u.Device
+	u.fieldMap["access_session_id"] = u.AccessSessionID
+	u.fieldMap["refresh_session_id"] = u.RefreshSessionID
 	u.fieldMap["access_expired_at"] = u.AccessExpiredAt
 	u.fieldMap["refresh_expired_at"] = u.RefreshExpiredAt
 	u.fieldMap["deleted_at"] = u.DeletedAt

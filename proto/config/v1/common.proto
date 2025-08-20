@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package config.v1;
+
+import "validation/v1/predefined_rules.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "buf/validate/validate.proto";
+import "enums/v1/common.proto";
+
+message GlobalId {
+  // 生成global id的模式
+  // Local 模式只能单机唯一
+  enums.v1.GlobalIdMode mode = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 单机模式下global_id的起点
+  google.protobuf.Timestamp start_time = 2;
+}
+
+message ShortId {
+  // 字符表
+  string alphabet = 1;
+  // 生成的id最小长度
+  int32 min_length = 2;
+  // 屏蔽的字母
+  repeated string block_list = 3 [(buf.validate.field).repeated.unique = true];
+}
+
+message WechatCredential {
+  // appid
+  string appid = 1;
+  // secret
+  string secret = 2;
+}
+
+message Wechat {
+  repeated WechatCredential credentials = 1 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message  DistributedLock {
+  google.protobuf.Duration ttl = 1;
+  string prefix = 2;
+}

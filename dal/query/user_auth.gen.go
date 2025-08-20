@@ -32,6 +32,7 @@ func newUserAuth(db *gorm.DB, opts ...gen.DOOption) userAuth {
 	_userAuth.UID = field.NewInt64(tableName, "uid")
 	_userAuth.Type = field.NewInt16(tableName, "type")
 	_userAuth.Status = field.NewInt16(tableName, "status")
+	_userAuth.Appid = field.NewString(tableName, "appid")
 	_userAuth.Identifier = field.NewString(tableName, "identifier")
 	_userAuth.Credential = field.NewString(tableName, "credential")
 	_userAuth.UnionID = field.NewString(tableName, "union_id")
@@ -52,6 +53,7 @@ type userAuth struct {
 	UID        field.Int64
 	Type       field.Int16
 	Status     field.Int16
+	Appid      field.String
 	Identifier field.String
 	Credential field.String
 	UnionID    field.String
@@ -78,6 +80,7 @@ func (u *userAuth) updateTableName(table string) *userAuth {
 	u.UID = field.NewInt64(table, "uid")
 	u.Type = field.NewInt16(table, "type")
 	u.Status = field.NewInt16(table, "status")
+	u.Appid = field.NewString(table, "appid")
 	u.Identifier = field.NewString(table, "identifier")
 	u.Credential = field.NewString(table, "credential")
 	u.UnionID = field.NewString(table, "union_id")
@@ -108,11 +111,12 @@ func (u *userAuth) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userAuth) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 10)
+	u.fieldMap = make(map[string]field.Expr, 11)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["uid"] = u.UID
 	u.fieldMap["type"] = u.Type
 	u.fieldMap["status"] = u.Status
+	u.fieldMap["appid"] = u.Appid
 	u.fieldMap["identifier"] = u.Identifier
 	u.fieldMap["credential"] = u.Credential
 	u.fieldMap["union_id"] = u.UnionID

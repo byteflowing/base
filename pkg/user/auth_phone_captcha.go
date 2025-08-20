@@ -4,59 +4,75 @@ import (
 	"context"
 
 	"github.com/byteflowing/base/ecode"
-	"github.com/byteflowing/base/pkg/message/sms"
+	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
+	messagev1 "github.com/byteflowing/base/gen/message/v1"
+	userv1 "github.com/byteflowing/base/gen/user/v1"
+	"github.com/byteflowing/base/pkg/captcha"
+	"github.com/byteflowing/go-common/trans"
 )
 
 type PhoneCaptcha struct {
-	sms        sms.Sms
+	captcha    captcha.Captcha
 	repo       Repo
 	jwtService *JwtService
 }
 
-func NewPhoneCaptcha(sms sms.Sms, repo Repo, jwtService *JwtService) Authenticator {
+func NewPhoneCaptcha(captcha captcha.Captcha, repo Repo, jwtService *JwtService) Authenticator {
 	return &PhoneCaptcha{
-		sms:        sms,
+		captcha:    captcha,
 		repo:       repo,
 		jwtService: jwtService,
 	}
 }
 
-func (p *PhoneCaptcha) AuthType() AuthType {
-	return AuthTypePhoneCaptcha
+func (p *PhoneCaptcha) AuthType() enumsv1.AuthType {
+	return enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA
 }
 
-func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
-	if req.AuthType != AuthTypePhoneCaptcha {
+func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	if req.CaptchaToken == "" {
+	if req.CaptchaToken == nil {
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
 	if len(req.Credential) == 0 {
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
-	ok, err := p.sms.VerifyCaptcha(ctx, &sms.VerifyCaptchaReq{
-		Token:   req.CaptchaToken,
-		Captcha: req.Credential,
+	if req.PhoneNumber == nil || req.PhoneNumber.Number == "" || req.PhoneNumber.CountryCode == "" {
+		return nil, ecode.ErrPhoneIsEmpty
+	}
+	_, err = p.captcha.Verify(ctx, &messagev1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:      trans.Deref(req.CaptchaToken),
+		Captcha:    req.Credential,
+		Number:     &messagev1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.PhoneNumber},
 	})
 	if err != nil {
 		return nil, err
 	}
-	if !ok {
-		return nil, ecode.ErrUserCaptchaMisMatch
-	}
-	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.Identifier)
+	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.PhoneNumber)
 	if err != nil {
 		return nil, err
+	}
+	if isDisabled(userBasic) {
+		return nil, ecode.ErrUserDisabled
 	}
 	// 生成jwt token
-	accessToken, refreshToken, err := p.jwtService.GenerateToken(ctx, userBasic, req)
+	accessToken, refreshToken, err := p.jwtService.GenerateToken(ctx, &GenerateJwtReq{
+		UserBasic:      userBasic,
+		SignInReq:      req,
+		ExtraJwtClaims: req.ExtraJwtClaims,
+		AuthType:       enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA,
+	})
 	if err != nil {
 		return nil, err
 	}
-	resp = &SignInResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+	resp = &userv1.SignInResp{
+		Data: &userv1.SignInResp_Data{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
 	}
 	return resp, nil
 }

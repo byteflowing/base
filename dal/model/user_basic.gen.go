@@ -4,32 +4,39 @@
 
 package model
 
+import (
+	"time"
+)
+
 const TableNameUserBasic = "user_basic"
 
 // UserBasic mapped from table <user_basic>
 type UserBasic struct {
-	ID            int64   `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true" json:"id"`
-	Number        *string `gorm:"column:number;type:character varying(50);index:idx_basic_number,priority:1" json:"number"`
-	Name          string  `gorm:"column:name;type:character varying(50);not null;index:idx_basic_name,priority:1" json:"name"`
-	Alias_        string  `gorm:"column:alias;type:character varying(50);not null" json:"alias"`
-	Password      *string `gorm:"column:password;type:character varying(128)" json:"password"`
-	Avatar        *string `gorm:"column:avatar;type:character varying(255)" json:"avatar"`
-	Gender        *int16  `gorm:"column:gender;type:smallint" json:"gender"`
-	Phone         string  `gorm:"column:phone;type:character varying(20);not null;index:idx_basic_phone,priority:1" json:"phone"`
-	Email         string  `gorm:"column:email;type:character varying(100);not null;index:idx_basic_email,priority:1" json:"email"`
-	CountryCode   string  `gorm:"column:country_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:2" json:"country_code"`
-	ProvinceCode  string  `gorm:"column:province_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:4" json:"province_code"`
-	CityCode      string  `gorm:"column:city_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:1" json:"city_code"`
-	DistrictCode  string  `gorm:"column:district_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:3" json:"district_code"`
-	Addr          *string `gorm:"column:addr;type:character varying(255)" json:"addr"`
-	Status        int16   `gorm:"column:status;type:smallint;not null" json:"status"`
-	Source        int16   `gorm:"column:source;type:smallint;not null" json:"source"`
-	PhoneVerified int16   `gorm:"column:phone_verified;type:smallint;not null" json:"phone_verified"`
-	EmailVerified int16   `gorm:"column:email_verified;type:smallint;not null" json:"email_verified"`
-	DeletedAt     *int64  `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
-	UpdatedAt     int64   `gorm:"column:updated_at;type:bigint;not null" json:"updated_at"`
-	CreatedAt     int64   `gorm:"column:created_at;type:bigint;not null" json:"created_at"`
-	Ext           *string `gorm:"column:ext;type:jsonb;index:idx_user_ext,priority:1;default:{}" json:"ext"`
+	ID               int64      `gorm:"column:id;type:bigint;primaryKey" json:"id"`
+	Number           string     `gorm:"column:number;type:character varying(50);not null;index:idx_basic_number,priority:1" json:"number"`
+	Name             *string    `gorm:"column:name;type:character varying(50)" json:"name"`
+	Alias_           *string    `gorm:"column:alias;type:character varying(50)" json:"alias"`
+	Password         *string    `gorm:"column:password;type:character varying(100)" json:"password"`
+	Avatar           *string    `gorm:"column:avatar;type:character varying(255)" json:"avatar"`
+	Gender           *int16     `gorm:"column:gender;type:smallint" json:"gender"`
+	Birthday         *time.Time `gorm:"column:birthday;type:date" json:"birthday"`
+	PhoneCountryCode string     `gorm:"column:phone_country_code;type:character varying(10);not null" json:"phone_country_code"`
+	Phone            string     `gorm:"column:phone;type:character varying(20);not null;index:idx_basic_phone,priority:1" json:"phone"`
+	Email            string     `gorm:"column:email;type:character varying(100);not null;index:idx_basic_email,priority:1" json:"email"`
+	CountryCode      string     `gorm:"column:country_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:2" json:"country_code"`
+	ProvinceCode     string     `gorm:"column:province_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:4" json:"province_code"`
+	CityCode         string     `gorm:"column:city_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:1" json:"city_code"`
+	DistrictCode     string     `gorm:"column:district_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:3" json:"district_code"`
+	Addr             *string    `gorm:"column:addr;type:character varying(255)" json:"addr"`
+	Status           int16      `gorm:"column:status;type:smallint;not null" json:"status"`
+	Source           int16      `gorm:"column:source;type:smallint;not null" json:"source"`
+	SignupType       int16      `gorm:"column:signup_type;type:smallint;not null" json:"signup_type"`
+	PhoneVerified    int16      `gorm:"column:phone_verified;type:smallint;not null" json:"phone_verified"`
+	EmailVerified    int16      `gorm:"column:email_verified;type:smallint;not null" json:"email_verified"`
+	DeletedAt        *int64     `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
+	UpdatedAt        int64      `gorm:"column:updated_at;type:bigint;not null" json:"updated_at"`
+	CreatedAt        int64      `gorm:"column:created_at;type:bigint;not null" json:"created_at"`
+	Ext              *string    `gorm:"column:ext;type:jsonb;index:idx_user_ext,priority:1;default:{}" json:"ext"`
 }
 
 // TableName UserBasic's table name

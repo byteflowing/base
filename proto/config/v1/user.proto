@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package config.v1;
+
+import "enums/v1/user.proto";
+import "validation/v1/predefined_rules.proto";
+import "buf/validate/validate.proto";
+import "common/v1/common.proto";
+import "google/protobuf/duration.proto";
+
+message UserLimiter {
+  // 限制类型
+  enums.v1.UserLimitType type = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 限制规则
+  common.v1.LimitRule rule = 2 [(buf.validate.field).required = true];
+}
+
+message UserJwt {
+  // token签发者
+  string issuer = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 安全密钥
+  string secret_key = 2 [(buf.validate.field).string.(validation.v1.required_50) = true];
+  // 签名方法
+  string sign_method = 3;
+  // 访问token有效时间
+  google.protobuf.Duration access_ttl = 4 [(buf.validate.field).duration.gte = {seconds: 60}];
+  // 刷新token有效时间
+  google.protobuf.Duration refresh_ttl = 5 [(buf.validate.field).duration.gte = {seconds: 600}];
+}
+
+message UserBlockList {
+  // 前缀
+  string prefix = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}
+
+message UserWechatMini {
+  // 小程序 appId
+  string app_id = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 小程序 appSecret
+  string secret = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}

@@ -4,59 +4,72 @@ import (
 	"context"
 
 	"github.com/byteflowing/base/ecode"
-	"github.com/byteflowing/base/pkg/message/mail"
+	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
+	messagev1 "github.com/byteflowing/base/gen/message/v1"
+	userv1 "github.com/byteflowing/base/gen/user/v1"
+	"github.com/byteflowing/base/pkg/captcha"
+	"github.com/byteflowing/go-common/trans"
 )
 
 type EmailCaptcha struct {
-	mail       mail.Mail
+	captcha    captcha.Captcha
 	repo       Repo
 	jwtService *JwtService
 }
 
-func NewEmailCaptcha(mail mail.Mail, repo Repo, jwtService *JwtService) Authenticator {
+func NewEmailCaptcha(captcha captcha.Captcha, repo Repo, jwtService *JwtService) Authenticator {
 	return &EmailCaptcha{
-		mail:       mail,
+		captcha:    captcha,
 		repo:       repo,
 		jwtService: jwtService,
 	}
 }
 
-func (e *EmailCaptcha) AuthType() AuthType {
-	return AuthTypeEmailCaptcha
+func (e *EmailCaptcha) AuthType() enumsv1.AuthType {
+	return enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA
 }
 
-func (e *EmailCaptcha) Authenticate(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
-	if req.AuthType != AuthTypeEmailCaptcha {
+func (e *EmailCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	if req.CaptchaToken == "" {
+	if req.CaptchaToken == nil {
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
 	if len(req.Credential) == 0 {
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
-	ok, err := e.mail.VerifyCaptcha(ctx, &mail.VerifyCaptchaReq{
-		Token:   req.CaptchaToken,
-		Captcha: req.Credential,
+	_, err = e.captcha.Verify(ctx, &messagev1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:      trans.Deref(req.CaptchaToken),
+		Captcha:    req.Credential,
+		Number:     &messagev1.VerifyCaptchaReq_Email{Email: req.Identifier},
 	})
 	if err != nil {
 		return nil, err
-	}
-	if !ok {
-		return nil, ecode.ErrUserCaptchaMisMatch
 	}
 	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)
 	if err != nil {
 		return nil, err
 	}
+	if isDisabled(userBasic) {
+		return nil, ecode.ErrUserDisabled
+	}
 	// 生成jwt token
-	accessToken, refreshToken, err := e.jwtService.GenerateToken(ctx, userBasic, req)
+	accessToken, refreshToken, err := e.jwtService.GenerateToken(ctx, &GenerateJwtReq{
+		UserBasic:      userBasic,
+		SignInReq:      req,
+		ExtraJwtClaims: req.ExtraJwtClaims,
+		AuthType:       enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA,
+	})
 	if err != nil {
 		return nil, err
 	}
-	resp = &SignInResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+	resp = &userv1.SignInResp{
+		Data: &userv1.SignInResp_Data{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		},
 	}
 	return resp, nil
 }

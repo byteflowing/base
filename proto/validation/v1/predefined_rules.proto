@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+package validation.v1;
+
+import "buf/validate/validate.proto";
+
+// 1001000 - 1001999 -> EnumRules
+// 1002000 - 1002999 -> StringRules
+
+extend buf.validate.EnumRules {
+  optional bool not_unspecified = 1001001 [(buf.validate.predefined).cel = {
+    id: "enum.not_unspecified"
+    message: "must be not UNSPECIFIED"
+    expression: "this != 0"
+  }];
+}
+
+extend buf.validate.StringRules {
+  // 必选字符串10-1000
+  optional bool required_10 = 1002001 [(buf.validate.predefined).cel = {
+    id: "string.required.10"
+    message: "this is required and must be 10 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 10"
+  }];
+  optional bool required_20 = 1002002 [(buf.validate.predefined).cel = {
+    id: "string.required.20"
+    message: "this is required and must be 20 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 20"
+  }];
+  optional bool required_30 = 1002003 [(buf.validate.predefined).cel = {
+    id: "string.required.30"
+    message: "this is required and must be 30 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 30"
+  }];
+  optional bool required_50 = 1002004 [(buf.validate.predefined).cel = {
+    id: "string.required.50"
+    message: "this is required and must be 50 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 50"
+  }];
+  optional bool required_100 = 1002005 [(buf.validate.predefined).cel = {
+    id: "string.required.100"
+    message: "this is required and must be 100 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 100"
+  }];
+  optional bool required_255 = 1002006 [(buf.validate.predefined).cel = {
+    id: "string.required.255"
+    message: "this is required and must be 255 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 255"
+  }];
+  optional bool required_512 = 1002007 [(buf.validate.predefined).cel = {
+    id: "string.required.512"
+    message: "this is required and must be 512 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 512"
+  }];
+  optional bool required_1000 = 1002008 [(buf.validate.predefined).cel = {
+    id: "string.required.1000"
+    message: "this is required and must be 1000 or fewer characters"
+    expression: "this.size() > 0 && this.size() <= 1000"
+  }];
+
+  // 可选字符串10-1000
+  optional bool optional_10 = 1002009 [(buf.validate.predefined).cel = {
+    id: "string.optional.10"
+    message: "this must be 10 or fewer characters"
+    expression: "this.size() <= 10"
+  }];
+  optional bool optional_20 = 1002010 [(buf.validate.predefined).cel = {
+    id: "string.optional.20"
+    message: "this must be 20 or fewer characters"
+    expression: "this.size() <= 20"
+  }];
+  optional bool optional_30 = 1002011 [(buf.validate.predefined).cel = {
+    id: "string.optional.30"
+    message: "this must be 30 or fewer characters"
+    expression: "this.size() <= 30"
+  }];
+  optional bool optional_50 = 1002012 [(buf.validate.predefined).cel = {
+    id: "string.optional.50"
+    message: "this must be 50 or fewer characters"
+    expression: "this.size() <= 50"
+  }];
+  optional bool optional_100 = 1002013 [(buf.validate.predefined).cel = {
+    id: "string.optional.100"
+    message: "this must be 100 or fewer characters"
+    expression: "this.size() <= 100"
+  }];
+  optional bool optional_255 = 1002014 [(buf.validate.predefined).cel = {
+    id: "string.optional.255"
+    message: "this must be 255 or fewer characters"
+    expression: "this.size() <= 255"
+  }];
+  optional bool optional_512 = 1002015 [(buf.validate.predefined).cel = {
+    id: "string.optional.512"
+    message: "this must be 512 or fewer characters"
+    expression: "this.size() <= 512"
+  }];
+  optional bool optional_1000 = 1002016 [(buf.validate.predefined).cel = {
+    id: "string.optional.1000"
+    message: "this must be 1000 or fewer characters"
+    expression: "this.size() <= 1000"
+  }];
+}

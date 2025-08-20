@@ -35,6 +35,8 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	_userBasic.Password = field.NewString(tableName, "password")
 	_userBasic.Avatar = field.NewString(tableName, "avatar")
 	_userBasic.Gender = field.NewInt16(tableName, "gender")
+	_userBasic.Birthday = field.NewTime(tableName, "birthday")
+	_userBasic.PhoneCountryCode = field.NewString(tableName, "phone_country_code")
 	_userBasic.Phone = field.NewString(tableName, "phone")
 	_userBasic.Email = field.NewString(tableName, "email")
 	_userBasic.CountryCode = field.NewString(tableName, "country_code")
@@ -44,6 +46,7 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	_userBasic.Addr = field.NewString(tableName, "addr")
 	_userBasic.Status = field.NewInt16(tableName, "status")
 	_userBasic.Source = field.NewInt16(tableName, "source")
+	_userBasic.SignupType = field.NewInt16(tableName, "signup_type")
 	_userBasic.PhoneVerified = field.NewInt16(tableName, "phone_verified")
 	_userBasic.EmailVerified = field.NewInt16(tableName, "email_verified")
 	_userBasic.DeletedAt = field.NewInt64(tableName, "deleted_at")
@@ -59,29 +62,32 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 type userBasic struct {
 	userBasicDo userBasicDo
 
-	ALL           field.Asterisk
-	ID            field.Int64
-	Number        field.String
-	Name          field.String
-	Alias_        field.String
-	Password      field.String
-	Avatar        field.String
-	Gender        field.Int16
-	Phone         field.String
-	Email         field.String
-	CountryCode   field.String
-	ProvinceCode  field.String
-	CityCode      field.String
-	DistrictCode  field.String
-	Addr          field.String
-	Status        field.Int16
-	Source        field.Int16
-	PhoneVerified field.Int16
-	EmailVerified field.Int16
-	DeletedAt     field.Int64
-	UpdatedAt     field.Int64
-	CreatedAt     field.Int64
-	Ext           field.String
+	ALL              field.Asterisk
+	ID               field.Int64
+	Number           field.String
+	Name             field.String
+	Alias_           field.String
+	Password         field.String
+	Avatar           field.String
+	Gender           field.Int16
+	Birthday         field.Time
+	PhoneCountryCode field.String
+	Phone            field.String
+	Email            field.String
+	CountryCode      field.String
+	ProvinceCode     field.String
+	CityCode         field.String
+	DistrictCode     field.String
+	Addr             field.String
+	Status           field.Int16
+	Source           field.Int16
+	SignupType       field.Int16
+	PhoneVerified    field.Int16
+	EmailVerified    field.Int16
+	DeletedAt        field.Int64
+	UpdatedAt        field.Int64
+	CreatedAt        field.Int64
+	Ext              field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -105,6 +111,8 @@ func (u *userBasic) updateTableName(table string) *userBasic {
 	u.Password = field.NewString(table, "password")
 	u.Avatar = field.NewString(table, "avatar")
 	u.Gender = field.NewInt16(table, "gender")
+	u.Birthday = field.NewTime(table, "birthday")
+	u.PhoneCountryCode = field.NewString(table, "phone_country_code")
 	u.Phone = field.NewString(table, "phone")
 	u.Email = field.NewString(table, "email")
 	u.CountryCode = field.NewString(table, "country_code")
@@ -114,6 +122,7 @@ func (u *userBasic) updateTableName(table string) *userBasic {
 	u.Addr = field.NewString(table, "addr")
 	u.Status = field.NewInt16(table, "status")
 	u.Source = field.NewInt16(table, "source")
+	u.SignupType = field.NewInt16(table, "signup_type")
 	u.PhoneVerified = field.NewInt16(table, "phone_verified")
 	u.EmailVerified = field.NewInt16(table, "email_verified")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
@@ -146,7 +155,7 @@ func (u *userBasic) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userBasic) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 22)
+	u.fieldMap = make(map[string]field.Expr, 25)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["number"] = u.Number
 	u.fieldMap["name"] = u.Name
@@ -154,6 +163,8 @@ func (u *userBasic) fillFieldMap() {
 	u.fieldMap["password"] = u.Password
 	u.fieldMap["avatar"] = u.Avatar
 	u.fieldMap["gender"] = u.Gender
+	u.fieldMap["birthday"] = u.Birthday
+	u.fieldMap["phone_country_code"] = u.PhoneCountryCode
 	u.fieldMap["phone"] = u.Phone
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["country_code"] = u.CountryCode
@@ -163,6 +174,7 @@ func (u *userBasic) fillFieldMap() {
 	u.fieldMap["addr"] = u.Addr
 	u.fieldMap["status"] = u.Status
 	u.fieldMap["source"] = u.Source
+	u.fieldMap["signup_type"] = u.SignupType
 	u.fieldMap["phone_verified"] = u.PhoneVerified
 	u.fieldMap["email_verified"] = u.EmailVerified
 	u.fieldMap["deleted_at"] = u.DeletedAt

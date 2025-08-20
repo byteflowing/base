@@ -1,0 +1,14 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v2
+modules:
+  - path: proto
+deps:
+  - buf.build/bufbuild/protovalidate:v0.14.1
+lint:
+  use:
+    - STANDARD
+  service_suffix: Service
+  enum_zero_value_suffix: _UNSPECIFIED
+breaking:
+  use:
+    - FILE

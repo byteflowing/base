@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "validation/v1/predefined_rules.proto";
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+message WechatSignInReq {
+  // 微信appid
+  string appid = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 微信授权码
+  string code = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}
+
+message WechatSignInResp {
+  // appid
+  string appid = 1;
+  // openid
+  string openid = 2;
+  // sessionKey
+  string session_key = 3;
+  // UnionID, 开通了公共平台的才会返回
+  string union_id = 4;
+}
+
+
+message WechatGetAccessToken {
+  string access_token = 1;
+  google.protobuf.Timestamp expiration = 2;
+}
+
+message WechatCheckSignInStatusReq {
+  // appid
+  string appid = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // session_key
+  string session_key = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // openid
+  string openid = 3 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}
+
+message WechatCheckSignInStatusResp {
+  bool ok = 1;
+}
+
+message WechatResetSessionKeyReq {
+  // appid
+  string appid = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // session_key
+  string session_key = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // openid
+  string openid = 3 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}
+
+message WechatResetSessionKeyResp {
+  string openid = 1;
+  string session_key = 2;
+}
+
+message WechatGetPhoneNumberReq {
+  // appid
+  string appid = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // openid
+  string openid = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 获取手机的授权码
+  string code = 3 [(buf.validate.field).string.(validation.v1.required_20) = true];
+}
+
+message WechatGetPhoneNumberResp {
+  // 用户绑定的手机号（国外手机号会有区号）
+  string phone_number = 1;
+  // 没有区号的手机号
+  string pure_phone_number = 2;
+  // 区号
+  string country_code = 3;
+}

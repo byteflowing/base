@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package config.v1;
+
+import "enums/v1/message.proto";
+import "validation/v1/predefined_rules.proto";
+import "buf/validate/validate.proto";
+
+
+message SmsProvider {
+  // 短信供应商
+  enums.v1.SmsVendor vendor = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // ak
+  string access_key = 2 [(buf.validate.field).required = true];
+  // sk
+  string secret_key = 3 [(buf.validate.field).required = true];
+  // 账号，用于区分账号
+  string account = 4 [(buf.validate.field).string.(validation.v1.required_50)=true];
+  // sts场景使用
+  optional string security_token = 5 [(buf.validate.field).string.(validation.v1.required_50) = true];
+  // 短信服务商限制的访问速率
+  int64 limit = 6 [(buf.validate.field).int64.gt = 0];
+}
+
+message Sms {
+  repeated SmsProvider providers = 1;
+}

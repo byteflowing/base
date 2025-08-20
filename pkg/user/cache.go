@@ -7,8 +7,7 @@ import (
 type Cache interface{}
 
 type RedisCache struct {
-	rdb    *redis.Redis
-	config *Config
+	rdb *redis.Redis
 }
 
 func NewRedisCache(rdb *redis.Redis) *RedisCache {

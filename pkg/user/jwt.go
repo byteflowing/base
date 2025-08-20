@@ -5,25 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/ecode"
+	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-type TokenType string
-
-const (
-	TokenTypeAccess  TokenType = "access"
-	TokenTypeRefresh TokenType = "refresh"
-)
-
-type JwtClaims struct {
-	Uid   uint64
-	Type  TokenType
-	Extra interface{}
-	jwt.RegisteredClaims
-}
 
 type JwtService struct {
 	issuer     string
@@ -32,7 +18,8 @@ type JwtService struct {
 	accessTTL  time.Duration
 	refreshTTL time.Duration
 	repo       Repo
-	bkl        BlockList
+	limiter    Limiter
+	blk        BlockList
 }
 
 type JwtOpts struct {
@@ -42,6 +29,7 @@ type JwtOpts struct {
 	AccessTTL  time.Duration
 	RefreshTTL time.Duration
 	Repo       Repo
+	Limiter    Limiter
 	BlockList  BlockList
 }
 
@@ -53,30 +41,31 @@ func NewJwtService(opts *JwtOpts) *JwtService {
 		accessTTL:  opts.AccessTTL,
 		refreshTTL: opts.RefreshTTL,
 		repo:       opts.Repo,
-		bkl:        opts.BlockList,
+		limiter:    opts.Limiter,
+		blk:        opts.BlockList,
 	}
 }
 
-func (s *JwtService) GenerateToken(ctx context.Context, userBasic *model.UserBasic, req *SignInReq) (accessToken, refreshToken string, err error) {
-	if err = s.bkl.CheckTokenLimit(ctx, uint64(userBasic.ID), LimitTypeSignIn); err != nil {
+func (s *JwtService) GenerateToken(ctx context.Context, req *GenerateJwtReq) (accessToken, refreshToken string, err error) {
+	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_SIGN_IN); err != nil {
 		return "", "", err
 	}
-	accessToken, refreshToken, accessClaims, refreshClaims, err := s.generateJwtToken(ctx, userBasic, req.ExtraJwtClaims)
+	accessToken, refreshToken, accessClaims, refreshClaims, err := s.generateJwtToken(ctx, req)
 	if err != nil {
 		return "", "", err
 	}
-	if err = s.repo.AddSignInLog(ctx, req, accessClaims, refreshClaims); err != nil {
+	if err = s.repo.AddSignInLog(ctx, req.SignInReq, accessClaims, refreshClaims); err != nil {
 		return "", "", err
 	}
 	return accessToken, refreshToken, nil
 }
 
 func (s *JwtService) VerifyAccessToken(ctx context.Context, tokenStr string) (claims *JwtClaims, err error) {
-	return s.verifyToken(ctx, tokenStr, TokenTypeAccess)
+	return s.verifyToken(ctx, tokenStr, enumsv1.TokenType_TOKEN_TYPE_ACCESS)
 }
 
 func (s *JwtService) VerifyRefreshToken(ctx context.Context, tokenStr string) (claims *JwtClaims, err error) {
-	return s.verifyToken(ctx, tokenStr, TokenTypeRefresh)
+	return s.verifyToken(ctx, tokenStr, enumsv1.TokenType_TOKEN_TYPE_REFRESH)
 }
 
 func (s *JwtService) ExpireAccessToken(ctx context.Context, accessSessionID string) (err error) {
@@ -85,8 +74,8 @@ func (s *JwtService) ExpireAccessToken(ctx context.Context, accessSessionID stri
 		return err
 	}
 	claims := &JwtClaims{
-		Uid:  uint64(log.UID),
-		Type: TokenTypeAccess,
+		Uid:  log.UID,
+		Type: int32(enumsv1.TokenType_TOKEN_TYPE_ACCESS),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.UnixMilli(log.AccessExpiredAt)),
 			ID:        log.AccessSessionID,
@@ -98,24 +87,24 @@ func (s *JwtService) ExpireAccessToken(ctx context.Context, accessSessionID stri
 	return s.repo.ExpireAccessSessionID(ctx, accessSessionID)
 }
 
-func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, userBasic *model.UserBasic, extraClaims map[string]any) (newAccessToken, newRefreshToken string, err error) {
-	if err = s.bkl.CheckTokenLimit(ctx, uint64(userBasic.ID), LimitTypeSignIn); err != nil {
+func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (newAccessToken, newRefreshToken string, err error) {
+	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
 		return "", "", err
 	}
 	var claims []*JwtClaims
-	refreshClaim, err := s.VerifyRefreshToken(ctx, refreshToken)
+	refreshClaim, err := s.VerifyRefreshToken(ctx, req.RefreshToken)
 	if err != nil {
 		return "", "", err
 	}
 	claims = append(claims, refreshClaim)
-	log, err := s.repo.GetSignInLogByRefresh(ctx, refreshToken)
+	log, err := s.repo.GetSignInLogByRefresh(ctx, refreshClaim.ID)
 	if err != nil {
 		return "", "", err
 	}
 	// 销毁token只关心下面填充的数据
 	claims = append(claims, &JwtClaims{
-		Uid:  uint64(log.UID),
-		Type: TokenTypeAccess,
+		Uid:  log.UID,
+		Type: int32(enumsv1.TokenType_TOKEN_TYPE_ACCESS),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.UnixMilli(log.AccessExpiredAt)),
 			ID:        log.AccessSessionID,
@@ -124,11 +113,11 @@ func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, user
 	if err = s.revokeTokens(ctx, claims); err != nil {
 		return "", "", err
 	}
-	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err := s.generateJwtToken(ctx, userBasic, extraClaims)
+	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err := s.generateJwtToken(ctx, req)
 	if err != nil {
 		return "", "", err
 	}
-	if err = s.repo.RefreshSignInLog(ctx, refreshToken, newAccessClaims, newRefreshClaims); err != nil {
+	if err = s.repo.RefreshSignInLog(ctx, refreshClaim.ID, newAccessClaims, newRefreshClaims); err != nil {
 		return "", "", err
 	}
 	return newAccessToken, newRefreshToken, nil
@@ -139,7 +128,7 @@ func (s *JwtService) RevokeByAccessToken(ctx context.Context, tokenStr string, s
 	if err != nil {
 		return err
 	}
-	if accessClaims.Type != TokenTypeAccess {
+	if accessClaims.Type != int32(enumsv1.TokenType_TOKEN_TYPE_ACCESS) {
 		return errors.New("invalid token type")
 	}
 	log, err := s.repo.GetSignInLogByAccess(ctx, accessClaims.ID)
@@ -149,8 +138,8 @@ func (s *JwtService) RevokeByAccessToken(ctx context.Context, tokenStr string, s
 	willRevokeClaims := []*JwtClaims{
 		accessClaims,
 		&JwtClaims{
-			Uid:  uint64(log.UID),
-			Type: TokenTypeRefresh,
+			Uid:  log.UID,
+			Type: int32(enumsv1.TokenType_TOKEN_TYPE_REFRESH),
 			RegisteredClaims: jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.UnixMilli(log.AccessExpiredAt)),
 				ID:        log.RefreshSessionID,
@@ -180,57 +169,31 @@ func (s *JwtService) RevokeTokens(ctx context.Context, tokens []string) error {
 	return s.revokeTokens(ctx, claims)
 }
 
-func (s *JwtService) generateJwtToken(ctx context.Context, userBasic *model.UserBasic, extraClaims interface{}) (accessToken, refreshToken string, accessClaims, refreshClaims *JwtClaims, err error) {
+func (s *JwtService) generateJwtToken(ctx context.Context, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, refreshClaims *JwtClaims, err error) {
 	now := time.Now()
-	accessClaims = &JwtClaims{
-		Uid:   uint64(userBasic.ID),
-		Extra: extraClaims,
-		Type:  TokenTypeAccess,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    s.issuer,
-			Subject:   userBasic.Name,
-			ExpiresAt: jwt.NewNumericDate(now.Add(s.accessTTL)),
-			NotBefore: jwt.NewNumericDate(now),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ID:        idx.UUIDv4(),
-		},
-	}
-	refreshClaims = &JwtClaims{
-		Uid:   uint64(userBasic.ID),
-		Extra: extraClaims,
-		Type:  TokenTypeRefresh,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    s.issuer,
-			Subject:   userBasic.Name,
-			ExpiresAt: jwt.NewNumericDate(now.Add(s.refreshTTL)),
-			NotBefore: jwt.NewNumericDate(now),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ID:        idx.UUIDv4(),
-		},
-	}
-	accessJwt := jwt.NewWithClaims(s.signMethod, accessClaims)
-	accessToken, err = accessJwt.SignedString([]byte(s.secretKey))
+	accessClaims = s.createClaims(now, enumsv1.TokenType_TOKEN_TYPE_ACCESS, req)
+	refreshClaims = s.createClaims(now, enumsv1.TokenType_TOKEN_TYPE_REFRESH, req)
+	accessToken, err = s.createToken(accessClaims)
 	if err != nil {
 		return
 	}
-	refreshJwt := jwt.NewWithClaims(s.signMethod, refreshClaims)
-	refreshToken, err = refreshJwt.SignedString([]byte(s.secretKey))
+	refreshToken, err = s.createToken(refreshClaims)
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (s *JwtService) verifyToken(ctx context.Context, token string, t TokenType) (*JwtClaims, error) {
+func (s *JwtService) verifyToken(ctx context.Context, token string, t enumsv1.TokenType) (*JwtClaims, error) {
 	parsedClaims, err := s.parseClaims(token, true)
 	if err != nil {
 		return nil, err
 	}
-	if parsedClaims.Type != t {
+	if parsedClaims.Type != int32(t) {
 		return nil, ecode.ErrUserTokenMisMatch
 	}
 	// 验证token是否在黑名单中
-	isBlock, err := s.bkl.Exists(ctx, parsedClaims.ID)
+	isBlock, err := s.blk.Exists(ctx, parsedClaims.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +208,7 @@ func (s *JwtService) revokeToken(ctx context.Context, claims *JwtClaims) error {
 	if ttl <= 0 {
 		return nil
 	}
-	return s.bkl.Add(ctx, claims.ID, ttl)
+	return s.blk.Add(ctx, claims.ID, ttl)
 }
 
 func (s *JwtService) revokeTokens(ctx context.Context, items []*JwtClaims) error {
@@ -261,7 +224,7 @@ func (s *JwtService) revokeTokens(ctx context.Context, items []*JwtClaims) error
 		})
 	}
 	if len(sessions) > 0 {
-		return s.bkl.BatchAdd(ctx, sessions)
+		return s.blk.BatchAdd(ctx, sessions)
 	}
 	return nil
 }
@@ -302,4 +265,29 @@ func (s *JwtService) ttlFromClaims(claims *JwtClaims) time.Duration {
 		return 0
 	}
 	return time.Duration(exp) * time.Second
+}
+
+func (s *JwtService) createClaims(t time.Time, typ enumsv1.TokenType, req *GenerateJwtReq) *JwtClaims {
+	return &JwtClaims{
+		Uid:      req.UserBasic.ID,
+		Type:     int32(typ),
+		AuthType: int32(req.AuthType),
+		AppId:    req.AppId,
+		OpenId:   req.OpenId,
+		UnionId:  req.UnionId,
+		Extra:    req.ExtraJwtClaims,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    s.issuer,
+			Subject:   req.UserBasic.Number,
+			ExpiresAt: jwt.NewNumericDate(t.Add(s.accessTTL)),
+			NotBefore: jwt.NewNumericDate(t),
+			IssuedAt:  jwt.NewNumericDate(t),
+			ID:        idx.UUIDv4(),
+		},
+	}
+}
+
+func (s *JwtService) createToken(claims *JwtClaims) (string, error) {
+	accessJwt := jwt.NewWithClaims(s.signMethod, claims)
+	return accessJwt.SignedString([]byte(s.secretKey))
 }
