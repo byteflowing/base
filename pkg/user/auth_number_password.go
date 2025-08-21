@@ -28,7 +28,7 @@ func (n *NumberPassword) AuthType() enumsv1.AuthType {
 }
 
 func (n *NumberPassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD {
+	if req.AuthType != n.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	userBasic, err := n.repo.GetUserBasicByNumber(ctx, req.Identifier)

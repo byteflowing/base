@@ -28,7 +28,7 @@ func (e *EmailPassword) AuthType() enumsv1.AuthType {
 }
 
 func (e *EmailPassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_EMAIL_PASSWORD {
+	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)

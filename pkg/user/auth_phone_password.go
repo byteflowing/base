@@ -28,7 +28,7 @@ func (p *PhonePassword) AuthType() enumsv1.AuthType {
 }
 
 func (p *PhonePassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_PHONE_PASSWORD {
+	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	if req.PhoneNumber == nil || req.PhoneNumber.Number == "" || req.PhoneNumber.CountryCode == "" {

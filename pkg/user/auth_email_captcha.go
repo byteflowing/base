@@ -30,7 +30,7 @@ func (e *EmailCaptcha) AuthType() enumsv1.AuthType {
 }
 
 func (e *EmailCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA {
+	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	if req.CaptchaToken == nil {

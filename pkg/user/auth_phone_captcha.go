@@ -30,7 +30,7 @@ func (p *PhoneCaptcha) AuthType() enumsv1.AuthType {
 }
 
 func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA {
+	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	if req.CaptchaToken == nil {

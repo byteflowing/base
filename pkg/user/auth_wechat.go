@@ -29,7 +29,7 @@ func (w *WeChat) AuthType() enumsv1.AuthType {
 }
 
 func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	if req.AuthType != enumsv1.AuthType_AUTH_TYPE_WECHAT {
+	if req.AuthType != w.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	res, err := w.wechatMgr.WechatSignIn(ctx, &commonv1.WechatSignInReq{
