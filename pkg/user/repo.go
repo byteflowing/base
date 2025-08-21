@@ -24,8 +24,8 @@ type Repo interface {
 	GetOrCreateUserAuthByWechat(ctx context.Context, appid, openid, unionid, sessionKey string) (userAuth *model.UserBasic, err error)
 	AddSignInLog(ctx context.Context, req *userv1.SignInReq, accessClaims, refreshClaims *JwtClaims) (err error)
 	RefreshSignInLog(ctx context.Context, oldRefreshSessionID string, accessClaims, refreshClaims *JwtClaims) (err error)
-	DisActiveSignInLogByAccess(ctx context.Context, AccessSessionID string, status SessionStatus) (err error)
-	DisActiveSignInLogByRefresh(ctx context.Context, RefreshSessionID string, status SessionStatus) (err error)
+	DisActiveSignInLogByAccess(ctx context.Context, AccessSessionID string, status enumsv1.SessionStatus) (err error)
+	DisActiveSignInLogByRefresh(ctx context.Context, RefreshSessionID string, status enumsv1.SessionStatus) (err error)
 	GetSignInLogByAccess(ctx context.Context, accessSessionID string) (log *model.UserSignLog, err error)
 	GetSignInLogByRefresh(ctx context.Context, refreshSessionID string) (log *model.UserSignLog, err error)
 	ExpireAccessSessionID(ctx context.Context, accessSessionID string) (err error)
@@ -118,8 +118,8 @@ func (repo *GenRepo) GetOrCreateUserAuthByWechat(ctx context.Context, appid, ope
 				userBasic = &model.UserBasic{
 					ID:     uid,
 					Number: number,
-					Status: StatusOk,
-					Source: int16(SourceWechat),
+					Status: int16(enumsv1.UserStatus_USER_STATUS_OK),
+					Source: int16(enumsv1.UserSource_USER_SOURCE_WECHAT),
 				}
 				if err := tx.UserBasic.WithContext(ctx).Create(userBasic); err != nil {
 					return err
@@ -127,7 +127,7 @@ func (repo *GenRepo) GetOrCreateUserAuthByWechat(ctx context.Context, appid, ope
 			}
 			newAuth := &model.UserAuth{
 				UID:        userBasic.ID,
-				Type:       int16(AuthTypeWechat),
+				Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
 				Status:     int16(enumsv1.AuthStatus_AUTH_STATUS_OK),
 				Appid:      appid,
 				Identifier: openid,
@@ -139,7 +139,7 @@ func (repo *GenRepo) GetOrCreateUserAuthByWechat(ctx context.Context, appid, ope
 
 		// 如果openid匹配就更新
 		// 更新unionid，如果账号绑定了微信开放平台就可以关联上
-		if auth.Status == int16(AuthStatusDisabled) {
+		if auth.Status == int16(enumsv1.AuthStatus_AUTH_STATUS_DISABLED) {
 			return ecode.ErrUserAuthDisabled
 		}
 		m := &model.UserAuth{Credential: sessionKey}
@@ -159,7 +159,7 @@ func (repo *GenRepo) AddSignInLog(ctx context.Context, req *userv1.SignInReq, ac
 	return repo.db.UserSignLog.WithContext(ctx).Create(&model.UserSignLog{
 		UID:              int64(accessClaims.Uid),
 		Type:             int16(req.AuthType),
-		Status:           int16(SessionStatusSignIn),
+		Status:           int16(enumsv1.SessionStatus_SESSION_STATUS_OK),
 		Identifier:       repo.getIdentifier(req),
 		IP:               req.Ip,
 		Location:         req.Location,
@@ -177,7 +177,7 @@ func (repo *GenRepo) RefreshSignInLog(ctx context.Context, oldRefreshSessionID s
 	_, err = q.WithContext(ctx).Where(q.RefreshSessionID.Eq(oldRefreshSessionID)).Updates(model.UserSignLog{
 		AccessSessionID:  accessClaims.ID,
 		RefreshSessionID: refreshClaims.ID,
-		Status:           int16(SessionStatusSignIn),
+		Status:           int16(enumsv1.SessionStatus_SESSION_STATUS_OK),
 		AccessExpiredAt:  accessClaims.ExpiresAt.UnixMilli(),
 		RefreshExpiredAt: refreshClaims.ExpiresAt.UnixMilli(),
 	})
@@ -193,7 +193,7 @@ func (repo *GenRepo) ExpireAccessSessionID(ctx context.Context, accessSessionID 
 	return
 }
 
-func (repo *GenRepo) DisActiveSignInLogByAccess(ctx context.Context, AccessSessionID string, status SessionStatus) (err error) {
+func (repo *GenRepo) DisActiveSignInLogByAccess(ctx context.Context, AccessSessionID string, status enumsv1.SessionStatus) (err error) {
 	q := repo.db.UserSignLog
 	now := time.Now().UnixMilli()
 	_, err = q.WithContext(ctx).Where(q.AccessSessionID.Eq(AccessSessionID)).Updates(&model.UserSignLog{
@@ -204,7 +204,7 @@ func (repo *GenRepo) DisActiveSignInLogByAccess(ctx context.Context, AccessSessi
 	return
 }
 
-func (repo *GenRepo) DisActiveSignInLogByRefresh(ctx context.Context, RefreshSessionID string, status SessionStatus) (err error) {
+func (repo *GenRepo) DisActiveSignInLogByRefresh(ctx context.Context, RefreshSessionID string, status enumsv1.SessionStatus) (err error) {
 	q := repo.db.UserSignLog
 	now := time.Now().UnixMilli()
 	_, err = q.WithContext(ctx).Where(q.RefreshSessionID.Eq(RefreshSessionID)).Updates(&model.UserSignLog{
@@ -220,7 +220,7 @@ func (repo *GenRepo) GetActiveSignInLog(ctx context.Context, uid uint64) (logs [
 	now := time.Now().UnixMilli()
 	logs, err = q.WithContext(ctx).Where(
 		q.UID.Eq(int64(uid)),
-		q.Status.Eq(int16(SessionStatusSignIn)),
+		q.Status.Eq(int16(enumsv1.SessionStatus_SESSION_STATUS_OK)),
 		q.RefreshExpiredAt.Gt(now),
 	).Find()
 	return

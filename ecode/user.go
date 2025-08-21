@@ -17,4 +17,6 @@ var (
 	ErrUserCaptchaIsEmpty      = ecode.NewCode(1009, "ERR_USER_CAPTCHA_IS_EMPTY")       // 验证码为空
 	ErrUserCaptchaTokenIsEmpty = ecode.NewCode(1010, "ERR_USER_CAPTCHA_TOKEN_IS_EMPTY") // 验证码token为空
 	ErrUserAuthDisabled        = ecode.NewCode(1011, "ERR_USER_AUTH_DISABLED")          // 登录验证禁用
+	ErrUserSignInTooMany       = ecode.NewCode(1012, "ERR_USER_SIGN_IN_TOO_MANY")       // 登录过于频繁
+	ErrUserRefreshTooMany      = ecode.NewCode(1013, "ERR_USER_REFRESH_TOO_MANY")       // 登录刷新过于频繁
 )

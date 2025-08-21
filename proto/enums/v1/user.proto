@@ -23,7 +23,7 @@ enum SessionStatus {
   SESSION_STATUS_OK = 1; // 正常
   SESSION_STATUS_SIGN_OUT = 2; // 主动退出
   SESSION_STATUS_KICKED_OUT = 3; // 被挤退出（达到了最大登录终端）
-  SESSION_STATUS_FORCE_SIGN_OUT = 4; // 强制退出(在其他终端操作)
+  SESSION_STATUS_FORCE_SIGN_OUT = 4; // 强制退出(更新了敏感信息如账号密码等，自己强制下线某个终端)
 }
 
 enum UserStatus {

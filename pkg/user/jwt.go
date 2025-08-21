@@ -123,7 +123,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (new
 	return newAccessToken, newRefreshToken, nil
 }
 
-func (s *JwtService) RevokeByAccessToken(ctx context.Context, tokenStr string, status SessionStatus) error {
+func (s *JwtService) RevokeByAccessToken(ctx context.Context, tokenStr string, status enumsv1.SessionStatus) error {
 	accessClaims, err := s.parseClaims(tokenStr, false)
 	if err != nil {
 		return err

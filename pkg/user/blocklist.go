@@ -16,14 +16,14 @@ type BlockList interface {
 }
 
 type RedisBlockList struct {
-	rdb             *redis.Redis
-	blockListPrefix string
+	rdb    *redis.Redis
+	prefix string
 }
 
 func NewRedisBlockList(rdb *redis.Redis, c *configv1.UserBlockList) *RedisBlockList {
 	return &RedisBlockList{
-		rdb:             rdb,
-		blockListPrefix: c.Prefix,
+		rdb:    rdb,
+		prefix: c.Prefix,
 	}
 }
 
@@ -53,5 +53,5 @@ func (r *RedisBlockList) Exists(ctx context.Context, sessionID string) (bool, er
 }
 
 func (r *RedisBlockList) getBlockListKey(sessionID string) string {
-	return fmt.Sprintf("%s:{%s}", r.blockListPrefix, sessionID)
+	return fmt.Sprintf("%s:{%s}", r.prefix, sessionID)
 }

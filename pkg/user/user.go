@@ -3,10 +3,8 @@ package user
 import (
 	"context"
 
-	"github.com/byteflowing/base/dal/model"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
-	"github.com/byteflowing/go-common/redis"
 )
 
 type Authenticator interface {
@@ -16,47 +14,55 @@ type Authenticator interface {
 
 type User interface {
 	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
-	SignOut(ctx context.Context, accessSessionID string) (err error)
-	SignOutBySessionId(ctx context.Context, sessionId string) (err error)
-	Refresh(ctx context.Context, refreshToken string) (newToken string, err error)
-	VerifyToken(ctx context.Context, token string) (err error)
-	GetActiveSignInLog(ctx context.Context, uid uint64) (logs []*model.UserSignLog, err error)
-	PagingGetSignInLogs(ctx context.Context, req *PagingGetSignInLogsReq) (resp *PagingGetSignInLogsResp, err error)
+	SignOutBySessionId(ctx context.Context, req *userv1.SignOutBySessionIdReq) (resp *userv1.SignOutBySessionIdResp, err error)
+	SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error)
+	Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error)
+	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
+	GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error)
+	PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error)
+	AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error)
 }
 
 type Impl struct {
-	handlers map[AuthType]Authenticator
-	rdb      *redis.Redis
+	authHandlers map[enumsv1.AuthType]Authenticator
 }
 
-//func NewUserService(db *query.Query) User {
-//	return &Impl{}
-//}
-//
-//func (i *Impl) SignIn(ctx context.Context, req *SignInReq) (resp *SignInResp, err error) {
-//	return nil, nil
-//}
-//
-//func (i *Impl) SignOut(ctx context.Context) (err error) {
-//	return nil
-//}
-//
-//func (i *Impl) SignOutBySessionId(ctx context.Context, sessionId string) (err error) {
-//	return nil
-//}
-//
-//func (i *Impl) Refresh(ctx context.Context, refreshToken string) (newToken string, err error) {
-//	return "", nil
-//}
-//
-//func (i *Impl) VerifyToken(ctx context.Context, token string) (err error) {
-//	return nil
-//}
-//
-//func (i *Impl) GetActiveSignInLog(ctx context.Context, uid uint64) (logs []*model.UserSignLog, err error) {
-//	return nil, nil
-//}
-//
-//func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *PagingGetSignInLogsReq) (resp *PagingGetSignInLogsResp, err error) {
-//	return nil, err
-//}
+func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) SignOutBySessionId(ctx context.Context, req *userv1.SignOutBySessionIdReq) (resp *userv1.SignOutBySessionIdResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *Impl) AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error) {
+	//TODO implement me
+	panic("implement me")
+}

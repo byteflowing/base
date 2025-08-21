@@ -138,6 +138,7 @@ message RefreshResp {
 message SignOutByUidReq {
   // token中的uid
   int64 uid = 1 [(buf.validate.field).int64.gt = 0];
+  enums.v1.SessionStatus reason = 2 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
 }
 
 message SignOutByUidResp {
@@ -152,9 +153,26 @@ message SignOutByUidResp {
 message SignOutBySessionIdReq {
   // token中的jti
   string session_id = 1 [(buf.validate.field).string.uuid = true];
+  enums.v1.SessionStatus reason = 2 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
 }
 
 message SignOutBySessionIdResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message AddSessionToBlockListReq {
+  // 访问token的jti
+  string access_session_id = 1 [(buf.validate.field).string.uuid = true];
+  // 是否同时把refresh的jti加入黑名单
+  bool block_refresh = 2;
+}
+
+message AddSessionToBlockListResp {
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
   // 正常返回OK, 错误返回错误内容

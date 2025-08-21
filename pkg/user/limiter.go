@@ -29,7 +29,16 @@ func (r *RedisLimiter) Allow(ctx context.Context, uid int64, t enumsv1.UserLimit
 		return err
 	}
 	if !ok {
-		return ecode.ErrTooManyRequests
+		return r.getError(t)
 	}
 	return nil
+}
+
+func (r *RedisLimiter) getError(t enumsv1.UserLimitType) error {
+	if t == enumsv1.UserLimitType_USER_LIMIT_TYPE_SIGN_IN {
+		return ecode.ErrUserSignInTooMany
+	} else if t == enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH {
+		return ecode.ErrUserRefreshTooMany
+	}
+	return ecode.ErrTooManyRequests
 }

@@ -24,7 +24,6 @@ message WechatSignInResp {
   string union_id = 4;
 }
 
-
 message WechatGetAccessToken {
   string access_token = 1;
   google.protobuf.Timestamp expiration = 2;
