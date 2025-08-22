@@ -17,8 +17,8 @@ type UserSignLog struct {
 	Location         *string `gorm:"column:location;type:character varying(100)" json:"location"`
 	Agent            *string `gorm:"column:agent;type:character varying(255)" json:"agent"`
 	Device           *string `gorm:"column:device;type:character varying(255)" json:"device"`
-	AccessSessionID  string  `gorm:"column:access_session_id;type:character(36);not null;index:idx_sign_log_access_session_id,priority:1" json:"access_session_id"`
-	RefreshSessionID string  `gorm:"column:refresh_session_id;type:character(36);not null;index:idx_sign_log_refresh_session_id,priority:1" json:"refresh_session_id"`
+	AccessSessionID  string  `gorm:"column:access_session_id;type:character(36);not null;uniqueIndex:idx_sign_log_access_session_id,priority:1" json:"access_session_id"`
+	RefreshSessionID string  `gorm:"column:refresh_session_id;type:character(36);not null;uniqueIndex:idx_sign_log_refresh_session_id,priority:1" json:"refresh_session_id"`
 	AccessExpiredAt  int64   `gorm:"column:access_expired_at;type:bigint;not null" json:"access_expired_at"`
 	RefreshExpiredAt int64   `gorm:"column:refresh_expired_at;type:bigint;not null" json:"refresh_expired_at"`
 	DeletedAt        *int64  `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`

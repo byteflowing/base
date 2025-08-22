@@ -58,21 +58,5 @@ func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) 
 	if isDisabled(userBasic) {
 		return nil, ecode.ErrUserDisabled
 	}
-	// 生成jwt token
-	accessToken, refreshToken, err := p.jwtService.GenerateToken(ctx, &GenerateJwtReq{
-		UserBasic:      userBasic,
-		SignInReq:      req,
-		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       p.AuthType(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	resp = &userv1.SignInResp{
-		Data: &userv1.SignInResp_Data{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
-	}
-	return resp, nil
+	return checkPasswordAndGenToken(ctx, req, userBasic, p.jwtService, nil, nil)
 }

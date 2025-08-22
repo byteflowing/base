@@ -13,7 +13,7 @@ const TableNameUserBasic = "user_basic"
 // UserBasic mapped from table <user_basic>
 type UserBasic struct {
 	ID               int64      `gorm:"column:id;type:bigint;primaryKey" json:"id"`
-	Number           string     `gorm:"column:number;type:character varying(50);not null;index:idx_basic_number,priority:1" json:"number"`
+	Number           string     `gorm:"column:number;type:character varying(50);not null;uniqueIndex:idx_basic_number,priority:1" json:"number"`
 	Name             *string    `gorm:"column:name;type:character varying(50)" json:"name"`
 	Alias_           *string    `gorm:"column:alias;type:character varying(50)" json:"alias"`
 	Password         *string    `gorm:"column:password;type:character varying(100)" json:"password"`
@@ -21,8 +21,8 @@ type UserBasic struct {
 	Gender           *int16     `gorm:"column:gender;type:smallint" json:"gender"`
 	Birthday         *time.Time `gorm:"column:birthday;type:date" json:"birthday"`
 	PhoneCountryCode string     `gorm:"column:phone_country_code;type:character varying(10);not null" json:"phone_country_code"`
-	Phone            string     `gorm:"column:phone;type:character varying(20);not null;index:idx_basic_phone,priority:1" json:"phone"`
-	Email            string     `gorm:"column:email;type:character varying(100);not null;index:idx_basic_email,priority:1" json:"email"`
+	Phone            string     `gorm:"column:phone;type:character varying(20);not null;uniqueIndex:idx_basic_phone,priority:1" json:"phone"`
+	Email            string     `gorm:"column:email;type:character varying(100);not null;uniqueIndex:idx_basic_email,priority:1" json:"email"`
 	CountryCode      string     `gorm:"column:country_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:2" json:"country_code"`
 	ProvinceCode     string     `gorm:"column:province_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:4" json:"province_code"`
 	CityCode         string     `gorm:"column:city_code;type:character varying(20);not null;index:idx_basic_admin_region,priority:1" json:"city_code"`

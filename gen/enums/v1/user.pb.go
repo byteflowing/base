@@ -138,7 +138,7 @@ const (
 	SessionStatus_SESSION_STATUS_OK             SessionStatus = 1 // 正常
 	SessionStatus_SESSION_STATUS_SIGN_OUT       SessionStatus = 2 // 主动退出
 	SessionStatus_SESSION_STATUS_KICKED_OUT     SessionStatus = 3 // 被挤退出（达到了最大登录终端）
-	SessionStatus_SESSION_STATUS_FORCE_SIGN_OUT SessionStatus = 4 // 强制退出(更新了敏感信息如账号密码等，自己强制下线某个终端)
+	SessionStatus_SESSION_STATUS_FORCE_SIGN_OUT SessionStatus = 4 // 强制退出
 )
 
 // Enum value maps for SessionStatus.

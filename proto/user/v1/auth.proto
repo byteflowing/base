@@ -111,7 +111,8 @@ message SignInResp {
   string err_msg = 2;
   // 开发模式，返回详细错误信息
   string err_detail = 3;
-  Data data = 4;
+  optional common.v1.LimitRule rule = 4;
+  Data data = 5;
 }
 
 message RefreshReq {

@@ -26,9 +26,9 @@ CREATE TABLE user_basic
     created_at         BIGINT       NOT NULL DEFAULT 0,   -- '[必选] 创建时间，毫秒时间戳'
     ext                JSONB                 DEFAULT '{}' -- '[可选] 扩展字段'
 );
-CREATE INDEX idx_basic_number ON user_basic (number);
-CREATE INDEX idx_basic_phone ON user_basic (phone);
-CREATE INDEX idx_basic_email ON user_basic (email);
+CREATE UNIQUE INDEX idx_basic_number ON user_basic (number);
+CREATE UNIQUE INDEX idx_basic_phone ON user_basic (phone);
+CREATE UNIQUE INDEX idx_basic_email ON user_basic (email);
 CREATE INDEX idx_user_ext ON user_basic USING GIN (ext jsonb_path_ops);
 CREATE INDEX idx_basic_admin_region ON user_basic (country_code, province_code, city_code, district_code);
 
@@ -47,8 +47,9 @@ CREATE TABLE user_auth
     created_at BIGINT       NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
 );
 CREATE INDEX idx_auth_uid ON user_auth (uid);
-CREATE INDEX idx_auth_appid ON user_auth (appid);
+CREATE UNIQUE INDEX idx_auth_appid ON user_auth (appid);
 CREATE INDEX idx_auth_identifier ON user_auth (identifier);
+CREATE INDEX idx_union_id ON user_auth (union_id);
 
 CREATE TABLE user_sign_log
 (
@@ -63,12 +64,12 @@ CREATE TABLE user_sign_log
     device             VARCHAR(255),                    -- '[可选] 登录设备信息'
     access_session_id  CHAR(36)    NOT NULL DEFAULT '', -- '[必选] access_session_id'
     refresh_session_id CHAR(36)    NOT NULL DEFAULT '', -- '[必选] refresh_session_id'
-    access_expired_at  BIGINT      NOT NULL DEFAULT 0,  -- '[必选] 过期时间，毫秒时间戳'
-    refresh_expired_at BIGINT      NOT NULL DEFAULT 0,  -- '[必选] 刷新截止时间，毫秒时间戳'
+    access_expired_at  BIGINT      NOT NULL DEFAULT 0,  -- '[必选] 过期时间，秒时间戳'
+    refresh_expired_at BIGINT      NOT NULL DEFAULT 0,  -- '[必选] 刷新截止时间，秒时间戳'
     deleted_at         BIGINT,                          -- '[可选] 删除时间，毫秒时间戳'
     updated_at         BIGINT      NOT NULL DEFAULT 0,  -- '[必选] 更新时间，毫秒时间戳'
     created_at         BIGINT      NOT NULL DEFAULT 0   -- '[必选] 创建时间，毫秒时间戳'
 );
 CREATE INDEX idx_sign_log_uid ON user_sign_log (uid);
-CREATE INDEX idx_sign_log_access_session_id ON user_sign_log (access_session_id);
-CREATE INDEX idx_sign_log_refresh_session_id ON user_sign_log (refresh_session_id);
+CREATE UNIQUE INDEX idx_sign_log_access_session_id ON user_sign_log (access_session_id);
+CREATE UNIQUE INDEX idx_sign_log_refresh_session_id ON user_sign_log (refresh_session_id);

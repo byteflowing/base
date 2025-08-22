@@ -434,7 +434,8 @@ type SignInResp struct {
 	ErrMsg string `protobuf:"bytes,2,opt,name=err_msg,json=errMsg,proto3" json:"err_msg,omitempty"`
 	// 开发模式，返回详细错误信息
 	ErrDetail     string           `protobuf:"bytes,3,opt,name=err_detail,json=errDetail,proto3" json:"err_detail,omitempty"`
-	Data          *SignInResp_Data `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`
+	Rule          *v11.LimitRule   `protobuf:"bytes,4,opt,name=rule,proto3,oneof" json:"rule,omitempty"`
+	Data          *SignInResp_Data `protobuf:"bytes,5,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -488,6 +489,13 @@ func (x *SignInResp) GetErrDetail() string {
 		return x.ErrDetail
 	}
 	return ""
+}
+
+func (x *SignInResp) GetRule() *v11.LimitRule {
+	if x != nil {
+		return x.Rule
+	}
+	return nil
 }
 
 func (x *SignInResp) GetData() *SignInResp_Data {
@@ -1703,17 +1711,19 @@ const file_user_v1_auth_proto_rawDesc = "" +
 	"\x03_ipB\v\n" +
 	"\t_locationB\r\n" +
 	"\v_user_agentB\t\n" +
-	"\a_device\"\xdd\x01\n" +
+	"\a_device\"\x95\x02\n" +
 	"\n" +
 	"SignInResp\x12\x19\n" +
 	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
 	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
 	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetail\x12,\n" +
-	"\x04data\x18\x04 \x01(\v2\x18.user.v1.SignInResp.DataR\x04data\x1aN\n" +
+	"err_detail\x18\x03 \x01(\tR\terrDetail\x12-\n" +
+	"\x04rule\x18\x04 \x01(\v2\x14.common.v1.LimitRuleH\x00R\x04rule\x88\x01\x01\x12,\n" +
+	"\x04data\x18\x05 \x01(\v2\x18.user.v1.SignInResp.DataR\x04data\x1aN\n" +
 	"\x04Data\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
-	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\"9\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshTokenB\a\n" +
+	"\x05_rule\"9\n" +
 	"\n" +
 	"RefreshReq\x12+\n" +
 	"\rrefresh_token\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\frefreshToken\"\xed\x01\n" +
@@ -1840,6 +1850,7 @@ var file_user_v1_auth_proto_goTypes = []any{
 	(v1.SessionStatus)(0),                // 25: enums.v1.SessionStatus
 	(*timestamppb.Timestamp)(nil),        // 26: google.protobuf.Timestamp
 	(*v11.PhoneNumber)(nil),              // 27: common.v1.PhoneNumber
+	(*v11.LimitRule)(nil),                // 28: common.v1.LimitRule
 }
 var file_user_v1_auth_proto_depIdxs = []int32{
 	23, // 0: user.v1.UserProfile.auth_type:type_name -> enums.v1.AuthType
@@ -1853,23 +1864,24 @@ var file_user_v1_auth_proto_depIdxs = []int32{
 	23, // 8: user.v1.SignInReq.auth_type:type_name -> enums.v1.AuthType
 	27, // 9: user.v1.SignInReq.phone_number:type_name -> common.v1.PhoneNumber
 	24, // 10: user.v1.SignInReq.extra_jwt_claims:type_name -> google.protobuf.Any
-	18, // 11: user.v1.SignInResp.data:type_name -> user.v1.SignInResp.Data
-	19, // 12: user.v1.RefreshResp.data:type_name -> user.v1.RefreshResp.Data
-	25, // 13: user.v1.SignOutByUidReq.reason:type_name -> enums.v1.SessionStatus
-	25, // 14: user.v1.SignOutBySessionIdReq.reason:type_name -> enums.v1.SessionStatus
-	20, // 15: user.v1.VerifyTokenResp.data:type_name -> user.v1.VerifyTokenResp.Data
-	21, // 16: user.v1.GetActiveSignInLogsResp.data:type_name -> user.v1.GetActiveSignInLogsResp.Data
-	23, // 17: user.v1.PagingGetSignInLogsReq.types:type_name -> enums.v1.AuthType
-	25, // 18: user.v1.PagingGetSignInLogsReq.statuses:type_name -> enums.v1.SessionStatus
-	22, // 19: user.v1.PagingGetSignInLogsResp.data:type_name -> user.v1.PagingGetSignInLogsResp.Data
-	0,  // 20: user.v1.VerifyTokenResp.Data.user_info:type_name -> user.v1.UserProfile
-	1,  // 21: user.v1.GetActiveSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
-	1,  // 22: user.v1.PagingGetSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
-	23, // [23:23] is the sub-list for method output_type
-	23, // [23:23] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	28, // 11: user.v1.SignInResp.rule:type_name -> common.v1.LimitRule
+	18, // 12: user.v1.SignInResp.data:type_name -> user.v1.SignInResp.Data
+	19, // 13: user.v1.RefreshResp.data:type_name -> user.v1.RefreshResp.Data
+	25, // 14: user.v1.SignOutByUidReq.reason:type_name -> enums.v1.SessionStatus
+	25, // 15: user.v1.SignOutBySessionIdReq.reason:type_name -> enums.v1.SessionStatus
+	20, // 16: user.v1.VerifyTokenResp.data:type_name -> user.v1.VerifyTokenResp.Data
+	21, // 17: user.v1.GetActiveSignInLogsResp.data:type_name -> user.v1.GetActiveSignInLogsResp.Data
+	23, // 18: user.v1.PagingGetSignInLogsReq.types:type_name -> enums.v1.AuthType
+	25, // 19: user.v1.PagingGetSignInLogsReq.statuses:type_name -> enums.v1.SessionStatus
+	22, // 20: user.v1.PagingGetSignInLogsResp.data:type_name -> user.v1.PagingGetSignInLogsResp.Data
+	0,  // 21: user.v1.VerifyTokenResp.Data.user_info:type_name -> user.v1.UserProfile
+	1,  // 22: user.v1.GetActiveSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
+	1,  // 23: user.v1.PagingGetSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_auth_proto_init() }
@@ -1879,6 +1891,7 @@ func file_user_v1_auth_proto_init() {
 	}
 	file_user_v1_auth_proto_msgTypes[1].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[2].OneofWrappers = []any{}
+	file_user_v1_auth_proto_msgTypes[3].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[16].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}

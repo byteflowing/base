@@ -10,16 +10,18 @@ import (
 )
 
 type EmailPassword struct {
-	passHasher crypto.PasswordHasher
+	passHasher *crypto.PasswordHasher
 	repo       Repo
 	jwtService *JwtService
+	limiter    Limiter
 }
 
-func NewEmailPassword(passHasher crypto.PasswordHasher, repo Repo, jwtService *JwtService) Authenticator {
+func NewEmailPassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter Limiter) Authenticator {
 	return &EmailPassword{
 		passHasher: passHasher,
 		repo:       repo,
 		jwtService: jwtService,
+		limiter:    limiter,
 	}
 }
 
@@ -35,36 +37,5 @@ func (e *EmailPassword) Authenticate(ctx context.Context, req *userv1.SignInReq)
 	if err != nil {
 		return nil, err
 	}
-	// 检查用户是否被禁用
-	if isDisabled(userBasic) {
-		return nil, ecode.ErrUserDisabled
-	}
-	// 验证密码是否正确
-	if userBasic.Password == nil {
-		return nil, ecode.ErrUserPasswordNotSet
-	}
-	ok, err := e.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
-	if err != nil {
-		return nil, err
-	}
-	if !ok {
-		return nil, ecode.ErrUserPasswordMisMatch
-	}
-	// 生成jwt token
-	accessToken, refreshToken, err := e.jwtService.GenerateToken(ctx, &GenerateJwtReq{
-		UserBasic:      userBasic,
-		SignInReq:      req,
-		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       e.AuthType(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	resp = &userv1.SignInResp{
-		Data: &userv1.SignInResp_Data{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
-	}
-	return resp, nil
+	return checkPasswordAndGenToken(ctx, req, userBasic, e.jwtService, e.limiter, e.passHasher)
 }

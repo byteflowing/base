@@ -10,16 +10,18 @@ import (
 )
 
 type PhonePassword struct {
-	passHasher crypto.PasswordHasher
+	passHasher *crypto.PasswordHasher
 	repo       Repo
 	jwtService *JwtService
+	limiter    Limiter
 }
 
-func NewPhonePassword(passHasher crypto.PasswordHasher, repo Repo, jwtService *JwtService) Authenticator {
-	return &EmailPassword{
+func NewPhonePassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter Limiter) Authenticator {
+	return &PhonePassword{
 		passHasher: passHasher,
 		repo:       repo,
 		jwtService: jwtService,
+		limiter:    limiter,
 	}
 }
 
@@ -38,36 +40,5 @@ func (p *PhonePassword) Authenticate(ctx context.Context, req *userv1.SignInReq)
 	if err != nil {
 		return nil, err
 	}
-	// 检查用户是否被禁用
-	if isDisabled(userBasic) {
-		return nil, ecode.ErrUserDisabled
-	}
-	// 验证密码是否正确
-	if userBasic.Password == nil {
-		return nil, ecode.ErrUserPasswordNotSet
-	}
-	ok, err := p.passHasher.VerifyPassword(req.Credential, *userBasic.Password)
-	if err != nil {
-		return nil, err
-	}
-	if !ok {
-		return nil, ecode.ErrUserPasswordMisMatch
-	}
-	// 生成jwt token
-	accessToken, refreshToken, err := p.jwtService.GenerateToken(ctx, &GenerateJwtReq{
-		UserBasic:      userBasic,
-		SignInReq:      req,
-		ExtraJwtClaims: req.ExtraJwtClaims,
-		AuthType:       p.AuthType(),
-	})
-	if err != nil {
-		return nil, err
-	}
-	resp = &userv1.SignInResp{
-		Data: &userv1.SignInResp_Data{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-		},
-	}
-	return resp, nil
+	return checkPasswordAndGenToken(ctx, req, userBasic, p.jwtService, p.limiter, p.passHasher)
 }

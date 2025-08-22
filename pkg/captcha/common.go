@@ -10,6 +10,7 @@ import (
 	commonv1 "github.com/byteflowing/base/gen/common/v1"
 	configv1 "github.com/byteflowing/base/gen/config/v1"
 	enumsV1 "github.com/byteflowing/base/gen/enums/v1"
+	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/redis"
 	"github.com/byteflowing/go-common/trans"
@@ -23,7 +24,7 @@ type captcha struct {
 }
 
 func newCaptcha(rdb *redis.Redis, c *configv1.Captcha) *captcha {
-	limiter := redis.NewLimiter(rdb, c.Prefix, convertLimitsToWindows(c.Limits))
+	limiter := redis.NewLimiter(rdb, c.Prefix, common.ConvertLimitsToWindows(c.Limits))
 	return &captcha{
 		config:  c,
 		rdb:     rdb,
@@ -84,9 +85,13 @@ func (c *captcha) verify(ctx context.Context, target, token, captcha string, sen
 	} else {
 		ok = strings.ToLower(storedToken) == strings.ToLower(captcha)
 	}
-	// 验证成功删除验证码
+	// 验证成功删除验证码及错误次数统计
 	if ok {
-		if err = c.rdb.Del(ctx, key).Err(); err != nil {
+		errKey := c.getCaptchaErrKey(token)
+		pipe := c.rdb.Pipeline()
+		pipe.Del(ctx, key)
+		pipe.Del(ctx, errKey)
+		if _, err = pipe.Exec(ctx); err != nil {
 			return false, err
 		}
 	}
@@ -121,18 +126,6 @@ func (c *captcha) allow(ctx context.Context, target string) (ok bool, rule *comm
 		return false, rule, nil
 	}
 	return true, nil, nil
-}
-
-func convertLimitsToWindows(limits []*commonv1.LimitRule) []*redis.Window {
-	var windows []*redis.Window
-	for _, limit := range limits {
-		windows = append(windows, &redis.Window{
-			Duration: limit.Duration.AsDuration(),
-			Limit:    uint32(limit.Limit),
-			Tag:      limit.Tag,
-		})
-	}
-	return windows
 }
 
 func (c *captcha) getTargetErr(sender enumsV1.MessageSenderType) error {
