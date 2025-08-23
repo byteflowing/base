@@ -18,12 +18,12 @@ import (
 )
 
 type captcha struct {
-	config  *configv1.Captcha
+	config  *configv1.CaptchaProvider
 	rdb     *redis.Redis
 	limiter *redis.Limiter
 }
 
-func newCaptcha(rdb *redis.Redis, c *configv1.Captcha) *captcha {
+func newCaptcha(rdb *redis.Redis, c *configv1.CaptchaProvider) *captcha {
 	limiter := redis.NewLimiter(rdb, c.Prefix, common.ConvertLimitsToWindows(c.Limits))
 	return &captcha{
 		config:  c,

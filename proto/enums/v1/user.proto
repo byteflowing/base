@@ -51,3 +51,17 @@ enum UserLimitType {
   USER_LIMIT_TYPE_SIGN_IN = 1; // 登录限制
   USER_LIMIT_TYPE_REFRESH = 2; // 刷新限制
 }
+
+enum Gender {
+  GENDER_UNSPECIFIED = 0;
+  GENDER_MALE = 1; // 男性
+  GENDER_FEMALE = 2; // 女性
+  GENDER_OTHER = 3; // 其他
+}
+
+enum SignUpType {
+  SIGN_UP_TYPE_UNSPECIFIED = 0;
+  SIGN_UP_TYPE_PHONE_CAPTCHA = 1; // 手机验证码
+  SIGN_UP_TYPE_EMAIL_CAPTCHA = 2; // 邮箱验证码
+  SIGN_UP_TYPE_WECHAT = 3; // 微信授权登录
+}

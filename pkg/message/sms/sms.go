@@ -22,7 +22,10 @@ type Impl struct {
 	providers map[enumsv1.SmsVendor]map[string]Provider
 }
 
-func New(c *configv1.Sms) *Impl {
+func New(c *configv1.Sms) Sms {
+	if c == nil {
+		return nil
+	}
 	provider := make(map[enumsv1.SmsVendor]map[string]Provider, len(c.Providers))
 	for _, v := range c.Providers {
 		_, ok := provider[v.GetVendor()]

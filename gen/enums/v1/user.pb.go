@@ -388,6 +388,110 @@ func (UserLimitType) EnumDescriptor() ([]byte, []int) {
 	return file_enums_v1_user_proto_rawDescGZIP(), []int{6}
 }
 
+type Gender int32
+
+const (
+	Gender_GENDER_UNSPECIFIED Gender = 0
+	Gender_GENDER_MALE        Gender = 1 // 男性
+	Gender_GENDER_FEMALE      Gender = 2 // 女性
+	Gender_GENDER_OTHER       Gender = 3 // 其他
+)
+
+// Enum value maps for Gender.
+var (
+	Gender_name = map[int32]string{
+		0: "GENDER_UNSPECIFIED",
+		1: "GENDER_MALE",
+		2: "GENDER_FEMALE",
+		3: "GENDER_OTHER",
+	}
+	Gender_value = map[string]int32{
+		"GENDER_UNSPECIFIED": 0,
+		"GENDER_MALE":        1,
+		"GENDER_FEMALE":      2,
+		"GENDER_OTHER":       3,
+	}
+)
+
+func (x Gender) Enum() *Gender {
+	p := new(Gender)
+	*p = x
+	return p
+}
+
+func (x Gender) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Gender) Descriptor() protoreflect.EnumDescriptor {
+	return file_enums_v1_user_proto_enumTypes[7].Descriptor()
+}
+
+func (Gender) Type() protoreflect.EnumType {
+	return &file_enums_v1_user_proto_enumTypes[7]
+}
+
+func (x Gender) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Gender.Descriptor instead.
+func (Gender) EnumDescriptor() ([]byte, []int) {
+	return file_enums_v1_user_proto_rawDescGZIP(), []int{7}
+}
+
+type SignUpType int32
+
+const (
+	SignUpType_SIGN_UP_TYPE_UNSPECIFIED   SignUpType = 0
+	SignUpType_SIGN_UP_TYPE_PHONE_CAPTCHA SignUpType = 1 // 手机验证码
+	SignUpType_SIGN_UP_TYPE_EMAIL_CAPTCHA SignUpType = 2 // 邮箱验证码
+	SignUpType_SIGN_UP_TYPE_WECHAT        SignUpType = 3 // 微信授权登录
+)
+
+// Enum value maps for SignUpType.
+var (
+	SignUpType_name = map[int32]string{
+		0: "SIGN_UP_TYPE_UNSPECIFIED",
+		1: "SIGN_UP_TYPE_PHONE_CAPTCHA",
+		2: "SIGN_UP_TYPE_EMAIL_CAPTCHA",
+		3: "SIGN_UP_TYPE_WECHAT",
+	}
+	SignUpType_value = map[string]int32{
+		"SIGN_UP_TYPE_UNSPECIFIED":   0,
+		"SIGN_UP_TYPE_PHONE_CAPTCHA": 1,
+		"SIGN_UP_TYPE_EMAIL_CAPTCHA": 2,
+		"SIGN_UP_TYPE_WECHAT":        3,
+	}
+)
+
+func (x SignUpType) Enum() *SignUpType {
+	p := new(SignUpType)
+	*p = x
+	return p
+}
+
+func (x SignUpType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SignUpType) Descriptor() protoreflect.EnumDescriptor {
+	return file_enums_v1_user_proto_enumTypes[8].Descriptor()
+}
+
+func (SignUpType) Type() protoreflect.EnumType {
+	return &file_enums_v1_user_proto_enumTypes[8]
+}
+
+func (x SignUpType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SignUpType.Descriptor instead.
+func (SignUpType) EnumDescriptor() ([]byte, []int) {
+	return file_enums_v1_user_proto_rawDescGZIP(), []int{8}
+}
+
 var File_enums_v1_user_proto protoreflect.FileDescriptor
 
 const file_enums_v1_user_proto_rawDesc = "" +
@@ -431,7 +535,18 @@ const file_enums_v1_user_proto_rawDesc = "" +
 	"\rUserLimitType\x12\x1f\n" +
 	"\x1bUSER_LIMIT_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17USER_LIMIT_TYPE_SIGN_IN\x10\x01\x12\x1b\n" +
-	"\x17USER_LIMIT_TYPE_REFRESH\x10\x02B\x8c\x01\n" +
+	"\x17USER_LIMIT_TYPE_REFRESH\x10\x02*V\n" +
+	"\x06Gender\x12\x16\n" +
+	"\x12GENDER_UNSPECIFIED\x10\x00\x12\x0f\n" +
+	"\vGENDER_MALE\x10\x01\x12\x11\n" +
+	"\rGENDER_FEMALE\x10\x02\x12\x10\n" +
+	"\fGENDER_OTHER\x10\x03*\x83\x01\n" +
+	"\n" +
+	"SignUpType\x12\x1c\n" +
+	"\x18SIGN_UP_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aSIGN_UP_TYPE_PHONE_CAPTCHA\x10\x01\x12\x1e\n" +
+	"\x1aSIGN_UP_TYPE_EMAIL_CAPTCHA\x10\x02\x12\x17\n" +
+	"\x13SIGN_UP_TYPE_WECHAT\x10\x03B\x8c\x01\n" +
 	"\fcom.enums.v1B\tUserProtoP\x01Z0github.com/byteflowing/base/gen/enums/v1;enumsv1\xa2\x02\x03EXX\xaa\x02\bEnums.V1\xca\x02\bEnums\\V1\xe2\x02\x14Enums\\V1\\GPBMetadata\xea\x02\tEnums::V1b\x06proto3"
 
 var (
@@ -446,7 +561,7 @@ func file_enums_v1_user_proto_rawDescGZIP() []byte {
 	return file_enums_v1_user_proto_rawDescData
 }
 
-var file_enums_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_enums_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
 var file_enums_v1_user_proto_goTypes = []any{
 	(AuthType)(0),      // 0: enums.v1.AuthType
 	(AuthStatus)(0),    // 1: enums.v1.AuthStatus
@@ -455,6 +570,8 @@ var file_enums_v1_user_proto_goTypes = []any{
 	(UserSource)(0),    // 4: enums.v1.UserSource
 	(TokenType)(0),     // 5: enums.v1.TokenType
 	(UserLimitType)(0), // 6: enums.v1.UserLimitType
+	(Gender)(0),        // 7: enums.v1.Gender
+	(SignUpType)(0),    // 8: enums.v1.SignUpType
 }
 var file_enums_v1_user_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -474,7 +591,7 @@ func file_enums_v1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_enums_v1_user_proto_rawDesc), len(file_enums_v1_user_proto_rawDesc)),
-			NumEnums:      7,
+			NumEnums:      9,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

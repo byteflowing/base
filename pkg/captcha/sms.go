@@ -19,7 +19,7 @@ type SmsCaptcha struct {
 	captcha *captcha
 }
 
-func NewSmsCaptcha(rdb *redis.Redis, sms sms.Sms, c *configv1.Captcha) *SmsCaptcha {
+func NewSmsCaptcha(rdb *redis.Redis, sms sms.Sms, c *configv1.CaptchaProvider) *SmsCaptcha {
 	return &SmsCaptcha{
 		sms:     sms,
 		captcha: newCaptcha(rdb, c),

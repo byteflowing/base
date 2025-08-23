@@ -26,6 +26,70 @@ message UserProfile {
   google.protobuf.Any extra = 7;
 }
 
+message SignUpReq {
+  // 注册方式
+  enums.v1.SignUpType sign_up_type = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 用户编码，全局唯一, 数据库中定义的有唯一索引
+  optional string number = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 用户姓名
+  optional string name = 3 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 别名
+  optional string alias = 4 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 密码
+  optional string password = 5 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 头像
+  optional string avatar = 6 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  // 性别
+  optional enums.v1.Gender gender = 7 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 生日
+  optional google.protobuf.Timestamp birthday = 8;
+  // 手机
+  optional common.v1.PhoneNumber phone = 9;
+  // 邮箱
+  optional string email = 10 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 国家编码
+  optional string country_code = 11;
+  // 省编码
+  optional string province_code = 12;
+  // 区编码
+  optional string district_code = 13;
+  // 详细地址
+  optional string addr = 14 [(buf.validate.field).string.(validation.v1.optional_100) = true];
+  // 状态
+  optional enums.v1.UserStatus status = 15 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 用户类型（由业务方自定义）
+  optional int32 type = 16 [(buf.validate.field).int32.gt = 0];
+  // 用户等级（由业务方自定义）
+  optional int32 level = 17 [(buf.validate.field).int32.gt = 0];
+  // 注册设备ip
+  optional string ip = 18 [(buf.validate.field).string.ip = true];
+  // 注册UA
+  optional string agent = 19 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  // 注册设备信息
+  optional string device = 20 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  // 扩展字段，json格式，（由业务方自定义）
+  optional string ext = 21;
+  // 验证码
+  string captcha = 22 [(buf.validate.field).string.(validation.v1.required_10) = true];
+  // 验证码token
+  string captcha_token = 23 [(buf.validate.field).string.uuid = true];
+
+  option (buf.validate.message).cel = {
+    id: "country_requires_province_and_district"
+    expression: "!has(this.country_code) || (has(this.province_code) && has(this.district_code))"
+    message: "province_code district_code country_code must provide together"
+  };
+}
+
+message SignUpResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
 message SignInLog {
   // 主键id
   int64 id = 1;

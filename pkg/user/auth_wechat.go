@@ -110,10 +110,13 @@ func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp 
 				return nil, err
 			}
 			userBasic = &model.UserBasic{
-				ID:     uid,
-				Number: number,
-				Status: int16(enumsv1.UserStatus_USER_STATUS_OK),
-				Source: int16(enumsv1.UserSource_USER_SOURCE_WECHAT),
+				ID:             uid,
+				Number:         number,
+				Status:         int16(enumsv1.UserStatus_USER_STATUS_OK),
+				Source:         int16(enumsv1.UserSource_USER_SOURCE_WECHAT),
+				RegisterIP:     req.Ip,
+				RegisterDevice: req.Device,
+				RegisterAgent:  req.UserAgent,
 			}
 			userAuth = &model.UserAuth{
 				Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),

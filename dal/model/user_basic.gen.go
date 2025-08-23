@@ -33,6 +33,11 @@ type UserBasic struct {
 	SignupType       int16      `gorm:"column:signup_type;type:smallint;not null" json:"signup_type"`
 	PhoneVerified    int16      `gorm:"column:phone_verified;type:smallint;not null" json:"phone_verified"`
 	EmailVerified    int16      `gorm:"column:email_verified;type:smallint;not null" json:"email_verified"`
+	Type             *int16     `gorm:"column:type;type:smallint" json:"type"`
+	Level            *int32     `gorm:"column:level;type:integer" json:"level"`
+	RegisterIP       *string    `gorm:"column:register_ip;type:character varying(50)" json:"register_ip"`
+	RegisterDevice   *string    `gorm:"column:register_device;type:character varying(255)" json:"register_device"`
+	RegisterAgent    *string    `gorm:"column:register_agent;type:character varying(255)" json:"register_agent"`
 	DeletedAt        *int64     `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
 	UpdatedAt        int64      `gorm:"column:updated_at;type:bigint;not null" json:"updated_at"`
 	CreatedAt        int64      `gorm:"column:created_at;type:bigint;not null" json:"created_at"`

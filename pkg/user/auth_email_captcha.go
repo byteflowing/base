@@ -39,7 +39,7 @@ func (e *EmailCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) 
 	if len(req.Credential) == 0 {
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
-	_, err = e.captcha.Verify(ctx, &messagev1.VerifyCaptchaReq{
+	_, err = e.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    req.Credential,

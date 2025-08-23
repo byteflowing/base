@@ -17,7 +17,7 @@ type MailCaptcha struct {
 	captcha *captcha
 }
 
-func NewMailCaptcha(rdb *redis.Redis, mail mail.Mail, c *configv1.Captcha) *MailCaptcha {
+func NewMailCaptcha(rdb *redis.Redis, mail mail.Mail, c *configv1.CaptchaProvider) *MailCaptcha {
 	return &MailCaptcha{
 		mail:    mail,
 		captcha: newCaptcha(rdb, c),

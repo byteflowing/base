@@ -13,6 +13,7 @@ type Authenticator interface {
 }
 
 type User interface {
+	SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error)
 	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
 	SignOutBySessionId(ctx context.Context, req *userv1.SignOutBySessionIdReq) (resp *userv1.SignOutBySessionIdResp, err error)
 	SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error)
@@ -25,6 +26,11 @@ type User interface {
 
 type Impl struct {
 	authHandlers map[enumsv1.AuthType]Authenticator
+}
+
+func (i *Impl) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {

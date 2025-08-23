@@ -8,7 +8,8 @@ package configv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/byteflowing/base/gen/common/v1"
+	v11 "github.com/byteflowing/base/gen/common/v1"
+	v1 "github.com/byteflowing/base/gen/enums/v1"
 	_ "github.com/byteflowing/base/gen/validation/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -25,27 +26,114 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Captcha struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+type CaptchaProvider struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Sender v1.MessageSenderType   `protobuf:"varint,1,opt,name=sender,proto3,enum=enums.v1.MessageSenderType" json:"sender,omitempty"`
 	// 验证码的key前缀
-	Prefix string `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	Prefix string `protobuf:"bytes,2,opt,name=prefix,proto3" json:"prefix,omitempty"`
 	// 错误尝试次数的key前缀
-	ErrPrefix string `protobuf:"bytes,2,opt,name=err_prefix,json=errPrefix,proto3" json:"err_prefix,omitempty"`
+	ErrPrefix string `protobuf:"bytes,3,opt,name=err_prefix,json=errPrefix,proto3" json:"err_prefix,omitempty"`
 	// 验证码保留时长
-	Keeping *durationpb.Duration `protobuf:"bytes,3,opt,name=keeping,proto3" json:"keeping,omitempty"`
+	Keeping *durationpb.Duration `protobuf:"bytes,4,opt,name=keeping,proto3" json:"keeping,omitempty"`
 	// 验证码是否大小写敏感
-	CaseSensitive bool `protobuf:"varint,4,opt,name=case_sensitive,json=caseSensitive,proto3" json:"case_sensitive,omitempty"`
+	CaseSensitive bool `protobuf:"varint,5,opt,name=case_sensitive,json=caseSensitive,proto3" json:"case_sensitive,omitempty"`
 	// 验证码可以尝试多少次
-	ErrTryLimit int32 `protobuf:"varint,5,opt,name=err_try_limit,json=errTryLimit,proto3" json:"err_try_limit,omitempty"`
+	ErrTryLimit int32 `protobuf:"varint,6,opt,name=err_try_limit,json=errTryLimit,proto3" json:"err_try_limit,omitempty"`
 	// 验证码限流配置
-	Limits        []*v1.LimitRule `protobuf:"bytes,6,rep,name=limits,proto3" json:"limits,omitempty"`
+	Limits        []*v11.LimitRule `protobuf:"bytes,7,rep,name=limits,proto3" json:"limits,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CaptchaProvider) Reset() {
+	*x = CaptchaProvider{}
+	mi := &file_config_v1_captcha_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CaptchaProvider) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CaptchaProvider) ProtoMessage() {}
+
+func (x *CaptchaProvider) ProtoReflect() protoreflect.Message {
+	mi := &file_config_v1_captcha_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CaptchaProvider.ProtoReflect.Descriptor instead.
+func (*CaptchaProvider) Descriptor() ([]byte, []int) {
+	return file_config_v1_captcha_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CaptchaProvider) GetSender() v1.MessageSenderType {
+	if x != nil {
+		return x.Sender
+	}
+	return v1.MessageSenderType(0)
+}
+
+func (x *CaptchaProvider) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *CaptchaProvider) GetErrPrefix() string {
+	if x != nil {
+		return x.ErrPrefix
+	}
+	return ""
+}
+
+func (x *CaptchaProvider) GetKeeping() *durationpb.Duration {
+	if x != nil {
+		return x.Keeping
+	}
+	return nil
+}
+
+func (x *CaptchaProvider) GetCaseSensitive() bool {
+	if x != nil {
+		return x.CaseSensitive
+	}
+	return false
+}
+
+func (x *CaptchaProvider) GetErrTryLimit() int32 {
+	if x != nil {
+		return x.ErrTryLimit
+	}
+	return 0
+}
+
+func (x *CaptchaProvider) GetLimits() []*v11.LimitRule {
+	if x != nil {
+		return x.Limits
+	}
+	return nil
+}
+
+type Captcha struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Providers     []*CaptchaProvider     `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Captcha) Reset() {
 	*x = Captcha{}
-	mi := &file_config_v1_captcha_proto_msgTypes[0]
+	mi := &file_config_v1_captcha_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +145,7 @@ func (x *Captcha) String() string {
 func (*Captcha) ProtoMessage() {}
 
 func (x *Captcha) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_captcha_proto_msgTypes[0]
+	mi := &file_config_v1_captcha_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -70,47 +158,12 @@ func (x *Captcha) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Captcha.ProtoReflect.Descriptor instead.
 func (*Captcha) Descriptor() ([]byte, []int) {
-	return file_config_v1_captcha_proto_rawDescGZIP(), []int{0}
+	return file_config_v1_captcha_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Captcha) GetPrefix() string {
+func (x *Captcha) GetProviders() []*CaptchaProvider {
 	if x != nil {
-		return x.Prefix
-	}
-	return ""
-}
-
-func (x *Captcha) GetErrPrefix() string {
-	if x != nil {
-		return x.ErrPrefix
-	}
-	return ""
-}
-
-func (x *Captcha) GetKeeping() *durationpb.Duration {
-	if x != nil {
-		return x.Keeping
-	}
-	return nil
-}
-
-func (x *Captcha) GetCaseSensitive() bool {
-	if x != nil {
-		return x.CaseSensitive
-	}
-	return false
-}
-
-func (x *Captcha) GetErrTryLimit() int32 {
-	if x != nil {
-		return x.ErrTryLimit
-	}
-	return 0
-}
-
-func (x *Captcha) GetLimits() []*v1.LimitRule {
-	if x != nil {
-		return x.Limits
+		return x.Providers
 	}
 	return nil
 }
@@ -119,18 +172,21 @@ var File_config_v1_captcha_proto protoreflect.FileDescriptor
 
 const file_config_v1_captcha_proto_rawDesc = "" +
 	"\n" +
-	"\x17config/v1/captcha.proto\x12\tconfig.v1\x1a$validation/v1/predefined_rules.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\"\xac\x02\n" +
-	"\aCaptcha\x12\"\n" +
-	"\x06prefix\x18\x01 \x01(\tB\n" +
+	"\x17config/v1/captcha.proto\x12\tconfig.v1\x1a$validation/v1/predefined_rules.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x16enums/v1/message.proto\"\xf6\x02\n" +
+	"\x0fCaptchaProvider\x12@\n" +
+	"\x06sender\x18\x01 \x01(\x0e2\x1b.enums.v1.MessageSenderTypeB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\x06sender\x12\"\n" +
+	"\x06prefix\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x06prefix\x12)\n" +
 	"\n" +
-	"err_prefix\x18\x02 \x01(\tB\n" +
+	"err_prefix\x18\x03 \x01(\tB\n" +
 	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\terrPrefix\x12D\n" +
-	"\akeeping\x18\x03 \x01(\v2\x19.google.protobuf.DurationB\x0f\xbaH\f\xaa\x01\t\"\x03\b\x90\x1c2\x02\b\x01R\akeeping\x12%\n" +
-	"\x0ecase_sensitive\x18\x04 \x01(\bR\rcaseSensitive\x12-\n" +
-	"\rerr_try_limit\x18\x05 \x01(\x05B\t\xbaH\x06\x1a\x04\x18\n" +
+	"\akeeping\x18\x04 \x01(\v2\x19.google.protobuf.DurationB\x0f\xbaH\f\xaa\x01\t\"\x03\b\x90\x1c2\x02\b\x01R\akeeping\x12%\n" +
+	"\x0ecase_sensitive\x18\x05 \x01(\bR\rcaseSensitive\x12-\n" +
+	"\rerr_try_limit\x18\x06 \x01(\x05B\t\xbaH\x06\x1a\x04\x18\n" +
 	"(\x01R\verrTryLimit\x126\n" +
-	"\x06limits\x18\x06 \x03(\v2\x14.common.v1.LimitRuleB\b\xbaH\x05\x92\x01\x02\b\x01R\x06limitsB\x96\x01\n" +
+	"\x06limits\x18\a \x03(\v2\x14.common.v1.LimitRuleB\b\xbaH\x05\x92\x01\x02\b\x01R\x06limits\"C\n" +
+	"\aCaptcha\x128\n" +
+	"\tproviders\x18\x01 \x03(\v2\x1a.config.v1.CaptchaProviderR\tprovidersB\x96\x01\n" +
 	"\rcom.config.v1B\fCaptchaProtoP\x01Z2github.com/byteflowing/base/gen/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 
@@ -146,20 +202,24 @@ func file_config_v1_captcha_proto_rawDescGZIP() []byte {
 	return file_config_v1_captcha_proto_rawDescData
 }
 
-var file_config_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_config_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_config_v1_captcha_proto_goTypes = []any{
-	(*Captcha)(nil),             // 0: config.v1.Captcha
-	(*durationpb.Duration)(nil), // 1: google.protobuf.Duration
-	(*v1.LimitRule)(nil),        // 2: common.v1.LimitRule
+	(*CaptchaProvider)(nil),     // 0: config.v1.CaptchaProvider
+	(*Captcha)(nil),             // 1: config.v1.Captcha
+	(v1.MessageSenderType)(0),   // 2: enums.v1.MessageSenderType
+	(*durationpb.Duration)(nil), // 3: google.protobuf.Duration
+	(*v11.LimitRule)(nil),       // 4: common.v1.LimitRule
 }
 var file_config_v1_captcha_proto_depIdxs = []int32{
-	1, // 0: config.v1.Captcha.keeping:type_name -> google.protobuf.Duration
-	2, // 1: config.v1.Captcha.limits:type_name -> common.v1.LimitRule
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: config.v1.CaptchaProvider.sender:type_name -> enums.v1.MessageSenderType
+	3, // 1: config.v1.CaptchaProvider.keeping:type_name -> google.protobuf.Duration
+	4, // 2: config.v1.CaptchaProvider.limits:type_name -> common.v1.LimitRule
+	0, // 3: config.v1.Captcha.providers:type_name -> config.v1.CaptchaProvider
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_captcha_proto_init() }
@@ -173,7 +233,7 @@ func file_config_v1_captcha_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_v1_captcha_proto_rawDesc), len(file_config_v1_captcha_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

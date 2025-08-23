@@ -42,7 +42,7 @@ func (p *PhoneCaptcha) Authenticate(ctx context.Context, req *userv1.SignInReq) 
 	if req.PhoneNumber == nil || req.PhoneNumber.Number == "" || req.PhoneNumber.CountryCode == "" {
 		return nil, ecode.ErrPhoneIsEmpty
 	}
-	_, err = p.captcha.Verify(ctx, &messagev1.VerifyCaptchaReq{
+	_, err = p.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    req.Credential,

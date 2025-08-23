@@ -6,29 +6,35 @@ import "validation/v1/predefined_rules.proto";
 import "google/protobuf/duration.proto";
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
+import "enums/v1/message.proto";
 
 
-message Captcha {
+message CaptchaProvider {
+  enums.v1.MessageSenderType sender = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
   // 验证码的key前缀
-  string prefix = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  string prefix = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
   // 错误尝试次数的key前缀
-  string err_prefix = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  string err_prefix = 3 [(buf.validate.field).string.(validation.v1.required_20) = true];
   // 验证码保留时长
-  google.protobuf.Duration keeping = 3 [
+  google.protobuf.Duration keeping = 4 [
     (buf.validate.field).duration = {
       gte: {seconds: 1}
       lte: {seconds: 3600}
     }
   ];
   // 验证码是否大小写敏感
-  bool case_sensitive = 4;
+  bool case_sensitive = 5;
   // 验证码可以尝试多少次
-  int32 err_try_limit = 5 [
+  int32 err_try_limit = 6 [
     (buf.validate.field).int32 = {
       gte: 1
       lte: 10
     }
   ];
   // 验证码限流配置
-  repeated common.v1.LimitRule limits = 6 [(buf.validate.field).repeated.min_items = 1];
+  repeated common.v1.LimitRule limits = 7 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message Captcha {
+  repeated CaptchaProvider providers = 1;
 }

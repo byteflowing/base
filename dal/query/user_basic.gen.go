@@ -49,6 +49,11 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	_userBasic.SignupType = field.NewInt16(tableName, "signup_type")
 	_userBasic.PhoneVerified = field.NewInt16(tableName, "phone_verified")
 	_userBasic.EmailVerified = field.NewInt16(tableName, "email_verified")
+	_userBasic.Type = field.NewInt16(tableName, "type")
+	_userBasic.Level = field.NewInt32(tableName, "level")
+	_userBasic.RegisterIP = field.NewString(tableName, "register_ip")
+	_userBasic.RegisterDevice = field.NewString(tableName, "register_device")
+	_userBasic.RegisterAgent = field.NewString(tableName, "register_agent")
 	_userBasic.DeletedAt = field.NewInt64(tableName, "deleted_at")
 	_userBasic.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_userBasic.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -84,6 +89,11 @@ type userBasic struct {
 	SignupType       field.Int16
 	PhoneVerified    field.Int16
 	EmailVerified    field.Int16
+	Type             field.Int16
+	Level            field.Int32
+	RegisterIP       field.String
+	RegisterDevice   field.String
+	RegisterAgent    field.String
 	DeletedAt        field.Int64
 	UpdatedAt        field.Int64
 	CreatedAt        field.Int64
@@ -125,6 +135,11 @@ func (u *userBasic) updateTableName(table string) *userBasic {
 	u.SignupType = field.NewInt16(table, "signup_type")
 	u.PhoneVerified = field.NewInt16(table, "phone_verified")
 	u.EmailVerified = field.NewInt16(table, "email_verified")
+	u.Type = field.NewInt16(table, "type")
+	u.Level = field.NewInt32(table, "level")
+	u.RegisterIP = field.NewString(table, "register_ip")
+	u.RegisterDevice = field.NewString(table, "register_device")
+	u.RegisterAgent = field.NewString(table, "register_agent")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.CreatedAt = field.NewInt64(table, "created_at")
@@ -155,7 +170,7 @@ func (u *userBasic) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userBasic) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 25)
+	u.fieldMap = make(map[string]field.Expr, 30)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["number"] = u.Number
 	u.fieldMap["name"] = u.Name
@@ -177,6 +192,11 @@ func (u *userBasic) fillFieldMap() {
 	u.fieldMap["signup_type"] = u.SignupType
 	u.fieldMap["phone_verified"] = u.PhoneVerified
 	u.fieldMap["email_verified"] = u.EmailVerified
+	u.fieldMap["type"] = u.Type
+	u.fieldMap["level"] = u.Level
+	u.fieldMap["register_ip"] = u.RegisterIP
+	u.fieldMap["register_device"] = u.RegisterDevice
+	u.fieldMap["register_agent"] = u.RegisterAgent
 	u.fieldMap["deleted_at"] = u.DeletedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["created_at"] = u.CreatedAt
