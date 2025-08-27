@@ -232,6 +232,55 @@ func (MessageSenderType) EnumDescriptor() ([]byte, []int) {
 	return file_enums_v1_message_proto_rawDescGZIP(), []int{3}
 }
 
+type Verified int32
+
+const (
+	Verified_VERIFIED_UNSPECIFIED Verified = 0
+	Verified_VERIFIED_UNVERIFIED  Verified = 1
+	Verified_VERIFIED_VERIFIED    Verified = 2
+)
+
+// Enum value maps for Verified.
+var (
+	Verified_name = map[int32]string{
+		0: "VERIFIED_UNSPECIFIED",
+		1: "VERIFIED_UNVERIFIED",
+		2: "VERIFIED_VERIFIED",
+	}
+	Verified_value = map[string]int32{
+		"VERIFIED_UNSPECIFIED": 0,
+		"VERIFIED_UNVERIFIED":  1,
+		"VERIFIED_VERIFIED":    2,
+	}
+)
+
+func (x Verified) Enum() *Verified {
+	p := new(Verified)
+	*p = x
+	return p
+}
+
+func (x Verified) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Verified) Descriptor() protoreflect.EnumDescriptor {
+	return file_enums_v1_message_proto_enumTypes[4].Descriptor()
+}
+
+func (Verified) Type() protoreflect.EnumType {
+	return &file_enums_v1_message_proto_enumTypes[4]
+}
+
+func (x Verified) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Verified.Descriptor instead.
+func (Verified) EnumDescriptor() ([]byte, []int) {
+	return file_enums_v1_message_proto_rawDescGZIP(), []int{4}
+}
+
 var File_enums_v1_message_proto protoreflect.FileDescriptor
 
 const file_enums_v1_message_proto_rawDesc = "" +
@@ -258,7 +307,11 @@ const file_enums_v1_message_proto_rawDesc = "" +
 	"\x11MessageSenderType\x12#\n" +
 	"\x1fMESSAGE_SENDER_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17MESSAGE_SENDER_TYPE_SMS\x10\x01\x12\x1c\n" +
-	"\x18MESSAGE_SENDER_TYPE_MAIL\x10\x02B\x8f\x01\n" +
+	"\x18MESSAGE_SENDER_TYPE_MAIL\x10\x02*T\n" +
+	"\bVerified\x12\x18\n" +
+	"\x14VERIFIED_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13VERIFIED_UNVERIFIED\x10\x01\x12\x15\n" +
+	"\x11VERIFIED_VERIFIED\x10\x02B\x8f\x01\n" +
 	"\fcom.enums.v1B\fMessageProtoP\x01Z0github.com/byteflowing/base/gen/enums/v1;enumsv1\xa2\x02\x03EXX\xaa\x02\bEnums.V1\xca\x02\bEnums\\V1\xe2\x02\x14Enums\\V1\\GPBMetadata\xea\x02\tEnums::V1b\x06proto3"
 
 var (
@@ -273,12 +326,13 @@ func file_enums_v1_message_proto_rawDescGZIP() []byte {
 	return file_enums_v1_message_proto_rawDescData
 }
 
-var file_enums_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_enums_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_enums_v1_message_proto_goTypes = []any{
 	(MailVendor)(0),        // 0: enums.v1.MailVendor
 	(MailContentType)(0),   // 1: enums.v1.MailContentType
 	(SmsVendor)(0),         // 2: enums.v1.SmsVendor
 	(MessageSenderType)(0), // 3: enums.v1.MessageSenderType
+	(Verified)(0),          // 4: enums.v1.Verified
 }
 var file_enums_v1_message_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -298,7 +352,7 @@ func file_enums_v1_message_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_enums_v1_message_proto_rawDesc), len(file_enums_v1_message_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

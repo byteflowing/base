@@ -150,6 +150,78 @@ func (x *PhoneNumber) GetNumber() string {
 	return ""
 }
 
+type AdminRegion struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 国家编码
+	CountryCode string `protobuf:"bytes,1,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	// 省编码
+	ProvinceCode string `protobuf:"bytes,2,opt,name=province_code,json=provinceCode,proto3" json:"province_code,omitempty"`
+	// 市编码
+	CityCode string `protobuf:"bytes,3,opt,name=city_code,json=cityCode,proto3" json:"city_code,omitempty"`
+	// 区编码
+	DistrictCode  string `protobuf:"bytes,4,opt,name=district_code,json=districtCode,proto3" json:"district_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminRegion) Reset() {
+	*x = AdminRegion{}
+	mi := &file_common_v1_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminRegion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminRegion) ProtoMessage() {}
+
+func (x *AdminRegion) ProtoReflect() protoreflect.Message {
+	mi := &file_common_v1_common_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminRegion.ProtoReflect.Descriptor instead.
+func (*AdminRegion) Descriptor() ([]byte, []int) {
+	return file_common_v1_common_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *AdminRegion) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *AdminRegion) GetProvinceCode() string {
+	if x != nil {
+		return x.ProvinceCode
+	}
+	return ""
+}
+
+func (x *AdminRegion) GetCityCode() string {
+	if x != nil {
+		return x.CityCode
+	}
+	return ""
+}
+
+func (x *AdminRegion) GetDistrictCode() string {
+	if x != nil {
+		return x.DistrictCode
+	}
+	return ""
+}
+
 var File_common_v1_common_proto protoreflect.FileDescriptor
 
 const file_common_v1_common_proto_rawDesc = "" +
@@ -166,7 +238,16 @@ const file_common_v1_common_proto_rawDesc = "" +
 	"\f_retry_after\"^\n" +
 	"\vPhoneNumber\x12,\n" +
 	"\fcountry_code\x18\x01 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18\x04R\vcountryCode\x12!\n" +
-	"\x06number\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\vR\x06numberB\x95\x01\n" +
+	"\x06number\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x06\x18\vR\x06number\"\xc7\x01\n" +
+	"\vAdminRegion\x12-\n" +
+	"\fcountry_code\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x88\xa1\xe9\x03\x01R\vcountryCode\x12/\n" +
+	"\rprovince_code\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x88\xa1\xe9\x03\x01R\fprovinceCode\x12'\n" +
+	"\tcity_code\x18\x03 \x01(\tB\n" +
+	"\xbaH\ar\x05\x88\xa1\xe9\x03\x01R\bcityCode\x12/\n" +
+	"\rdistrict_code\x18\x04 \x01(\tB\n" +
+	"\xbaH\ar\x05\x88\xa1\xe9\x03\x01R\fdistrictCodeB\x95\x01\n" +
 	"\rcom.common.v1B\vCommonProtoP\x01Z2github.com/byteflowing/base/gen/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
 
@@ -182,14 +263,15 @@ func file_common_v1_common_proto_rawDescGZIP() []byte {
 	return file_common_v1_common_proto_rawDescData
 }
 
-var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_common_v1_common_proto_goTypes = []any{
 	(*LimitRule)(nil),           // 0: common.v1.LimitRule
 	(*PhoneNumber)(nil),         // 1: common.v1.PhoneNumber
-	(*durationpb.Duration)(nil), // 2: google.protobuf.Duration
+	(*AdminRegion)(nil),         // 2: common.v1.AdminRegion
+	(*durationpb.Duration)(nil), // 3: google.protobuf.Duration
 }
 var file_common_v1_common_proto_depIdxs = []int32{
-	2, // 0: common.v1.LimitRule.duration:type_name -> google.protobuf.Duration
+	3, // 0: common.v1.LimitRule.duration:type_name -> google.protobuf.Duration
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -209,7 +291,7 @@ func file_common_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_common_proto_rawDesc), len(file_common_v1_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

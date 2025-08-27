@@ -33,3 +33,14 @@ message PhoneNumber {
     }
   ];
 }
+
+message AdminRegion {
+  // 国家编码
+  string country_code = 1 [(buf.validate.field).string.(validation.v1.required_10) = true];
+  // 省编码
+  string province_code = 2 [(buf.validate.field).string.(validation.v1.required_10) = true];
+  // 市编码
+  string city_code = 3 [(buf.validate.field).string.(validation.v1.required_10) = true];
+  // 区编码
+  string district_code = 4 [(buf.validate.field).string.(validation.v1.required_10) = true];
+}

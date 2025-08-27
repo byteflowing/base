@@ -30,3 +30,9 @@ enum MessageSenderType {
   MESSAGE_SENDER_TYPE_SMS = 1; // 短信发送程序
   MESSAGE_SENDER_TYPE_MAIL = 2; // 邮件发送程序
 }
+
+enum Verified {
+  VERIFIED_UNSPECIFIED = 0;
+  VERIFIED_UNVERIFIED = 1;
+  VERIFIED_VERIFIED = 2;
+}

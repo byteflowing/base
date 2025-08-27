@@ -8,27 +8,41 @@ import "google/protobuf/timestamp.proto";
 import "buf/validate/validate.proto";
 import "validation/v1/predefined_rules.proto";
 import "common/v1/common.proto";
+import "google/type/date.proto";
 
 message UserProfile {
-  // userid
-  int64 uid = 1;
-  // 认证类型
-  enums.v1.AuthType auth_type = 2;
-  // appid
-  string appid = 3;
-  // openid
-  string openid = 4;
-  // unionid
-  string unionid = 5;
-  // session_id
-  string session_id = 6;
-  // 调用方自定义字段
-  google.protobuf.Any extra = 7;
+  int64 uid = 1; // userid
+  enums.v1.AuthType auth_type = 2; // 认证类型
+  string appid = 3; // appid
+  string openid = 4; // openid
+  string unionid = 5; // unionid
+  string session_id = 6; // session_id
+  google.protobuf.Any extra = 7; // 调用方自定义字段
+}
+
+message UserInfo {
+  int64 uid = 1; // 用户id
+  string number = 2; // 用户编号
+  enums.v1.UserStatus status = 3; // 状态
+  optional string name = 4; // 姓名
+  optional string alias = 5; // 别名
+  optional string avatar = 6; // 头像
+  optional enums.v1.Gender gender = 7; // 性别
+  optional google.type.Date birthday = 8; // 生日
+  optional common.v1.PhoneNumber phone_number = 9; // 手机
+  optional string email = 10;// 邮箱
+  optional common.v1.AdminRegion region = 11; // 行政区域
+  optional string addr = 12; // 详细地址
+  optional string ext = 13; // 扩展字段，json格式，（由业务方自定义）
 }
 
 message SignUpReq {
   // 注册方式
-  enums.v1.SignUpType sign_up_type = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  enums.v1.AuthType auth_type = 1 [
+    (buf.validate.field).enum = {
+      in: [4, 5, 6]
+    }
+  ];
   // 用户编码，全局唯一, 数据库中定义的有唯一索引
   optional string number = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
   // 用户姓名
@@ -42,85 +56,48 @@ message SignUpReq {
   // 性别
   optional enums.v1.Gender gender = 7 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
   // 生日
-  optional google.protobuf.Timestamp birthday = 8;
+  optional google.type.Date birthday = 8;
   // 手机
   optional common.v1.PhoneNumber phone = 9;
   // 邮箱
   optional string email = 10 [(buf.validate.field).string.(validation.v1.optional_30) = true];
-  // 国家编码
-  optional string country_code = 11;
-  // 省编码
-  optional string province_code = 12;
-  // 区编码
-  optional string district_code = 13;
+  // 行政区域
+  optional common.v1.AdminRegion region = 11;
   // 详细地址
-  optional string addr = 14 [(buf.validate.field).string.(validation.v1.optional_100) = true];
+  optional string addr = 12 [(buf.validate.field).string.(validation.v1.optional_100) = true];
   // 状态
-  optional enums.v1.UserStatus status = 15 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  optional enums.v1.UserStatus status = 13 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
   // 用户类型（由业务方自定义）
-  optional int32 type = 16 [(buf.validate.field).int32.gt = 0];
+  optional int32 type = 14 [(buf.validate.field).int32.gt = 0];
   // 用户等级（由业务方自定义）
-  optional int32 level = 17 [(buf.validate.field).int32.gt = 0];
+  optional int32 level = 15 [(buf.validate.field).int32.gt = 0];
+  // 用户来源
+  optional enums.v1.UserSource source = 16 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
   // 注册设备ip
-  optional string ip = 18 [(buf.validate.field).string.ip = true];
+  optional string ip = 17 [(buf.validate.field).string.ip = true];
   // 注册UA
-  optional string agent = 19 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  optional string agent = 18 [(buf.validate.field).string.(validation.v1.optional_255) = true];
   // 注册设备信息
-  optional string device = 20 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  optional string device = 19 [(buf.validate.field).string.(validation.v1.optional_255) = true];
   // 扩展字段，json格式，（由业务方自定义）
-  optional string ext = 21;
+  optional string ext = 20;
   // 验证码
-  string captcha = 22 [(buf.validate.field).string.(validation.v1.required_10) = true];
+  string captcha = 21 [(buf.validate.field).string.(validation.v1.required_10) = true];
   // 验证码token
-  string captcha_token = 23 [(buf.validate.field).string.uuid = true];
-
-  option (buf.validate.message).cel = {
-    id: "country_requires_province_and_district"
-    expression: "!has(this.country_code) || (has(this.province_code) && has(this.district_code))"
-    message: "province_code district_code country_code must provide together"
-  };
+  string captcha_token = 22 [(buf.validate.field).string.uuid = true];
 }
 
 message SignUpResp {
+  message Data {
+    UserInfo user_info = 1;
+  }
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
   // 正常返回OK, 错误返回错误内容
   string err_msg = 2;
   // 开发模式，返回详细错误信息
   string err_detail = 3;
-}
-
-message SignInLog {
-  // 主键id
-  int64 id = 1;
-  // uid
-  int64 uid = 2;
-  // 认证类型
-  enums.v1.AuthType type = 3;
-  // 登录状态
-  enums.v1.SessionStatus status = 4;
-  // 访问token中的jti
-  string access_token_id = 5;
-  // 刷新token中的jti
-  string refresh_token_id = 6;
-  // 登录时ip
-  optional string ip = 7;
-  // 登录时位置
-  optional string location = 8;
-  // 登录的agent
-  optional string agent = 9;
-  // 登录设备
-  optional string device = 10;
-  // 删除时间
-  optional int64 deleted_at = 11;
-  // 访问token过期时间，毫秒时间戳
-  google.protobuf.Timestamp access_expired_at = 12;
-  // 刷新token过期时间，毫秒时间戳
-  google.protobuf.Timestamp refresh_expired_at = 13;
-  // 更新时间
-  google.protobuf.Timestamp updated_at = 14;
-  // 创建时间
-  google.protobuf.Timestamp created_at = 15;
+  Data data = 4;
 }
 
 message SignInReq {
@@ -168,6 +145,7 @@ message SignInResp {
     // jti 使用uuid填充代表session_id
     string access_token = 1;
     string refresh_token = 2;
+    UserInfo user_info = 3;
   }
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
@@ -177,6 +155,40 @@ message SignInResp {
   string err_detail = 3;
   optional common.v1.LimitRule rule = 4;
   Data data = 5;
+}
+
+message SignOutReq {
+  string session_id = 1 [(buf.validate.field).string.uuid = true];
+  enums.v1.SessionStatus reason = 2 [
+    (buf.validate.field).enum = {
+      not_in: [0, 1]
+    }
+  ];
+  enums.v1.AuthType auth_type = 3 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+}
+
+message SignOutResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message SignOutByUidReq {
+  // token中的uid
+  int64 uid = 1 [(buf.validate.field).int64.gt = 0];
+  enums.v1.SessionStatus reason = 2 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+}
+
+message SignOutByUidResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
 }
 
 message RefreshReq {
@@ -198,36 +210,6 @@ message RefreshResp {
   // 开发模式，返回详细错误信息
   string err_detail = 3;
   Data data = 4;
-}
-
-message SignOutByUidReq {
-  // token中的uid
-  int64 uid = 1 [(buf.validate.field).int64.gt = 0];
-  enums.v1.SessionStatus reason = 2 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
-}
-
-message SignOutByUidResp {
-  // 正常返回0，错误返回非0
-  uint32 err_code = 1;
-  // 正常返回OK, 错误返回错误内容
-  string err_msg = 2;
-  // 开发模式，返回详细错误信息
-  string err_detail = 3;
-}
-
-message SignOutBySessionIdReq {
-  // token中的jti
-  string session_id = 1 [(buf.validate.field).string.uuid = true];
-  enums.v1.SessionStatus reason = 2 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
-}
-
-message SignOutBySessionIdResp {
-  // 正常返回0，错误返回非0
-  uint32 err_code = 1;
-  // 正常返回OK, 错误返回错误内容
-  string err_msg = 2;
-  // 开发模式，返回详细错误信息
-  string err_detail = 3;
 }
 
 message AddSessionToBlockListReq {
@@ -261,6 +243,39 @@ message VerifyTokenResp {
   // 开发模式，返回详细错误信息
   string err_detail = 3;
   Data data = 4;
+}
+
+message SignInLog {
+  // 主键id
+  int64 id = 1;
+  // uid
+  int64 uid = 2;
+  // 认证类型
+  enums.v1.AuthType type = 3;
+  // 登录状态
+  enums.v1.SessionStatus status = 4;
+  // 访问token中的jti
+  string access_token_id = 5;
+  // 刷新token中的jti
+  string refresh_token_id = 6;
+  // 登录时ip
+  optional string ip = 7;
+  // 登录时位置
+  optional string location = 8;
+  // 登录的agent
+  optional string agent = 9;
+  // 登录设备
+  optional string device = 10;
+  // 删除时间
+  optional int64 deleted_at = 11;
+  // 访问token过期时间，毫秒时间戳
+  google.protobuf.Timestamp access_expired_at = 12;
+  // 刷新token过期时间，毫秒时间戳
+  google.protobuf.Timestamp refresh_expired_at = 13;
+  // 更新时间
+  google.protobuf.Timestamp updated_at = 14;
+  // 创建时间
+  google.protobuf.Timestamp created_at = 15;
 }
 
 message GetActiveSignInLogsReq {

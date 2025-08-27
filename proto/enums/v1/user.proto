@@ -58,10 +58,3 @@ enum Gender {
   GENDER_FEMALE = 2; // 女性
   GENDER_OTHER = 3; // 其他
 }
-
-enum SignUpType {
-  SIGN_UP_TYPE_UNSPECIFIED = 0;
-  SIGN_UP_TYPE_PHONE_CAPTCHA = 1; // 手机验证码
-  SIGN_UP_TYPE_EMAIL_CAPTCHA = 2; // 邮箱验证码
-  SIGN_UP_TYPE_WECHAT = 3; // 微信授权登录
-}

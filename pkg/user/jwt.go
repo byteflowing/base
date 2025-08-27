@@ -60,7 +60,7 @@ func (s *JwtService) GenerateToken(ctx context.Context, req *GenerateJwtReq) (ac
 	}
 	if len(logs) >= s.maxActiveSessions {
 		log := logs[len(logs)-1]
-		if err = s.revokeByLog(ctx, log); err != nil {
+		if err = s.RevokeByLog(ctx, log); err != nil {
 			return "", "", nil, nil, err
 		}
 		log.Status = int16(enumsv1.SessionStatus_SESSION_STATUS_KICKED_OUT)
@@ -90,6 +90,20 @@ func (s *JwtService) RevokeTokens(ctx context.Context, items []*SessionItem) (er
 	return s.revoke(ctx, items)
 }
 
+func (s *JwtService) RevokeByLog(ctx context.Context, log *model.UserSignLog) (err error) {
+	items := []*SessionItem{
+		{
+			SessionID: log.AccessSessionID,
+			TTL:       s.ttlFromExpiredAt(log.AccessExpiredAt),
+		},
+		{
+			SessionID: log.RefreshSessionID,
+			TTL:       s.ttlFromExpiredAt(log.RefreshExpiredAt),
+		},
+	}
+	return s.revoke(ctx, items)
+}
+
 func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (newAccessToken, newRefreshToken string, newAccessClaims, newRefreshClaims *JwtClaims, err error) {
 	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
 		return "", "", nil, nil, err
@@ -102,7 +116,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (new
 	if err != nil {
 		return "", "", nil, nil, err
 	}
-	if err = s.revokeByLog(ctx, log); err != nil {
+	if err = s.RevokeByLog(ctx, log); err != nil {
 		return "", "", nil, nil, err
 	}
 	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(ctx, req)
@@ -167,20 +181,6 @@ func (s *JwtService) revoke(ctx context.Context, items []*SessionItem) error {
 		return s.blk.BatchAdd(ctx, willAdd)
 	}
 	return s.blk.Add(ctx, willAdd[0].SessionID, willAdd[0].TTL)
-}
-
-func (s *JwtService) revokeByLog(ctx context.Context, log *model.UserSignLog) (err error) {
-	items := []*SessionItem{
-		{
-			SessionID: log.AccessSessionID,
-			TTL:       s.ttlFromExpiredAt(log.AccessExpiredAt),
-		},
-		{
-			SessionID: log.RefreshSessionID,
-			TTL:       s.ttlFromExpiredAt(log.RefreshExpiredAt),
-		},
-	}
-	return s.revoke(ctx, items)
 }
 
 func (s *JwtService) parseClaims(tokenStr string, validate bool) (*JwtClaims, error) {

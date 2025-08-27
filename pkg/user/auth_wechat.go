@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"errors"
+
+	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/ecode"
@@ -40,7 +43,11 @@ func (w *WeChat) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_WECHAT
 }
 
-func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (w *WeChat) SignUp(ctx context.Context, req *userv1.SignUpReq) (*userv1.SignUpResp, error) {
+	return nil, ecode.ErrUnImplemented
+}
+
+func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != w.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -73,6 +80,9 @@ func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp 
 			return nil, err
 		}
 		if userBasic, err = w.repo.GetUserBasicByUID(ctx, userAuth.UID); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ecode.ErrUserNotExist
+			}
 			return nil, err
 		}
 	} else {
@@ -85,6 +95,12 @@ func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp 
 			// 5. 如果找到userAuth说明是老用户,只是第一次使用appid登录
 			if userAuth != nil {
 				userBasic, err = w.repo.GetUserBasicByUID(ctx, userAuth.UID)
+				if err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, ecode.ErrUserNotExist
+					}
+					return nil, err
+				}
 				userAuth = &model.UserAuth{
 					UID:        userAuth.UID,
 					Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
@@ -132,4 +148,11 @@ func (w *WeChat) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp 
 		}
 	}
 	return checkPasswordAndGenToken(ctx, req, userBasic, w.jwtService, nil, nil)
+}
+
+func (w *WeChat) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
+	if req.AuthType != w.AuthType() {
+		return nil, ecode.ErrUserAuthTypeMisMatch
+	}
+	return signOutBySessionId(ctx, req, w.repo, w.jwtService)
 }

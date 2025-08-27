@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"errors"
+
+	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
@@ -29,7 +32,11 @@ func (p *PhonePassword) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_PHONE_PASSWORD
 }
 
-func (p *PhonePassword) Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (p *PhonePassword) SignUp(ctx context.Context, req *userv1.SignUpReq) (*userv1.SignUpResp, error) {
+	return nil, ecode.ErrUnImplemented
+}
+
+func (p *PhonePassword) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -38,7 +45,17 @@ func (p *PhonePassword) Authenticate(ctx context.Context, req *userv1.SignInReq)
 	}
 	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.GetPhoneNumber())
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ecode.ErrPhoneNotExist
+		}
 		return nil, err
 	}
 	return checkPasswordAndGenToken(ctx, req, userBasic, p.jwtService, p.limiter, p.passHasher)
+}
+
+func (p *PhonePassword) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
+	if req.AuthType != p.AuthType() {
+		return nil, ecode.ErrUserAuthTypeMisMatch
+	}
+	return signOutBySessionId(ctx, req, p.repo, p.jwtService)
 }

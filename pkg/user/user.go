@@ -9,13 +9,15 @@ import (
 
 type Authenticator interface {
 	AuthType() enumsv1.AuthType
-	Authenticate(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
+	SignUp(ctx context.Context, req *userv1.SignUpReq) (*userv1.SignUpResp, error)
+	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
+	SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
 }
 
 type User interface {
 	SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error)
 	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
-	SignOutBySessionId(ctx context.Context, req *userv1.SignOutBySessionIdReq) (resp *userv1.SignOutBySessionIdResp, err error)
+	SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
 	SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error)
 	Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error)
 	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
@@ -38,7 +40,7 @@ func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.
 	panic("implement me")
 }
 
-func (i *Impl) SignOutBySessionId(ctx context.Context, req *userv1.SignOutBySessionIdReq) (resp *userv1.SignOutBySessionIdResp, err error) {
+func (i *Impl) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
 	//TODO implement me
 	panic("implement me")
 }

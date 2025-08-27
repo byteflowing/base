@@ -9,11 +9,9 @@ import (
 
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
-	"github.com/byteflowing/base/ecode"
 	commonv1 "github.com/byteflowing/base/gen/common/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
-	"github.com/byteflowing/base/pkg/common"
 )
 
 type Repo interface {
@@ -32,21 +30,21 @@ type Repo interface {
 	GetSignInLogByRefresh(ctx context.Context, refreshSessionID string) (log *model.UserSignLog, err error)
 	GetActiveSignInLogs(ctx context.Context, uid int64) (logs []*model.UserSignLog, err error)
 	UpdateSignInLogByID(ctx context.Context, log *model.UserSignLog) (err error)
+	UpdateSignInLogsStatus(ctx context.Context, ids []int64, status enumsv1.SessionStatus) (err error)
+	CheckUserNumberExists(ctx context.Context, number string) (exist bool, err error)
+	CheckEmailExists(ctx context.Context, email string) (exist bool, err error)
+	CheckPhoneExists(ctx context.Context, number *commonv1.PhoneNumber) (exist bool, err error)
 }
 
 type GenRepo struct {
-	db          *query.Query
-	cache       Cache
-	shortIDGen  *common.ShortIDGenerator
-	globalIDGen common.GlobalIdGenerator
+	db    *query.Query
+	cache Cache
 }
 
-func NewStore(db *query.Query, cache Cache, globalIDGen common.GlobalIdGenerator, shortIDGen *common.ShortIDGenerator) *GenRepo {
+func NewStore(db *query.Query, cache Cache) *GenRepo {
 	return &GenRepo{
-		db:          db,
-		cache:       cache,
-		shortIDGen:  shortIDGen,
-		globalIDGen: globalIDGen,
+		db:    db,
+		cache: cache,
 	}
 }
 
@@ -54,9 +52,6 @@ func (repo *GenRepo) GetUserBasicByNumber(ctx context.Context, number string) (b
 	q := repo.db.UserBasic
 	basic, err = q.WithContext(ctx).Where(q.Number.Eq(number)).Take()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrUserNotExist
-		}
 		return nil, err
 	}
 	return
@@ -68,9 +63,6 @@ func (repo *GenRepo) GetUserBasicByPhone(ctx context.Context, phone *commonv1.Ph
 		Where(q.CountryCode.Eq(phone.CountryCode), q.Phone.Eq(phone.Number)).
 		Take()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrUserNotExist
-		}
 		return nil, err
 	}
 	return
@@ -80,9 +72,6 @@ func (repo *GenRepo) GetUserBasicByEmail(ctx context.Context, email string) (bas
 	q := repo.db.UserBasic
 	basic, err = q.WithContext(ctx).Where(q.Email.Eq(email)).Take()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrUserNotExist
-		}
 		return nil, err
 	}
 	return
@@ -92,9 +81,6 @@ func (repo *GenRepo) GetUserBasicByUID(ctx context.Context, uid int64) (basic *m
 	q := repo.db.UserBasic
 	basic, err = q.WithContext(ctx).Where(q.ID.Eq(uid)).Take()
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrUserNotExist
-		}
 		return nil, err
 	}
 	return
@@ -150,6 +136,44 @@ func (repo *GenRepo) UpdateUserAuth(ctx context.Context, auth *model.UserAuth) (
 	return
 }
 
+func (repo *GenRepo) CheckPhoneExists(ctx context.Context, number *commonv1.PhoneNumber) (exist bool, err error) {
+	q := repo.db.UserBasic
+	_, err = q.WithContext(ctx).Select(q.ID).Where(
+		q.PhoneCountryCode.Eq(number.CountryCode),
+		q.Phone.Eq(number.Number)).Take()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (repo *GenRepo) CheckEmailExists(ctx context.Context, email string) (exist bool, err error) {
+	q := repo.db.UserBasic
+	_, err = q.WithContext(ctx).Select(q.ID).Where(q.Email.Eq(email)).Take()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (repo *GenRepo) CheckUserNumberExists(ctx context.Context, number string) (exist bool, err error) {
+	q := repo.db.UserBasic
+	_, err = q.WithContext(ctx).Select(q.ID).Where(q.Number.Eq(number)).Take()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func (repo *GenRepo) AddSignInLog(ctx context.Context, req *userv1.SignInReq, accessClaims, refreshClaims *JwtClaims) (err error) {
 	return repo.db.UserSignLog.WithContext(ctx).Create(&model.UserSignLog{
 		UID:              int64(accessClaims.Uid),
@@ -195,6 +219,12 @@ func (repo *GenRepo) GetSignInLogByRefresh(ctx context.Context, refreshSessionID
 func (repo *GenRepo) UpdateSignInLogByID(ctx context.Context, log *model.UserSignLog) (err error) {
 	q := repo.db.UserSignLog
 	_, err = q.WithContext(ctx).Where(q.ID.Eq(log.ID)).Updates(log)
+	return
+}
+
+func (repo *GenRepo) UpdateSignInLogsStatus(ctx context.Context, ids []int64, status enumsv1.SessionStatus) (err error) {
+	q := repo.db.UserSignLog
+	_, err = q.WithContext(ctx).Where(q.ID.In(ids...)).Update(q.Status, int16(status))
 	return
 }
 
