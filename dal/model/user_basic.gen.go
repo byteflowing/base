@@ -41,7 +41,7 @@ type UserBasic struct {
 	DeletedAt        *int64     `gorm:"column:deleted_at;type:bigint" json:"deleted_at"`
 	UpdatedAt        int64      `gorm:"column:updated_at;type:bigint;not null" json:"updated_at"`
 	CreatedAt        int64      `gorm:"column:created_at;type:bigint;not null" json:"created_at"`
-	Ext              *string    `gorm:"column:ext;type:jsonb;index:idx_user_ext,priority:1;default:{}" json:"ext"`
+	Ext              *string    `gorm:"column:ext;type:json" json:"ext"`
 }
 
 // TableName UserBasic's table name
