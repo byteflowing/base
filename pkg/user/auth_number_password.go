@@ -43,7 +43,7 @@ func (n *NumberPassword) SignIn(ctx context.Context, req *userv1.SignInReq) (res
 	userBasic, err := n.repo.GetUserBasicByNumber(ctx, req.Identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ecode.ErrUserNotExist
+			return nil, ecode.ErrUserNumberNotExist
 		}
 		return nil, err
 	}
