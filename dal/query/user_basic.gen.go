@@ -29,6 +29,7 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	tableName := _userBasic.userBasicDo.TableName()
 	_userBasic.ALL = field.NewAsterisk(tableName)
 	_userBasic.ID = field.NewInt64(tableName, "id")
+	_userBasic.Biz = field.NewString(tableName, "biz")
 	_userBasic.Number = field.NewString(tableName, "number")
 	_userBasic.Name = field.NewString(tableName, "name")
 	_userBasic.Alias_ = field.NewString(tableName, "alias")
@@ -54,6 +55,7 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 	_userBasic.RegisterIP = field.NewString(tableName, "register_ip")
 	_userBasic.RegisterDevice = field.NewString(tableName, "register_device")
 	_userBasic.RegisterAgent = field.NewString(tableName, "register_agent")
+	_userBasic.PasswordUpdatedAt = field.NewInt64(tableName, "password_updated_at")
 	_userBasic.DeletedAt = field.NewInt64(tableName, "deleted_at")
 	_userBasic.UpdatedAt = field.NewInt64(tableName, "updated_at")
 	_userBasic.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -67,37 +69,39 @@ func newUserBasic(db *gorm.DB, opts ...gen.DOOption) userBasic {
 type userBasic struct {
 	userBasicDo userBasicDo
 
-	ALL              field.Asterisk
-	ID               field.Int64
-	Number           field.String
-	Name             field.String
-	Alias_           field.String
-	Password         field.String
-	Avatar           field.String
-	Gender           field.Int16
-	Birthday         field.Time
-	PhoneCountryCode field.String
-	Phone            field.String
-	Email            field.String
-	CountryCode      field.String
-	ProvinceCode     field.String
-	CityCode         field.String
-	DistrictCode     field.String
-	Addr             field.String
-	Status           field.Int16
-	Source           field.Int16
-	SignupType       field.Int16
-	PhoneVerified    field.Int16
-	EmailVerified    field.Int16
-	Type             field.Int16
-	Level            field.Int32
-	RegisterIP       field.String
-	RegisterDevice   field.String
-	RegisterAgent    field.String
-	DeletedAt        field.Int64
-	UpdatedAt        field.Int64
-	CreatedAt        field.Int64
-	Ext              field.String
+	ALL               field.Asterisk
+	ID                field.Int64
+	Biz               field.String
+	Number            field.String
+	Name              field.String
+	Alias_            field.String
+	Password          field.String
+	Avatar            field.String
+	Gender            field.Int16
+	Birthday          field.Time
+	PhoneCountryCode  field.String
+	Phone             field.String
+	Email             field.String
+	CountryCode       field.String
+	ProvinceCode      field.String
+	CityCode          field.String
+	DistrictCode      field.String
+	Addr              field.String
+	Status            field.Int16
+	Source            field.Int16
+	SignupType        field.Int16
+	PhoneVerified     field.Int16
+	EmailVerified     field.Int16
+	Type              field.Int16
+	Level             field.Int32
+	RegisterIP        field.String
+	RegisterDevice    field.String
+	RegisterAgent     field.String
+	PasswordUpdatedAt field.Int64
+	DeletedAt         field.Int64
+	UpdatedAt         field.Int64
+	CreatedAt         field.Int64
+	Ext               field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -115,6 +119,7 @@ func (u userBasic) As(alias string) *userBasic {
 func (u *userBasic) updateTableName(table string) *userBasic {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
+	u.Biz = field.NewString(table, "biz")
 	u.Number = field.NewString(table, "number")
 	u.Name = field.NewString(table, "name")
 	u.Alias_ = field.NewString(table, "alias")
@@ -140,6 +145,7 @@ func (u *userBasic) updateTableName(table string) *userBasic {
 	u.RegisterIP = field.NewString(table, "register_ip")
 	u.RegisterDevice = field.NewString(table, "register_device")
 	u.RegisterAgent = field.NewString(table, "register_agent")
+	u.PasswordUpdatedAt = field.NewInt64(table, "password_updated_at")
 	u.DeletedAt = field.NewInt64(table, "deleted_at")
 	u.UpdatedAt = field.NewInt64(table, "updated_at")
 	u.CreatedAt = field.NewInt64(table, "created_at")
@@ -170,8 +176,9 @@ func (u *userBasic) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userBasic) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 30)
+	u.fieldMap = make(map[string]field.Expr, 32)
 	u.fieldMap["id"] = u.ID
+	u.fieldMap["biz"] = u.Biz
 	u.fieldMap["number"] = u.Number
 	u.fieldMap["name"] = u.Name
 	u.fieldMap["alias"] = u.Alias_
@@ -197,6 +204,7 @@ func (u *userBasic) fillFieldMap() {
 	u.fieldMap["register_ip"] = u.RegisterIP
 	u.fieldMap["register_device"] = u.RegisterDevice
 	u.fieldMap["register_agent"] = u.RegisterAgent
+	u.fieldMap["password_updated_at"] = u.PasswordUpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["created_at"] = u.CreatedAt

@@ -24,6 +24,8 @@ enum SessionStatus {
   SESSION_STATUS_SIGN_OUT = 2; // 主动退出
   SESSION_STATUS_KICKED_OUT = 3; // 被挤退出（达到了最大登录终端）
   SESSION_STATUS_FORCE_SIGN_OUT = 4; // 强制退出
+  SESSION_STATUS_CHANGE_PASSWORD_OUT = 5; // 更改密码导致退出
+  SESSION_STATUS_RESET_PASSWORD_OUT = 6; // 重置密码导致退出
 }
 
 enum UserStatus {

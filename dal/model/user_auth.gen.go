@@ -13,6 +13,7 @@ type UserAuth struct {
 	Type       int16   `gorm:"column:type;type:smallint;not null" json:"type"`
 	Status     int16   `gorm:"column:status;type:smallint;not null" json:"status"`
 	Appid      string  `gorm:"column:appid;type:character varying(50);not null;uniqueIndex:idx_auth_appid,priority:1" json:"appid"`
+	Biz        string  `gorm:"column:biz;type:character varying(50);not null" json:"biz"`
 	Identifier string  `gorm:"column:identifier;type:character varying(100);not null;index:idx_auth_identifier,priority:1" json:"identifier"`
 	Credential string  `gorm:"column:credential;type:character varying(128);not null" json:"credential"`
 	UnionID    *string `gorm:"column:union_id;type:character varying(100);index:idx_union_id,priority:1" json:"union_id"`

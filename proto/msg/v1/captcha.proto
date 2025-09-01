@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package message.v1;
+package msg.v1;
 
 import "enums/v1/message.proto";
-import "message/v1/mail.proto";
-import "message/v1/sms.proto";
+import "msg/v1/mail.proto";
+import "msg/v1/sms.proto";
 import "validation/v1/predefined_rules.proto";
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";

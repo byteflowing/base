@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/dal/model"
@@ -88,7 +89,7 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 	} else {
 		// 4. 如果没有找到，再通过unionid去查找
 		if res.UnionId != "" {
-			userAuth, err = w.repo.GetUserAuthByUnionID(ctx, res.UnionId)
+			userAuth, err = w.repo.GetUserAuthByUnionID(ctx, req.Biz, res.UnionId)
 			if err != nil {
 				return nil, err
 			}
@@ -102,6 +103,7 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 					return nil, err
 				}
 				userAuth = &model.UserAuth{
+					Biz:        req.Biz,
 					UID:        userAuth.UID,
 					Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
 					Status:     int16(enumsv1.AuthStatus_AUTH_STATUS_OK),
@@ -128,21 +130,29 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 			userBasic = &model.UserBasic{
 				ID:             uid,
 				Number:         number,
+				Biz:            req.Biz,
 				Status:         int16(enumsv1.UserStatus_USER_STATUS_OK),
 				Source:         int16(enumsv1.UserSource_USER_SOURCE_WECHAT),
 				RegisterIP:     req.Ip,
 				RegisterDevice: req.Device,
 				RegisterAgent:  req.UserAgent,
 			}
-			userAuth = &model.UserAuth{
-				Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
-				Status:     int16(enumsv1.AuthStatus_AUTH_STATUS_OK),
-				Appid:      res.Appid,
-				Identifier: res.Openid,
-				Credential: res.SessionKey,
-				UnionID:    trans.Ref(res.UnionId),
-			}
-			if err = w.repo.CreateUserBasicAndAuth(ctx, userBasic, userAuth); err != nil {
+			if err = w.repo.Transaction(func(tx *query.Query) error {
+				if err := tx.UserBasic.WithContext(ctx).Create(userBasic); err != nil {
+					return err
+				}
+				userAuth = &model.UserAuth{
+					Biz:        req.Biz,
+					UID:        userBasic.ID,
+					Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
+					Status:     int16(enumsv1.AuthStatus_AUTH_STATUS_OK),
+					Appid:      res.Appid,
+					Identifier: res.Openid,
+					Credential: res.SessionKey,
+					UnionID:    trans.Ref(res.UnionId),
+				}
+				return tx.UserAuth.WithContext(ctx).Create(userAuth)
+			}); err != nil {
 				return nil, err
 			}
 		}

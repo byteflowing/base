@@ -40,7 +40,7 @@ func (e *EmailPassword) SignIn(ctx context.Context, req *userv1.SignInReq) (resp
 	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)
+	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Biz, req.Identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrEmailNotExist

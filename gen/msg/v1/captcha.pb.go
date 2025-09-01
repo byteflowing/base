@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        (unknown)
-// source: message/v1/captcha.proto
+// source: msg/v1/captcha.proto
 
-package messagev1
+package msgv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -43,7 +43,7 @@ type SendCaptchaReq struct {
 
 func (x *SendCaptchaReq) Reset() {
 	*x = SendCaptchaReq{}
-	mi := &file_message_v1_captcha_proto_msgTypes[0]
+	mi := &file_msg_v1_captcha_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -55,7 +55,7 @@ func (x *SendCaptchaReq) String() string {
 func (*SendCaptchaReq) ProtoMessage() {}
 
 func (x *SendCaptchaReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_captcha_proto_msgTypes[0]
+	mi := &file_msg_v1_captcha_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -68,7 +68,7 @@ func (x *SendCaptchaReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendCaptchaReq.ProtoReflect.Descriptor instead.
 func (*SendCaptchaReq) Descriptor() ([]byte, []int) {
-	return file_message_v1_captcha_proto_rawDescGZIP(), []int{0}
+	return file_msg_v1_captcha_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SendCaptchaReq) GetSenderType() v1.MessageSenderType {
@@ -143,7 +143,7 @@ type SendCaptchaResp struct {
 
 func (x *SendCaptchaResp) Reset() {
 	*x = SendCaptchaResp{}
-	mi := &file_message_v1_captcha_proto_msgTypes[1]
+	mi := &file_msg_v1_captcha_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -155,7 +155,7 @@ func (x *SendCaptchaResp) String() string {
 func (*SendCaptchaResp) ProtoMessage() {}
 
 func (x *SendCaptchaResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_captcha_proto_msgTypes[1]
+	mi := &file_msg_v1_captcha_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -168,7 +168,7 @@ func (x *SendCaptchaResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendCaptchaResp.ProtoReflect.Descriptor instead.
 func (*SendCaptchaResp) Descriptor() ([]byte, []int) {
-	return file_message_v1_captcha_proto_rawDescGZIP(), []int{1}
+	return file_msg_v1_captcha_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SendCaptchaResp) GetErrCode() uint32 {
@@ -220,7 +220,7 @@ type VerifyCaptchaReq struct {
 
 func (x *VerifyCaptchaReq) Reset() {
 	*x = VerifyCaptchaReq{}
-	mi := &file_message_v1_captcha_proto_msgTypes[2]
+	mi := &file_msg_v1_captcha_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -232,7 +232,7 @@ func (x *VerifyCaptchaReq) String() string {
 func (*VerifyCaptchaReq) ProtoMessage() {}
 
 func (x *VerifyCaptchaReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_captcha_proto_msgTypes[2]
+	mi := &file_msg_v1_captcha_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -245,7 +245,7 @@ func (x *VerifyCaptchaReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyCaptchaReq.ProtoReflect.Descriptor instead.
 func (*VerifyCaptchaReq) Descriptor() ([]byte, []int) {
-	return file_message_v1_captcha_proto_rawDescGZIP(), []int{2}
+	return file_msg_v1_captcha_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *VerifyCaptchaReq) GetSenderType() v1.MessageSenderType {
@@ -324,7 +324,7 @@ type VerifyCaptchaResp struct {
 
 func (x *VerifyCaptchaResp) Reset() {
 	*x = VerifyCaptchaResp{}
-	mi := &file_message_v1_captcha_proto_msgTypes[3]
+	mi := &file_msg_v1_captcha_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -336,7 +336,7 @@ func (x *VerifyCaptchaResp) String() string {
 func (*VerifyCaptchaResp) ProtoMessage() {}
 
 func (x *VerifyCaptchaResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_captcha_proto_msgTypes[3]
+	mi := &file_msg_v1_captcha_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -349,7 +349,7 @@ func (x *VerifyCaptchaResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyCaptchaResp.ProtoReflect.Descriptor instead.
 func (*VerifyCaptchaResp) Descriptor() ([]byte, []int) {
-	return file_message_v1_captcha_proto_rawDescGZIP(), []int{3}
+	return file_msg_v1_captcha_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *VerifyCaptchaResp) GetErrCode() uint32 {
@@ -385,7 +385,7 @@ type SendCaptchaResp_Data struct {
 
 func (x *SendCaptchaResp_Data) Reset() {
 	*x = SendCaptchaResp_Data{}
-	mi := &file_message_v1_captcha_proto_msgTypes[4]
+	mi := &file_msg_v1_captcha_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -397,7 +397,7 @@ func (x *SendCaptchaResp_Data) String() string {
 func (*SendCaptchaResp_Data) ProtoMessage() {}
 
 func (x *SendCaptchaResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_captcha_proto_msgTypes[4]
+	mi := &file_msg_v1_captcha_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -410,7 +410,7 @@ func (x *SendCaptchaResp_Data) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendCaptchaResp_Data.ProtoReflect.Descriptor instead.
 func (*SendCaptchaResp_Data) Descriptor() ([]byte, []int) {
-	return file_message_v1_captcha_proto_rawDescGZIP(), []int{1, 0}
+	return file_msg_v1_captcha_proto_rawDescGZIP(), []int{1, 0}
 }
 
 func (x *SendCaptchaResp_Data) GetToken() string {
@@ -427,26 +427,25 @@ func (x *SendCaptchaResp_Data) GetLimit() *v11.LimitRule {
 	return nil
 }
 
-var File_message_v1_captcha_proto protoreflect.FileDescriptor
+var File_msg_v1_captcha_proto protoreflect.FileDescriptor
 
-const file_message_v1_captcha_proto_rawDesc = "" +
+const file_msg_v1_captcha_proto_rawDesc = "" +
 	"\n" +
-	"\x18message/v1/captcha.proto\x12\n" +
-	"message.v1\x1a\x16enums/v1/message.proto\x1a\x15message/v1/mail.proto\x1a\x14message/v1/sms.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\"\xe5\x01\n" +
+	"\x14msg/v1/captcha.proto\x12\x06msg.v1\x1a\x16enums/v1/message.proto\x1a\x11msg/v1/mail.proto\x1a\x10msg/v1/sms.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\"\xdd\x01\n" +
 	"\x0eSendCaptchaReq\x12I\n" +
 	"\vsender_type\x18\x01 \x01(\x0e2\x1b.enums.v1.MessageSenderTypeB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\n" +
 	"senderType\x12#\n" +
 	"\acaptcha\x18\x02 \x01(\tB\t\xbaH\x06r\x04\x10\x01\x18\n" +
-	"R\acaptcha\x12*\n" +
-	"\x03sms\x18\x03 \x01(\v2\x16.message.v1.SendSmsReqH\x00R\x03sms\x12-\n" +
-	"\x04mail\x18\x04 \x01(\v2\x17.message.v1.SendMailReqH\x00R\x04mailB\b\n" +
-	"\x06sender\"\xe4\x01\n" +
+	"R\acaptcha\x12&\n" +
+	"\x03sms\x18\x03 \x01(\v2\x12.msg.v1.SendSmsReqH\x00R\x03sms\x12)\n" +
+	"\x04mail\x18\x04 \x01(\v2\x13.msg.v1.SendMailReqH\x00R\x04mailB\b\n" +
+	"\x06sender\"\xe0\x01\n" +
 	"\x0fSendCaptchaResp\x12\x19\n" +
 	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
 	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
 	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetail\x124\n" +
-	"\x04data\x18\x04 \x01(\v2 .message.v1.SendCaptchaResp.DataR\x04data\x1aH\n" +
+	"err_detail\x18\x03 \x01(\tR\terrDetail\x120\n" +
+	"\x04data\x18\x04 \x01(\v2\x1c.msg.v1.SendCaptchaResp.DataR\x04data\x1aH\n" +
 	"\x04Data\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12*\n" +
 	"\x05limit\x18\x02 \x01(\v2\x14.common.v1.LimitRuleR\x05limit\"\x9c\x02\n" +
@@ -463,44 +462,43 @@ const file_message_v1_captcha_proto_rawDesc = "" +
 	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
 	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
 	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetailB\x9d\x01\n" +
-	"\x0ecom.message.v1B\fCaptchaProtoP\x01Z4github.com/byteflowing/base/gen/message/v1;messagev1\xa2\x02\x03MXX\xaa\x02\n" +
-	"Message.V1\xca\x02\n" +
-	"Message\\V1\xe2\x02\x16Message\\V1\\GPBMetadata\xea\x02\vMessage::V1b\x06proto3"
+	"err_detail\x18\x03 \x01(\tR\terrDetailB\x81\x01\n" +
+	"\n" +
+	"com.msg.v1B\fCaptchaProtoP\x01Z,github.com/byteflowing/base/gen/msg/v1;msgv1\xa2\x02\x03MXX\xaa\x02\x06Msg.V1\xca\x02\x06Msg\\V1\xe2\x02\x12Msg\\V1\\GPBMetadata\xea\x02\aMsg::V1b\x06proto3"
 
 var (
-	file_message_v1_captcha_proto_rawDescOnce sync.Once
-	file_message_v1_captcha_proto_rawDescData []byte
+	file_msg_v1_captcha_proto_rawDescOnce sync.Once
+	file_msg_v1_captcha_proto_rawDescData []byte
 )
 
-func file_message_v1_captcha_proto_rawDescGZIP() []byte {
-	file_message_v1_captcha_proto_rawDescOnce.Do(func() {
-		file_message_v1_captcha_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_message_v1_captcha_proto_rawDesc), len(file_message_v1_captcha_proto_rawDesc)))
+func file_msg_v1_captcha_proto_rawDescGZIP() []byte {
+	file_msg_v1_captcha_proto_rawDescOnce.Do(func() {
+		file_msg_v1_captcha_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_msg_v1_captcha_proto_rawDesc), len(file_msg_v1_captcha_proto_rawDesc)))
 	})
-	return file_message_v1_captcha_proto_rawDescData
+	return file_msg_v1_captcha_proto_rawDescData
 }
 
-var file_message_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_message_v1_captcha_proto_goTypes = []any{
-	(*SendCaptchaReq)(nil),       // 0: message.v1.SendCaptchaReq
-	(*SendCaptchaResp)(nil),      // 1: message.v1.SendCaptchaResp
-	(*VerifyCaptchaReq)(nil),     // 2: message.v1.VerifyCaptchaReq
-	(*VerifyCaptchaResp)(nil),    // 3: message.v1.VerifyCaptchaResp
-	(*SendCaptchaResp_Data)(nil), // 4: message.v1.SendCaptchaResp.Data
+var file_msg_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_msg_v1_captcha_proto_goTypes = []any{
+	(*SendCaptchaReq)(nil),       // 0: msg.v1.SendCaptchaReq
+	(*SendCaptchaResp)(nil),      // 1: msg.v1.SendCaptchaResp
+	(*VerifyCaptchaReq)(nil),     // 2: msg.v1.VerifyCaptchaReq
+	(*VerifyCaptchaResp)(nil),    // 3: msg.v1.VerifyCaptchaResp
+	(*SendCaptchaResp_Data)(nil), // 4: msg.v1.SendCaptchaResp.Data
 	(v1.MessageSenderType)(0),    // 5: enums.v1.MessageSenderType
-	(*SendSmsReq)(nil),           // 6: message.v1.SendSmsReq
-	(*SendMailReq)(nil),          // 7: message.v1.SendMailReq
+	(*SendSmsReq)(nil),           // 6: msg.v1.SendSmsReq
+	(*SendMailReq)(nil),          // 7: msg.v1.SendMailReq
 	(*v11.PhoneNumber)(nil),      // 8: common.v1.PhoneNumber
 	(*v11.LimitRule)(nil),        // 9: common.v1.LimitRule
 }
-var file_message_v1_captcha_proto_depIdxs = []int32{
-	5, // 0: message.v1.SendCaptchaReq.sender_type:type_name -> enums.v1.MessageSenderType
-	6, // 1: message.v1.SendCaptchaReq.sms:type_name -> message.v1.SendSmsReq
-	7, // 2: message.v1.SendCaptchaReq.mail:type_name -> message.v1.SendMailReq
-	4, // 3: message.v1.SendCaptchaResp.data:type_name -> message.v1.SendCaptchaResp.Data
-	5, // 4: message.v1.VerifyCaptchaReq.sender_type:type_name -> enums.v1.MessageSenderType
-	8, // 5: message.v1.VerifyCaptchaReq.phone_number:type_name -> common.v1.PhoneNumber
-	9, // 6: message.v1.SendCaptchaResp.Data.limit:type_name -> common.v1.LimitRule
+var file_msg_v1_captcha_proto_depIdxs = []int32{
+	5, // 0: msg.v1.SendCaptchaReq.sender_type:type_name -> enums.v1.MessageSenderType
+	6, // 1: msg.v1.SendCaptchaReq.sms:type_name -> msg.v1.SendSmsReq
+	7, // 2: msg.v1.SendCaptchaReq.mail:type_name -> msg.v1.SendMailReq
+	4, // 3: msg.v1.SendCaptchaResp.data:type_name -> msg.v1.SendCaptchaResp.Data
+	5, // 4: msg.v1.VerifyCaptchaReq.sender_type:type_name -> enums.v1.MessageSenderType
+	8, // 5: msg.v1.VerifyCaptchaReq.phone_number:type_name -> common.v1.PhoneNumber
+	9, // 6: msg.v1.SendCaptchaResp.Data.limit:type_name -> common.v1.LimitRule
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -508,18 +506,18 @@ var file_message_v1_captcha_proto_depIdxs = []int32{
 	0, // [0:7] is the sub-list for field type_name
 }
 
-func init() { file_message_v1_captcha_proto_init() }
-func file_message_v1_captcha_proto_init() {
-	if File_message_v1_captcha_proto != nil {
+func init() { file_msg_v1_captcha_proto_init() }
+func file_msg_v1_captcha_proto_init() {
+	if File_msg_v1_captcha_proto != nil {
 		return
 	}
-	file_message_v1_mail_proto_init()
-	file_message_v1_sms_proto_init()
-	file_message_v1_captcha_proto_msgTypes[0].OneofWrappers = []any{
+	file_msg_v1_mail_proto_init()
+	file_msg_v1_sms_proto_init()
+	file_msg_v1_captcha_proto_msgTypes[0].OneofWrappers = []any{
 		(*SendCaptchaReq_Sms)(nil),
 		(*SendCaptchaReq_Mail)(nil),
 	}
-	file_message_v1_captcha_proto_msgTypes[2].OneofWrappers = []any{
+	file_msg_v1_captcha_proto_msgTypes[2].OneofWrappers = []any{
 		(*VerifyCaptchaReq_PhoneNumber)(nil),
 		(*VerifyCaptchaReq_Email)(nil),
 	}
@@ -527,17 +525,17 @@ func file_message_v1_captcha_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_v1_captcha_proto_rawDesc), len(file_message_v1_captcha_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_msg_v1_captcha_proto_rawDesc), len(file_msg_v1_captcha_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_message_v1_captcha_proto_goTypes,
-		DependencyIndexes: file_message_v1_captcha_proto_depIdxs,
-		MessageInfos:      file_message_v1_captcha_proto_msgTypes,
+		GoTypes:           file_msg_v1_captcha_proto_goTypes,
+		DependencyIndexes: file_msg_v1_captcha_proto_depIdxs,
+		MessageInfos:      file_msg_v1_captcha_proto_msgTypes,
 	}.Build()
-	File_message_v1_captcha_proto = out.File
-	file_message_v1_captcha_proto_goTypes = nil
-	file_message_v1_captcha_proto_depIdxs = nil
+	File_msg_v1_captcha_proto = out.File
+	file_msg_v1_captcha_proto_goTypes = nil
+	file_msg_v1_captcha_proto_depIdxs = nil
 }

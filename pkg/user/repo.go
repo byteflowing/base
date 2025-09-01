@@ -15,13 +15,15 @@ import (
 )
 
 type Repo interface {
+	Transaction(fn func(tx *query.Query) error) error
 	GetUserBasicByNumber(ctx context.Context, number string) (basic *model.UserBasic, err error)
-	GetUserBasicByPhone(ctx context.Context, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error)
-	GetUserBasicByEmail(ctx context.Context, email string) (basic *model.UserBasic, err error)
+	GetUserBasicByPhone(ctx context.Context, biz string, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error)
+	GetUserBasicByEmail(ctx context.Context, biz string, email string) (basic *model.UserBasic, err error)
 	GetUserBasicByUID(ctx context.Context, uid int64) (basic *model.UserBasic, err error)
 	GetUserAuthByOpenID(ctx context.Context, openid string) (auth *model.UserAuth, err error)
-	GetUserAuthByUnionID(ctx context.Context, unionid string) (auth *model.UserAuth, err error)
-	CreateUserBasicAndAuth(ctx context.Context, user *model.UserBasic, auth *model.UserAuth) (err error)
+	GetUserAuthByUnionID(ctx context.Context, biz, unionid string) (auth *model.UserAuth, err error)
+	GetUidByPhone(ctx context.Context, biz string, phone *commonv1.PhoneNumber) (uid int64, err error)
+	GetUidByEmail(ctx context.Context, biz string, email string) (uid int64, err error)
 	CreateUserBasic(ctx context.Context, user *model.UserBasic) (err error)
 	CreateUserAuth(ctx context.Context, user *model.UserAuth) (err error)
 	UpdateUserAuth(ctx context.Context, auth *model.UserAuth) (err error)
@@ -32,8 +34,8 @@ type Repo interface {
 	UpdateSignInLogByID(ctx context.Context, log *model.UserSignLog) (err error)
 	UpdateSignInLogsStatus(ctx context.Context, ids []int64, status enumsv1.SessionStatus) (err error)
 	CheckUserNumberExists(ctx context.Context, number string) (exist bool, err error)
-	CheckEmailExists(ctx context.Context, email string) (exist bool, err error)
-	CheckPhoneExists(ctx context.Context, number *commonv1.PhoneNumber) (exist bool, err error)
+	CheckEmailExists(ctx context.Context, biz string, email string) (exist bool, err error)
+	CheckPhoneExists(ctx context.Context, biz string, number *commonv1.PhoneNumber) (exist bool, err error)
 }
 
 type GenRepo struct {
@@ -48,6 +50,10 @@ func NewStore(db *query.Query, cache Cache) *GenRepo {
 	}
 }
 
+func (repo *GenRepo) Transaction(fn func(tx *query.Query) error) error {
+	return repo.db.Transaction(fn)
+}
+
 func (repo *GenRepo) GetUserBasicByNumber(ctx context.Context, number string) (basic *model.UserBasic, err error) {
 	q := repo.db.UserBasic
 	basic, err = q.WithContext(ctx).Where(q.Number.Eq(number)).Take()
@@ -57,24 +63,53 @@ func (repo *GenRepo) GetUserBasicByNumber(ctx context.Context, number string) (b
 	return
 }
 
-func (repo *GenRepo) GetUserBasicByPhone(ctx context.Context, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error) {
+func (repo *GenRepo) GetUserBasicByPhone(ctx context.Context, biz string, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error) {
 	q := repo.db.UserBasic
 	basic, err = q.WithContext(ctx).
-		Where(q.CountryCode.Eq(phone.CountryCode), q.Phone.Eq(phone.Number)).
-		Take()
+		Where(
+			q.Biz.Eq(biz),
+			q.CountryCode.Eq(phone.CountryCode),
+			q.Phone.Eq(phone.Number),
+		).Take()
 	if err != nil {
 		return nil, err
 	}
 	return
 }
 
-func (repo *GenRepo) GetUserBasicByEmail(ctx context.Context, email string) (basic *model.UserBasic, err error) {
+func (repo *GenRepo) GetUserBasicByEmail(ctx context.Context, biz string, email string) (basic *model.UserBasic, err error) {
 	q := repo.db.UserBasic
-	basic, err = q.WithContext(ctx).Where(q.Email.Eq(email)).Take()
+	basic, err = q.WithContext(ctx).Where(
+		q.Biz.Eq(biz),
+		q.Email.Eq(email),
+	).Take()
 	if err != nil {
 		return nil, err
 	}
 	return
+}
+
+func (repo *GenRepo) GetUidByPhone(ctx context.Context, biz string, phone *commonv1.PhoneNumber) (uid int64, err error) {
+	q := repo.db.UserBasic
+	if err = q.WithContext(ctx).Select(q.ID).Where(
+		q.Biz.Eq(biz),
+		q.PhoneCountryCode.Eq(phone.CountryCode),
+		q.Phone.Eq(phone.Number),
+	).Pluck(q.ID, &uid); err != nil {
+		return 0, err
+	}
+	return uid, nil
+}
+
+func (repo *GenRepo) GetUidByEmail(ctx context.Context, biz string, email string) (uid int64, err error) {
+	q := repo.db.UserBasic
+	if err = q.WithContext(ctx).Select(q.ID).Where(
+		q.Biz.Eq(biz),
+		q.Email.Eq(email),
+	).Pluck(q.ID, &uid); err != nil {
+		return 0, err
+	}
+	return uid, nil
 }
 
 func (repo *GenRepo) GetUserBasicByUID(ctx context.Context, uid int64) (basic *model.UserBasic, err error) {
@@ -98,9 +133,12 @@ func (repo *GenRepo) GetUserAuthByOpenID(ctx context.Context, openid string) (au
 	return
 }
 
-func (repo *GenRepo) GetUserAuthByUnionID(ctx context.Context, unionid string) (auth *model.UserAuth, err error) {
+func (repo *GenRepo) GetUserAuthByUnionID(ctx context.Context, biz, unionid string) (auth *model.UserAuth, err error) {
 	authQ := repo.db.UserAuth
-	auth, err = authQ.WithContext(ctx).Where(authQ.UnionID.Eq(unionid)).Take()
+	auth, err = authQ.WithContext(ctx).Where(
+		authQ.Biz.Eq(biz),
+		authQ.UnionID.Eq(unionid),
+	).Take()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -120,25 +158,16 @@ func (repo *GenRepo) CreateUserAuth(ctx context.Context, user *model.UserAuth) (
 	return q.WithContext(ctx).Create(user)
 }
 
-func (repo *GenRepo) CreateUserBasicAndAuth(ctx context.Context, user *model.UserBasic, auth *model.UserAuth) (err error) {
-	return repo.db.Transaction(func(tx *query.Query) error {
-		if err := tx.UserBasic.WithContext(ctx).Create(user); err != nil {
-			return err
-		}
-		auth.UID = user.ID
-		return tx.UserAuth.WithContext(ctx).Create(auth)
-	})
-}
-
 func (repo *GenRepo) UpdateUserAuth(ctx context.Context, auth *model.UserAuth) (err error) {
 	q := repo.db.UserAuth
 	_, err = q.WithContext(ctx).Where(q.ID.Eq(auth.ID)).Updates(auth)
 	return
 }
 
-func (repo *GenRepo) CheckPhoneExists(ctx context.Context, number *commonv1.PhoneNumber) (exist bool, err error) {
+func (repo *GenRepo) CheckPhoneExists(ctx context.Context, biz string, number *commonv1.PhoneNumber) (exist bool, err error) {
 	q := repo.db.UserBasic
 	_, err = q.WithContext(ctx).Select(q.ID).Where(
+		q.Biz.Eq(biz),
 		q.PhoneCountryCode.Eq(number.CountryCode),
 		q.Phone.Eq(number.Number)).Take()
 	if err != nil {
@@ -150,9 +179,13 @@ func (repo *GenRepo) CheckPhoneExists(ctx context.Context, number *commonv1.Phon
 	return true, nil
 }
 
-func (repo *GenRepo) CheckEmailExists(ctx context.Context, email string) (exist bool, err error) {
+func (repo *GenRepo) CheckEmailExists(ctx context.Context, biz string, email string) (exist bool, err error) {
 	q := repo.db.UserBasic
-	_, err = q.WithContext(ctx).Select(q.ID).Where(q.Email.Eq(email)).Take()
+	_, err = q.WithContext(ctx).Select(q.ID).
+		Where(
+			q.Biz.Eq(biz),
+			q.Email.Eq(email),
+		).Take()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
@@ -180,6 +213,7 @@ func (repo *GenRepo) AddSignInLog(ctx context.Context, req *userv1.SignInReq, ac
 		Type:             int16(req.AuthType),
 		Status:           int16(enumsv1.SessionStatus_SESSION_STATUS_OK),
 		Identifier:       repo.getIdentifier(req),
+		Biz:              req.Biz,
 		IP:               req.Ip,
 		Location:         req.Location,
 		Agent:            req.UserAgent,

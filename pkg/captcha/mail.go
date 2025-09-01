@@ -7,8 +7,8 @@ import (
 	"github.com/byteflowing/base/ecode"
 	configv1 "github.com/byteflowing/base/gen/config/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messageV1 "github.com/byteflowing/base/gen/message/v1"
-	"github.com/byteflowing/base/pkg/message/mail"
+	messageV1 "github.com/byteflowing/base/gen/msg/v1"
+	"github.com/byteflowing/base/pkg/msg/mail"
 	"github.com/byteflowing/go-common/redis"
 )
 

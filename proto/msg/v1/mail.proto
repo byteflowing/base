@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package message.v1;
+package msg.v1;
 
 import "enums/v1/message.proto";
 import "buf/validate/validate.proto";

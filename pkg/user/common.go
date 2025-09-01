@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"time"
 
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/ecode"
@@ -44,7 +43,9 @@ func checkPasswordAndGenToken(
 		}
 		if !allow {
 			resp = &userv1.SignInResp{
-				Rule: rule,
+				Data: &userv1.SignInResp_Data{
+					Rule: rule,
+				},
 			}
 			return resp, nil
 		}
@@ -97,47 +98,13 @@ func signOutBySessionId(
 	return nil, err
 }
 
-func signOutByUid(
-	ctx context.Context,
-	uid int64,
-	status enumsv1.SessionStatus,
-	repo Repo,
-	jwtService *JwtService,
-) (err error) {
-	logs, err := repo.GetActiveSignInLogs(ctx, uid)
-	if err != nil {
-		return err
-	}
-	if len(logs) == 0 {
-		return nil
-	}
-	ids := make([]int64, 0, len(logs))
-	sessionItems := make([]*SessionItem, 0, len(logs)*2)
-	for idx, log := range logs {
-		ids[idx] = log.ID
-		sessionItems[idx] = &SessionItem{
-			SessionID: log.AccessSessionID,
-			TTL:       time.Duration(log.AccessExpiredAt) * time.Second,
-		}
-		sessionItems[idx+1] = &SessionItem{
-			SessionID: log.RefreshSessionID,
-			TTL:       time.Duration(log.RefreshExpiredAt) * time.Second,
-		}
-	}
-	if err := jwtService.RevokeTokens(ctx, sessionItems); err != nil {
-		return err
-	}
-	return repo.UpdateSignInLogsStatus(ctx, ids, status)
-}
-
-// 唯一性校验，使用数据库的唯一索引兜底，这里就不使用分布式锁了
 func checkUserBasicUnique(
 	ctx context.Context,
 	req *userv1.SignUpReq,
 	repo Repo,
 ) (err error) {
 	if req.Phone != nil {
-		exist, err := repo.CheckPhoneExists(ctx, req.Phone)
+		exist, err := repo.CheckPhoneExists(ctx, req.Biz, req.Phone)
 		if err != nil {
 			return err
 		}
@@ -155,7 +122,7 @@ func checkUserBasicUnique(
 		}
 	}
 	if req.Email != nil && *req.Email != "" {
-		exist, err := repo.CheckEmailExists(ctx, *req.Email)
+		exist, err := repo.CheckEmailExists(ctx, req.Biz, *req.Email)
 		if err != nil {
 			return err
 		}

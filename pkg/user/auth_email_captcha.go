@@ -8,7 +8,7 @@ import (
 
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messagev1 "github.com/byteflowing/base/gen/message/v1"
+	messagev1 "github.com/byteflowing/base/gen/msg/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
@@ -73,9 +73,7 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp 
 		return nil, err
 	}
 	resp = &userv1.SignUpResp{
-		Data: &userv1.SignUpResp_Data{
-			UserInfo: userBasicToUserInfo(userBasic),
-		},
+		Data: &userv1.SignUpResp_Data{UserInfo: userBasicToUserInfo(userBasic)},
 	}
 	return resp, nil
 }
@@ -98,7 +96,7 @@ func (e *EmailCaptcha) SignIn(ctx context.Context, req *userv1.SignInReq) (resp 
 	}); err != nil {
 		return nil, err
 	}
-	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Identifier)
+	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Biz, req.Identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrEmailNotExist

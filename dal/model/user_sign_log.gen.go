@@ -13,6 +13,7 @@ type UserSignLog struct {
 	Type             int16   `gorm:"column:type;type:smallint;not null" json:"type"`
 	Status           int16   `gorm:"column:status;type:smallint;not null" json:"status"`
 	Identifier       string  `gorm:"column:identifier;type:character varying(50);not null" json:"identifier"`
+	Biz              string  `gorm:"column:biz;type:character varying(50);not null" json:"biz"`
 	IP               *string `gorm:"column:ip;type:character varying(50)" json:"ip"`
 	Location         *string `gorm:"column:location;type:character varying(100)" json:"location"`
 	Agent            *string `gorm:"column:agent;type:character varying(255)" json:"agent"`

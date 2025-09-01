@@ -3,12 +3,14 @@ syntax = "proto3";
 package user.v1;
 
 import "enums/v1/user.proto";
+import "enums/v1/message.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "buf/validate/validate.proto";
 import "validation/v1/predefined_rules.proto";
 import "common/v1/common.proto";
 import "google/type/date.proto";
+import "msg/v1/captcha.proto";
 
 message UserProfile {
   int64 uid = 1; // userid
@@ -34,13 +36,52 @@ message UserInfo {
   optional common.v1.AdminRegion region = 11; // 行政区域
   optional string addr = 12; // 详细地址
   optional string ext = 13; // 扩展字段，json格式，（由业务方自定义）
+  google.protobuf.Timestamp password_updated_at = 14; // 上次密码修改时间
+}
+
+message SendCaptchaReq {
+  msg.v1.SendCaptchaReq captcha_params = 2;
+}
+
+message SendCaptchaResp {
+  message Data {
+    // 验证码存取的key，使用这个key在kv存储中找验证码
+    string token = 1;
+    // 如果报错，这里有限制的原因
+    optional common.v1.LimitRule limit = 2;
+  }
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+  Data data = 4;
+}
+
+message VerifyCaptchaReq {
+  string biz = 1;
+  msg.v1.VerifyCaptchaReq param = 2;
+}
+
+message VerifyCaptchaResp {
+  message Data {
+    string token = 1;
+  }
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+  Data data = 4;
 }
 
 message SignUpReq {
   // 注册方式
   enums.v1.AuthType auth_type = 1 [
     (buf.validate.field).enum = {
-      in: [4, 5, 6]
+      in: [4, 5]
     }
   ];
   // 用户编码，全局唯一, 数据库中定义的有唯一索引
@@ -85,11 +126,13 @@ message SignUpReq {
   string captcha = 21 [(buf.validate.field).string.(validation.v1.required_10) = true];
   // 验证码token
   string captcha_token = 22 [(buf.validate.field).string.uuid = true];
+  string biz = 255;
 }
 
 message SignUpResp {
   message Data {
     UserInfo user_info = 1;
+    optional common.v1.LimitRule rule = 2;
   }
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
@@ -124,6 +167,7 @@ message SignInReq {
   optional string user_agent = 9 [(buf.validate.field).string.(validation.v1.optional_255) = true];
   // 设备信息
   optional string device = 10 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  string biz = 255;
 }
 
 message SignInResp {
@@ -146,6 +190,7 @@ message SignInResp {
     string access_token = 1;
     string refresh_token = 2;
     UserInfo user_info = 3;
+    optional common.v1.LimitRule rule = 4;
   }
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
@@ -153,7 +198,6 @@ message SignInResp {
   string err_msg = 2;
   // 开发模式，返回详细错误信息
   string err_detail = 3;
-  optional common.v1.LimitRule rule = 4;
   Data data = 5;
 }
 
@@ -210,6 +254,113 @@ message RefreshResp {
   // 开发模式，返回详细错误信息
   string err_detail = 3;
   Data data = 4;
+}
+
+message ChangePasswordReq {
+  int64 uid = 1;
+  string current_session_id = 2;
+  string old_password = 3;
+  string new_password = 4;
+}
+
+message ChangePasswordResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ResetPasswordReq {
+  string reset_token = 1;
+  string new_password = 2;
+}
+
+message ResetPasswordResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangePhoneReq {
+  string change_token = 1;
+  common.v1.PhoneNumber phone = 2;
+  string captcha = 3;
+}
+
+message ChangePhoneResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeEmailReq {
+  enums.v1.MessageSenderType sender = 1;
+  string change_token = 2;
+  string new_email = 3;
+  string captcha = 4;
+}
+
+message ChangeEmailResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message VerifyPhoneReq {
+  int64 uid = 1;
+  common.v1.PhoneNumber phone = 2;
+  string captcha_token = 3;
+  string captcha = 4;
+}
+
+message VerifyPhoneResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message VerifyEmailReq {
+  int64 uid = 1;
+  string email = 2;
+  string captcha_token = 3;
+  string captcha = 4;
+}
+
+message VerifyEmailResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserStatusReq {
+  int64 uid = 1;
+  enums.v1.UserStatus status = 2;
+}
+
+message ChangeUserStatusResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
 }
 
 message AddSessionToBlockListReq {
@@ -313,6 +464,7 @@ message PagingGetSignInLogsReq {
   repeated enums.v1.AuthType types = 5 [(buf.validate.field).repeated.items.enum.(validation.v1.not_unspecified) = true];
   // 登录状态
   repeated enums.v1.SessionStatus statuses = 6 [(buf.validate.field).repeated.items.enum.(validation.v1.not_unspecified) = true];
+  string biz = 255;
 }
 
 message PagingGetSignInLogsResp {

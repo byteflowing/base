@@ -5,7 +5,7 @@ import (
 	"time"
 
 	configv1 "github.com/byteflowing/base/gen/config/v1"
-	messagev1 "github.com/byteflowing/base/gen/message/v1"
+	messagev1 "github.com/byteflowing/base/gen/msg/v1"
 	"github.com/byteflowing/go-common/3rd/bytedance/volc"
 	"github.com/byteflowing/go-common/ratelimit"
 )

@@ -24,6 +24,7 @@ func signUpReqToUserBasic(
 		return nil, err
 	}
 	userBasic = &model.UserBasic{
+		Biz:            req.Biz,
 		ID:             uid,
 		Name:           req.Name,
 		Alias_:         req.Alias,
@@ -49,6 +50,7 @@ func signUpReqToUserBasic(
 			return nil, err
 		}
 		userBasic.Password = trans.Ref(passwd)
+		userBasic.PasswordUpdatedAt = time.Now().UnixMilli()
 	}
 	if req.Gender != nil {
 		userBasic.Gender = trans.Ref(int16(*req.Gender))

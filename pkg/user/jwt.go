@@ -94,11 +94,11 @@ func (s *JwtService) RevokeByLog(ctx context.Context, log *model.UserSignLog) (e
 	items := []*SessionItem{
 		{
 			SessionID: log.AccessSessionID,
-			TTL:       s.ttlFromExpiredAt(log.AccessExpiredAt),
+			TTL:       s.TTLFromExpiredAt(log.AccessExpiredAt),
 		},
 		{
 			SessionID: log.RefreshSessionID,
-			TTL:       s.ttlFromExpiredAt(log.RefreshExpiredAt),
+			TTL:       s.TTLFromExpiredAt(log.RefreshExpiredAt),
 		},
 	}
 	return s.revoke(ctx, items)
@@ -131,6 +131,17 @@ func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (new
 		return "", "", nil, nil, err
 	}
 	return
+}
+
+func (s *JwtService) TTLFromExpiredAt(expiredAt int64) time.Duration {
+	if expiredAt <= 0 {
+		return 0
+	}
+	exp := time.Unix(expiredAt, 0).Unix() - time.Now().Unix()
+	if exp <= 0 {
+		return 0
+	}
+	return time.Duration(exp) * time.Second
 }
 
 func (s *JwtService) generateJwtToken(ctx context.Context, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, refreshClaims *JwtClaims, err error) {
@@ -208,17 +219,6 @@ func (s *JwtService) keyFunc(token *jwt.Token) (interface{}, error) {
 		return nil, ecode.ErrUserTokenMisMatch
 	}
 	return []byte(s.secretKey), nil
-}
-
-func (s *JwtService) ttlFromExpiredAt(expiredAt int64) time.Duration {
-	if expiredAt <= 0 {
-		return 0
-	}
-	exp := time.Unix(expiredAt, 0).Unix() - time.Now().Unix()
-	if exp <= 0 {
-		return 0
-	}
-	return time.Duration(exp) * time.Second
 }
 
 func (s *JwtService) createClaims(t time.Time, typ enumsv1.TokenType, req *GenerateJwtReq) *JwtClaims {

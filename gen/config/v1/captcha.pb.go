@@ -168,6 +168,58 @@ func (x *Captcha) GetProviders() []*CaptchaProvider {
 	return nil
 }
 
+type TokenVerify struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Prefix        string                 `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	Keeping       *durationpb.Duration   `protobuf:"bytes,2,opt,name=keeping,proto3" json:"keeping,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TokenVerify) Reset() {
+	*x = TokenVerify{}
+	mi := &file_config_v1_captcha_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TokenVerify) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TokenVerify) ProtoMessage() {}
+
+func (x *TokenVerify) ProtoReflect() protoreflect.Message {
+	mi := &file_config_v1_captcha_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TokenVerify.ProtoReflect.Descriptor instead.
+func (*TokenVerify) Descriptor() ([]byte, []int) {
+	return file_config_v1_captcha_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TokenVerify) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *TokenVerify) GetKeeping() *durationpb.Duration {
+	if x != nil {
+		return x.Keeping
+	}
+	return nil
+}
+
 var File_config_v1_captcha_proto protoreflect.FileDescriptor
 
 const file_config_v1_captcha_proto_rawDesc = "" +
@@ -186,7 +238,10 @@ const file_config_v1_captcha_proto_rawDesc = "" +
 	"(\x01R\verrTryLimit\x126\n" +
 	"\x06limits\x18\a \x03(\v2\x14.common.v1.LimitRuleB\b\xbaH\x05\x92\x01\x02\b\x01R\x06limits\"C\n" +
 	"\aCaptcha\x128\n" +
-	"\tproviders\x18\x01 \x03(\v2\x1a.config.v1.CaptchaProviderR\tprovidersB\x96\x01\n" +
+	"\tproviders\x18\x01 \x03(\v2\x1a.config.v1.CaptchaProviderR\tproviders\"Z\n" +
+	"\vTokenVerify\x12\x16\n" +
+	"\x06prefix\x18\x01 \x01(\tR\x06prefix\x123\n" +
+	"\akeeping\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\akeepingB\x96\x01\n" +
 	"\rcom.config.v1B\fCaptchaProtoP\x01Z2github.com/byteflowing/base/gen/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 
@@ -202,24 +257,26 @@ func file_config_v1_captcha_proto_rawDescGZIP() []byte {
 	return file_config_v1_captcha_proto_rawDescData
 }
 
-var file_config_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_config_v1_captcha_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_config_v1_captcha_proto_goTypes = []any{
 	(*CaptchaProvider)(nil),     // 0: config.v1.CaptchaProvider
 	(*Captcha)(nil),             // 1: config.v1.Captcha
-	(v1.MessageSenderType)(0),   // 2: enums.v1.MessageSenderType
-	(*durationpb.Duration)(nil), // 3: google.protobuf.Duration
-	(*v11.LimitRule)(nil),       // 4: common.v1.LimitRule
+	(*TokenVerify)(nil),         // 2: config.v1.TokenVerify
+	(v1.MessageSenderType)(0),   // 3: enums.v1.MessageSenderType
+	(*durationpb.Duration)(nil), // 4: google.protobuf.Duration
+	(*v11.LimitRule)(nil),       // 5: common.v1.LimitRule
 }
 var file_config_v1_captcha_proto_depIdxs = []int32{
-	2, // 0: config.v1.CaptchaProvider.sender:type_name -> enums.v1.MessageSenderType
-	3, // 1: config.v1.CaptchaProvider.keeping:type_name -> google.protobuf.Duration
-	4, // 2: config.v1.CaptchaProvider.limits:type_name -> common.v1.LimitRule
+	3, // 0: config.v1.CaptchaProvider.sender:type_name -> enums.v1.MessageSenderType
+	4, // 1: config.v1.CaptchaProvider.keeping:type_name -> google.protobuf.Duration
+	5, // 2: config.v1.CaptchaProvider.limits:type_name -> common.v1.LimitRule
 	0, // 3: config.v1.Captcha.providers:type_name -> config.v1.CaptchaProvider
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 4: config.v1.TokenVerify.keeping:type_name -> google.protobuf.Duration
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_captcha_proto_init() }
@@ -233,7 +290,7 @@ func file_config_v1_captcha_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_v1_captcha_proto_rawDesc), len(file_config_v1_captcha_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

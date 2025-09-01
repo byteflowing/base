@@ -38,3 +38,8 @@ message CaptchaProvider {
 message Captcha {
   repeated CaptchaProvider providers = 1;
 }
+
+message TokenVerify {
+  string prefix = 1;
+  google.protobuf.Duration keeping = 2;
+}

@@ -43,7 +43,7 @@ func (p *PhonePassword) SignIn(ctx context.Context, req *userv1.SignInReq) (resp
 	if req.PhoneNumber == nil || req.PhoneNumber.Number == "" || req.PhoneNumber.CountryCode == "" {
 		return nil, ecode.ErrPhoneIsEmpty
 	}
-	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.GetPhoneNumber())
+	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.Biz, req.GetPhoneNumber())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrPhoneNotExist

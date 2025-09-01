@@ -33,6 +33,7 @@ func newUserSignLog(db *gorm.DB, opts ...gen.DOOption) userSignLog {
 	_userSignLog.Type = field.NewInt16(tableName, "type")
 	_userSignLog.Status = field.NewInt16(tableName, "status")
 	_userSignLog.Identifier = field.NewString(tableName, "identifier")
+	_userSignLog.Biz = field.NewString(tableName, "biz")
 	_userSignLog.IP = field.NewString(tableName, "ip")
 	_userSignLog.Location = field.NewString(tableName, "location")
 	_userSignLog.Agent = field.NewString(tableName, "agent")
@@ -59,6 +60,7 @@ type userSignLog struct {
 	Type             field.Int16
 	Status           field.Int16
 	Identifier       field.String
+	Biz              field.String
 	IP               field.String
 	Location         field.String
 	Agent            field.String
@@ -91,6 +93,7 @@ func (u *userSignLog) updateTableName(table string) *userSignLog {
 	u.Type = field.NewInt16(table, "type")
 	u.Status = field.NewInt16(table, "status")
 	u.Identifier = field.NewString(table, "identifier")
+	u.Biz = field.NewString(table, "biz")
 	u.IP = field.NewString(table, "ip")
 	u.Location = field.NewString(table, "location")
 	u.Agent = field.NewString(table, "agent")
@@ -128,12 +131,13 @@ func (u *userSignLog) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userSignLog) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 16)
+	u.fieldMap = make(map[string]field.Expr, 17)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["uid"] = u.UID
 	u.fieldMap["type"] = u.Type
 	u.fieldMap["status"] = u.Status
 	u.fieldMap["identifier"] = u.Identifier
+	u.fieldMap["biz"] = u.Biz
 	u.fieldMap["ip"] = u.IP
 	u.fieldMap["location"] = u.Location
 	u.fieldMap["agent"] = u.Agent

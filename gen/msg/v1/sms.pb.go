@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        (unknown)
-// source: message/v1/sms.proto
+// source: msg/v1/sms.proto
 
-package messagev1
+package msgv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -45,7 +45,7 @@ type SendSmsReq struct {
 
 func (x *SendSmsReq) Reset() {
 	*x = SendSmsReq{}
-	mi := &file_message_v1_sms_proto_msgTypes[0]
+	mi := &file_msg_v1_sms_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +57,7 @@ func (x *SendSmsReq) String() string {
 func (*SendSmsReq) ProtoMessage() {}
 
 func (x *SendSmsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_sms_proto_msgTypes[0]
+	mi := &file_msg_v1_sms_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -70,7 +70,7 @@ func (x *SendSmsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendSmsReq.ProtoReflect.Descriptor instead.
 func (*SendSmsReq) Descriptor() ([]byte, []int) {
-	return file_message_v1_sms_proto_rawDescGZIP(), []int{0}
+	return file_msg_v1_sms_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SendSmsReq) GetVendor() v1.SmsVendor {
@@ -129,7 +129,7 @@ type SendSmsResp struct {
 
 func (x *SendSmsResp) Reset() {
 	*x = SendSmsResp{}
-	mi := &file_message_v1_sms_proto_msgTypes[1]
+	mi := &file_msg_v1_sms_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -141,7 +141,7 @@ func (x *SendSmsResp) String() string {
 func (*SendSmsResp) ProtoMessage() {}
 
 func (x *SendSmsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_sms_proto_msgTypes[1]
+	mi := &file_msg_v1_sms_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -154,7 +154,7 @@ func (x *SendSmsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendSmsResp.ProtoReflect.Descriptor instead.
 func (*SendSmsResp) Descriptor() ([]byte, []int) {
-	return file_message_v1_sms_proto_rawDescGZIP(), []int{1}
+	return file_msg_v1_sms_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SendSmsResp) GetErrCode() uint32 {
@@ -178,12 +178,11 @@ func (x *SendSmsResp) GetErrDetail() string {
 	return ""
 }
 
-var File_message_v1_sms_proto protoreflect.FileDescriptor
+var File_msg_v1_sms_proto protoreflect.FileDescriptor
 
-const file_message_v1_sms_proto_rawDesc = "" +
+const file_msg_v1_sms_proto_rawDesc = "" +
 	"\n" +
-	"\x14message/v1/sms.proto\x12\n" +
-	"message.v1\x1a\x16enums/v1/message.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\x1a\x16common/v1/common.proto\"\xb3\x03\n" +
+	"\x10msg/v1/sms.proto\x12\x06msg.v1\x1a\x16enums/v1/message.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\x1a\x16common/v1/common.proto\"\xaf\x03\n" +
 	"\n" +
 	"SendSmsReq\x128\n" +
 	"\x06vendor\x18\x01 \x01(\x0e2\x13.enums.v1.SmsVendorB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\x06vendor\x12$\n" +
@@ -193,8 +192,8 @@ const file_message_v1_sms_proto_rawDesc = "" +
 	"\tsign_name\x18\x04 \x01(\tB\n" +
 	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\bsignName\x12/\n" +
 	"\rtemplate_code\x18\x05 \x01(\tB\n" +
-	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\ftemplateCode\x12e\n" +
-	"\x0ftemplate_params\x18\x06 \x03(\v2*.message.v1.SendSmsReq.TemplateParamsEntryB\x10\xbaH\r\x9a\x01\n" +
+	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\ftemplateCode\x12a\n" +
+	"\x0ftemplate_params\x18\x06 \x03(\v2&.msg.v1.SendSmsReq.TemplateParamsEntryB\x10\xbaH\r\x9a\x01\n" +
 	"\b\x01*\x06r\x04\x10\x01\x18\x14R\x0etemplateParams\x1aA\n" +
 	"\x13TemplateParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -203,35 +202,34 @@ const file_message_v1_sms_proto_rawDesc = "" +
 	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
 	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
 	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetailB\x99\x01\n" +
-	"\x0ecom.message.v1B\bSmsProtoP\x01Z4github.com/byteflowing/base/gen/message/v1;messagev1\xa2\x02\x03MXX\xaa\x02\n" +
-	"Message.V1\xca\x02\n" +
-	"Message\\V1\xe2\x02\x16Message\\V1\\GPBMetadata\xea\x02\vMessage::V1b\x06proto3"
+	"err_detail\x18\x03 \x01(\tR\terrDetailB}\n" +
+	"\n" +
+	"com.msg.v1B\bSmsProtoP\x01Z,github.com/byteflowing/base/gen/msg/v1;msgv1\xa2\x02\x03MXX\xaa\x02\x06Msg.V1\xca\x02\x06Msg\\V1\xe2\x02\x12Msg\\V1\\GPBMetadata\xea\x02\aMsg::V1b\x06proto3"
 
 var (
-	file_message_v1_sms_proto_rawDescOnce sync.Once
-	file_message_v1_sms_proto_rawDescData []byte
+	file_msg_v1_sms_proto_rawDescOnce sync.Once
+	file_msg_v1_sms_proto_rawDescData []byte
 )
 
-func file_message_v1_sms_proto_rawDescGZIP() []byte {
-	file_message_v1_sms_proto_rawDescOnce.Do(func() {
-		file_message_v1_sms_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_message_v1_sms_proto_rawDesc), len(file_message_v1_sms_proto_rawDesc)))
+func file_msg_v1_sms_proto_rawDescGZIP() []byte {
+	file_msg_v1_sms_proto_rawDescOnce.Do(func() {
+		file_msg_v1_sms_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_msg_v1_sms_proto_rawDesc), len(file_msg_v1_sms_proto_rawDesc)))
 	})
-	return file_message_v1_sms_proto_rawDescData
+	return file_msg_v1_sms_proto_rawDescData
 }
 
-var file_message_v1_sms_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_message_v1_sms_proto_goTypes = []any{
-	(*SendSmsReq)(nil),      // 0: message.v1.SendSmsReq
-	(*SendSmsResp)(nil),     // 1: message.v1.SendSmsResp
-	nil,                     // 2: message.v1.SendSmsReq.TemplateParamsEntry
+var file_msg_v1_sms_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_msg_v1_sms_proto_goTypes = []any{
+	(*SendSmsReq)(nil),      // 0: msg.v1.SendSmsReq
+	(*SendSmsResp)(nil),     // 1: msg.v1.SendSmsResp
+	nil,                     // 2: msg.v1.SendSmsReq.TemplateParamsEntry
 	(v1.SmsVendor)(0),       // 3: enums.v1.SmsVendor
 	(*v11.PhoneNumber)(nil), // 4: common.v1.PhoneNumber
 }
-var file_message_v1_sms_proto_depIdxs = []int32{
-	3, // 0: message.v1.SendSmsReq.vendor:type_name -> enums.v1.SmsVendor
-	4, // 1: message.v1.SendSmsReq.phone_number:type_name -> common.v1.PhoneNumber
-	2, // 2: message.v1.SendSmsReq.template_params:type_name -> message.v1.SendSmsReq.TemplateParamsEntry
+var file_msg_v1_sms_proto_depIdxs = []int32{
+	3, // 0: msg.v1.SendSmsReq.vendor:type_name -> enums.v1.SmsVendor
+	4, // 1: msg.v1.SendSmsReq.phone_number:type_name -> common.v1.PhoneNumber
+	2, // 2: msg.v1.SendSmsReq.template_params:type_name -> msg.v1.SendSmsReq.TemplateParamsEntry
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -239,26 +237,26 @@ var file_message_v1_sms_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_message_v1_sms_proto_init() }
-func file_message_v1_sms_proto_init() {
-	if File_message_v1_sms_proto != nil {
+func init() { file_msg_v1_sms_proto_init() }
+func file_msg_v1_sms_proto_init() {
+	if File_msg_v1_sms_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_v1_sms_proto_rawDesc), len(file_message_v1_sms_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_msg_v1_sms_proto_rawDesc), len(file_msg_v1_sms_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_message_v1_sms_proto_goTypes,
-		DependencyIndexes: file_message_v1_sms_proto_depIdxs,
-		MessageInfos:      file_message_v1_sms_proto_msgTypes,
+		GoTypes:           file_msg_v1_sms_proto_goTypes,
+		DependencyIndexes: file_msg_v1_sms_proto_depIdxs,
+		MessageInfos:      file_msg_v1_sms_proto_msgTypes,
 	}.Build()
-	File_message_v1_sms_proto = out.File
-	file_message_v1_sms_proto_goTypes = nil
-	file_message_v1_sms_proto_depIdxs = nil
+	File_msg_v1_sms_proto = out.File
+	file_msg_v1_sms_proto_goTypes = nil
+	file_msg_v1_sms_proto_depIdxs = nil
 }

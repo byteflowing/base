@@ -7,7 +7,7 @@ import (
 	"github.com/byteflowing/base/ecode"
 	configv1 "github.com/byteflowing/base/gen/config/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messagev1 "github.com/byteflowing/base/gen/message/v1"
+	messagev1 "github.com/byteflowing/base/gen/msg/v1"
 )
 
 type Provider interface {

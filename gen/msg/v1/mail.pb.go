@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        (unknown)
-// source: message/v1/mail.proto
+// source: msg/v1/mail.proto
 
-package messagev1
+package msgv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -36,7 +36,7 @@ type MailAddress struct {
 
 func (x *MailAddress) Reset() {
 	*x = MailAddress{}
-	mi := &file_message_v1_mail_proto_msgTypes[0]
+	mi := &file_msg_v1_mail_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +48,7 @@ func (x *MailAddress) String() string {
 func (*MailAddress) ProtoMessage() {}
 
 func (x *MailAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_mail_proto_msgTypes[0]
+	mi := &file_msg_v1_mail_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +61,7 @@ func (x *MailAddress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MailAddress.ProtoReflect.Descriptor instead.
 func (*MailAddress) Descriptor() ([]byte, []int) {
-	return file_message_v1_mail_proto_rawDescGZIP(), []int{0}
+	return file_msg_v1_mail_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MailAddress) GetAddress() string {
@@ -106,7 +106,7 @@ type SendMailReq struct {
 
 func (x *SendMailReq) Reset() {
 	*x = SendMailReq{}
-	mi := &file_message_v1_mail_proto_msgTypes[1]
+	mi := &file_msg_v1_mail_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -118,7 +118,7 @@ func (x *SendMailReq) String() string {
 func (*SendMailReq) ProtoMessage() {}
 
 func (x *SendMailReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_mail_proto_msgTypes[1]
+	mi := &file_msg_v1_mail_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -131,7 +131,7 @@ func (x *SendMailReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMailReq.ProtoReflect.Descriptor instead.
 func (*SendMailReq) Descriptor() ([]byte, []int) {
-	return file_message_v1_mail_proto_rawDescGZIP(), []int{1}
+	return file_msg_v1_mail_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SendMailReq) GetVendor() v1.MailVendor {
@@ -218,7 +218,7 @@ type SendMailResp struct {
 
 func (x *SendMailResp) Reset() {
 	*x = SendMailResp{}
-	mi := &file_message_v1_mail_proto_msgTypes[2]
+	mi := &file_msg_v1_mail_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -230,7 +230,7 @@ func (x *SendMailResp) String() string {
 func (*SendMailResp) ProtoMessage() {}
 
 func (x *SendMailResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_mail_proto_msgTypes[2]
+	mi := &file_msg_v1_mail_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -243,7 +243,7 @@ func (x *SendMailResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMailResp.ProtoReflect.Descriptor instead.
 func (*SendMailResp) Descriptor() ([]byte, []int) {
-	return file_message_v1_mail_proto_rawDescGZIP(), []int{2}
+	return file_msg_v1_mail_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SendMailResp) GetErrCode() uint32 {
@@ -267,25 +267,24 @@ func (x *SendMailResp) GetErrDetail() string {
 	return ""
 }
 
-var File_message_v1_mail_proto protoreflect.FileDescriptor
+var File_msg_v1_mail_proto protoreflect.FileDescriptor
 
-const file_message_v1_mail_proto_rawDesc = "" +
+const file_msg_v1_mail_proto_rawDesc = "" +
 	"\n" +
-	"\x15message/v1/mail.proto\x12\n" +
-	"message.v1\x1a\x16enums/v1/message.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\"^\n" +
+	"\x11msg/v1/mail.proto\x12\x06msg.v1\x1a\x16enums/v1/message.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\"^\n" +
 	"\vMailAddress\x12!\n" +
 	"\aaddress\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\aaddress\x12#\n" +
 	"\x04name\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05С\xe9\x03\x01H\x00R\x04name\x88\x01\x01B\a\n" +
-	"\x05_name\"\xfd\x03\n" +
+	"\x05_name\"\xed\x03\n" +
 	"\vSendMailReq\x129\n" +
 	"\x06vendor\x18\x01 \x01(\x0e2\x14.enums.v1.MailVendorB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\x06vendor\x12$\n" +
 	"\aaccount\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05\xa0\xa1\xe9\x03\x01R\aaccount\x123\n" +
-	"\x04from\x18\x03 \x01(\v2\x17.message.v1.MailAddressB\x06\xbaH\x03\xc8\x01\x01R\x04from\x121\n" +
-	"\x02to\x18\x04 \x03(\v2\x17.message.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\b\x01R\x02to\x121\n" +
-	"\x02cc\x18\x05 \x03(\v2\x17.message.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\x10dR\x02cc\x123\n" +
-	"\x03bcc\x18\x06 \x03(\v2\x17.message.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\x10dR\x03bcc\x12$\n" +
+	"\xbaH\ar\x05\xa0\xa1\xe9\x03\x01R\aaccount\x12/\n" +
+	"\x04from\x18\x03 \x01(\v2\x13.msg.v1.MailAddressB\x06\xbaH\x03\xc8\x01\x01R\x04from\x12-\n" +
+	"\x02to\x18\x04 \x03(\v2\x13.msg.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\b\x01R\x02to\x12-\n" +
+	"\x02cc\x18\x05 \x03(\v2\x13.msg.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\x10dR\x02cc\x12/\n" +
+	"\x03bcc\x18\x06 \x03(\v2\x13.msg.v1.MailAddressB\b\xbaH\x05\x92\x01\x02\x10dR\x03bcc\x12$\n" +
 	"\asubject\x18\a \x01(\tB\n" +
 	"\xbaH\ar\x05\xa0\xa1\xe9\x03\x01R\asubject\x12I\n" +
 	"\fcontent_type\x18\b \x01(\x0e2\x19.enums.v1.MailContentTypeB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\vcontentType\x12 \n" +
@@ -296,38 +295,37 @@ const file_message_v1_mail_proto_rawDesc = "" +
 	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
 	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
 	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetailB\x9a\x01\n" +
-	"\x0ecom.message.v1B\tMailProtoP\x01Z4github.com/byteflowing/base/gen/message/v1;messagev1\xa2\x02\x03MXX\xaa\x02\n" +
-	"Message.V1\xca\x02\n" +
-	"Message\\V1\xe2\x02\x16Message\\V1\\GPBMetadata\xea\x02\vMessage::V1b\x06proto3"
+	"err_detail\x18\x03 \x01(\tR\terrDetailB~\n" +
+	"\n" +
+	"com.msg.v1B\tMailProtoP\x01Z,github.com/byteflowing/base/gen/msg/v1;msgv1\xa2\x02\x03MXX\xaa\x02\x06Msg.V1\xca\x02\x06Msg\\V1\xe2\x02\x12Msg\\V1\\GPBMetadata\xea\x02\aMsg::V1b\x06proto3"
 
 var (
-	file_message_v1_mail_proto_rawDescOnce sync.Once
-	file_message_v1_mail_proto_rawDescData []byte
+	file_msg_v1_mail_proto_rawDescOnce sync.Once
+	file_msg_v1_mail_proto_rawDescData []byte
 )
 
-func file_message_v1_mail_proto_rawDescGZIP() []byte {
-	file_message_v1_mail_proto_rawDescOnce.Do(func() {
-		file_message_v1_mail_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_message_v1_mail_proto_rawDesc), len(file_message_v1_mail_proto_rawDesc)))
+func file_msg_v1_mail_proto_rawDescGZIP() []byte {
+	file_msg_v1_mail_proto_rawDescOnce.Do(func() {
+		file_msg_v1_mail_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_msg_v1_mail_proto_rawDesc), len(file_msg_v1_mail_proto_rawDesc)))
 	})
-	return file_message_v1_mail_proto_rawDescData
+	return file_msg_v1_mail_proto_rawDescData
 }
 
-var file_message_v1_mail_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_message_v1_mail_proto_goTypes = []any{
-	(*MailAddress)(nil),     // 0: message.v1.MailAddress
-	(*SendMailReq)(nil),     // 1: message.v1.SendMailReq
-	(*SendMailResp)(nil),    // 2: message.v1.SendMailResp
+var file_msg_v1_mail_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_msg_v1_mail_proto_goTypes = []any{
+	(*MailAddress)(nil),     // 0: msg.v1.MailAddress
+	(*SendMailReq)(nil),     // 1: msg.v1.SendMailReq
+	(*SendMailResp)(nil),    // 2: msg.v1.SendMailResp
 	(v1.MailVendor)(0),      // 3: enums.v1.MailVendor
 	(v1.MailContentType)(0), // 4: enums.v1.MailContentType
 }
-var file_message_v1_mail_proto_depIdxs = []int32{
-	3, // 0: message.v1.SendMailReq.vendor:type_name -> enums.v1.MailVendor
-	0, // 1: message.v1.SendMailReq.from:type_name -> message.v1.MailAddress
-	0, // 2: message.v1.SendMailReq.to:type_name -> message.v1.MailAddress
-	0, // 3: message.v1.SendMailReq.cc:type_name -> message.v1.MailAddress
-	0, // 4: message.v1.SendMailReq.bcc:type_name -> message.v1.MailAddress
-	4, // 5: message.v1.SendMailReq.content_type:type_name -> enums.v1.MailContentType
+var file_msg_v1_mail_proto_depIdxs = []int32{
+	3, // 0: msg.v1.SendMailReq.vendor:type_name -> enums.v1.MailVendor
+	0, // 1: msg.v1.SendMailReq.from:type_name -> msg.v1.MailAddress
+	0, // 2: msg.v1.SendMailReq.to:type_name -> msg.v1.MailAddress
+	0, // 3: msg.v1.SendMailReq.cc:type_name -> msg.v1.MailAddress
+	0, // 4: msg.v1.SendMailReq.bcc:type_name -> msg.v1.MailAddress
+	4, // 5: msg.v1.SendMailReq.content_type:type_name -> enums.v1.MailContentType
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
@@ -335,27 +333,27 @@ var file_message_v1_mail_proto_depIdxs = []int32{
 	0, // [0:6] is the sub-list for field type_name
 }
 
-func init() { file_message_v1_mail_proto_init() }
-func file_message_v1_mail_proto_init() {
-	if File_message_v1_mail_proto != nil {
+func init() { file_msg_v1_mail_proto_init() }
+func file_msg_v1_mail_proto_init() {
+	if File_msg_v1_mail_proto != nil {
 		return
 	}
-	file_message_v1_mail_proto_msgTypes[0].OneofWrappers = []any{}
+	file_msg_v1_mail_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_message_v1_mail_proto_rawDesc), len(file_message_v1_mail_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_msg_v1_mail_proto_rawDesc), len(file_msg_v1_mail_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_message_v1_mail_proto_goTypes,
-		DependencyIndexes: file_message_v1_mail_proto_depIdxs,
-		MessageInfos:      file_message_v1_mail_proto_msgTypes,
+		GoTypes:           file_msg_v1_mail_proto_goTypes,
+		DependencyIndexes: file_msg_v1_mail_proto_depIdxs,
+		MessageInfos:      file_msg_v1_mail_proto_msgTypes,
 	}.Build()
-	File_message_v1_mail_proto = out.File
-	file_message_v1_mail_proto_goTypes = nil
-	file_message_v1_mail_proto_depIdxs = nil
+	File_msg_v1_mail_proto = out.File
+	file_msg_v1_mail_proto_goTypes = nil
+	file_msg_v1_mail_proto_depIdxs = nil
 }
