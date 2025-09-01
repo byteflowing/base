@@ -238,6 +238,8 @@ message SignOutByUidResp {
 message RefreshReq {
   // 刷新token
   string refresh_token = 1 [(buf.validate.field).required = true];
+  // jwt除标准字段外的自定义字段
+  google.protobuf.Any extra_jwt_claims = 2;
 }
 
 message RefreshResp {
@@ -289,7 +291,8 @@ message ResetPasswordResp {
 message ChangePhoneReq {
   string change_token = 1;
   common.v1.PhoneNumber phone = 2;
-  string captcha = 3;
+  string captcha_token = 3;
+  string captcha = 4;
 }
 
 message ChangePhoneResp {
@@ -305,10 +308,164 @@ message ChangeEmailReq {
   enums.v1.MessageSenderType sender = 1;
   string change_token = 2;
   string new_email = 3;
-  string captcha = 4;
+  string captcha_token = 4;
+  string captcha = 5;
 }
 
 message ChangeEmailResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserStatusResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserAvatarReq {
+  int64 uid = 1;
+  string avatar = 2;
+}
+
+message ChangeUserAvatarResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserGenderReq {
+  int64 uid = 1;
+  enums.v1.Gender gender = 2;
+}
+
+message ChangeUserGenderResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserBirthdayReq {
+  int64 uid = 1;
+  google.type.Date birthday = 2;
+}
+
+message ChangeUserBirthdayResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserNameReq {
+  int64 uid = 1;
+  string name = 2;
+}
+
+message ChangeUserNameResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserAliasReq {
+  int64 uid = 1;
+  string alias = 2;
+}
+
+message ChangeUserAliasResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserNumberReq {
+  int64 uid = 1;
+  string number = 2;
+}
+
+message ChangeUserNumberResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserAddressReq {
+  int64 uid = 1;
+  string country_code = 2;
+  string province_code = 3;
+  string city_code = 4;
+  string district_code = 5;
+  string addr = 6;
+}
+
+message ChangeUserAddressResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserTypeReq {
+  int64 uid = 1;
+  int32 type = 2;
+}
+
+message ChangeUserTypeResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserLevelReq {
+  int64 uid = 1;
+  int32 level = 2;
+}
+
+message ChangeUserLevelResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message ChangeUserExtReq {
+  int64 uid = 1;
+  string ext = 2;
+}
+
+message ChangeUserExtResp {
   // 正常返回0，错误返回非0
   uint32 err_code = 1;
   // 正常返回OK, 错误返回错误内容
@@ -354,15 +511,6 @@ message ChangeUserStatusReq {
   enums.v1.UserStatus status = 2;
 }
 
-message ChangeUserStatusResp {
-  // 正常返回0，错误返回非0
-  uint32 err_code = 1;
-  // 正常返回OK, 错误返回错误内容
-  string err_msg = 2;
-  // 开发模式，返回详细错误信息
-  string err_detail = 3;
-}
-
 message AddSessionToBlockListReq {
   // 访问token的jti
   string access_session_id = 1 [(buf.validate.field).string.uuid = true];
@@ -380,7 +528,8 @@ message AddSessionToBlockListResp {
 }
 
 message VerifyTokenReq {
-  string token = 1 [(buf.validate.field).required = true];
+  enums.v1.TokenType type = 1;
+  string token = 2 [(buf.validate.field).required = true];
 }
 
 message VerifyTokenResp {

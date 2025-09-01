@@ -9,6 +9,7 @@ import (
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/golang-jwt/jwt/v5"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type JwtService struct {
@@ -104,22 +105,30 @@ func (s *JwtService) RevokeByLog(ctx context.Context, log *model.UserSignLog) (e
 	return s.revoke(ctx, items)
 }
 
-func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (newAccessToken, newRefreshToken string, newAccessClaims, newRefreshClaims *JwtClaims, err error) {
-	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
+func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, extraClaims *anypb.Any) (newAccessToken, newRefreshToken string, newAccessClaims, newRefreshClaims *JwtClaims, err error) {
+	refreshClaim, err := s.VerifyRefreshToken(ctx, refreshToken)
+	if err != nil {
 		return "", "", nil, nil, err
 	}
-	refreshClaim, err := s.VerifyRefreshToken(ctx, req.RefreshToken)
+	if err = s.limiter.Allow(ctx, refreshClaim.Uid, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
+		return "", "", nil, nil, err
+	}
+	userBasic, err := s.repo.GetUserBasicByUID(ctx, refreshClaim.Uid)
+	if err != nil {
+		return "", "", nil, nil, err
+	}
+	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(ctx, &GenerateJwtReq{
+		UserBasic:      userBasic,
+		ExtraJwtClaims: extraClaims,
+		AuthType:       enumsv1.AuthType(refreshClaim.AuthType),
+		AppId:          refreshClaim.AppId,
+		OpenId:         refreshClaim.OpenId,
+		UnionId:        refreshClaim.UnionId,
+	})
 	if err != nil {
 		return "", "", nil, nil, err
 	}
 	log, err := s.repo.GetSignInLogByRefresh(ctx, refreshClaim.ID)
-	if err != nil {
-		return "", "", nil, nil, err
-	}
-	if err = s.RevokeByLog(ctx, log); err != nil {
-		return "", "", nil, nil, err
-	}
-	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(ctx, req)
 	if err != nil {
 		return "", "", nil, nil, err
 	}
@@ -128,6 +137,9 @@ func (s *JwtService) RefreshToken(ctx context.Context, req *GenerateJwtReq) (new
 	log.AccessExpiredAt = newAccessClaims.ExpiresAt.Unix()
 	log.RefreshExpiredAt = newRefreshClaims.ExpiresAt.Unix()
 	if err = s.repo.UpdateSignInLogByID(ctx, log); err != nil {
+		return "", "", nil, nil, err
+	}
+	if err = s.RevokeByLog(ctx, log); err != nil {
 		return "", "", nil, nil, err
 	}
 	return

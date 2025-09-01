@@ -27,6 +27,7 @@ type Repo interface {
 	CreateUserBasic(ctx context.Context, user *model.UserBasic) (err error)
 	CreateUserAuth(ctx context.Context, user *model.UserAuth) (err error)
 	UpdateUserAuth(ctx context.Context, auth *model.UserAuth) (err error)
+	UpdateUserBasicByUid(ctx context.Context, basic *model.UserBasic) (err error)
 	AddSignInLog(ctx context.Context, req *userv1.SignInReq, accessClaims, refreshClaims *JwtClaims) (err error)
 	GetSignInLogByAccess(ctx context.Context, accessSessionID string) (log *model.UserSignLog, err error)
 	GetSignInLogByRefresh(ctx context.Context, refreshSessionID string) (log *model.UserSignLog, err error)
@@ -259,6 +260,12 @@ func (repo *GenRepo) UpdateSignInLogByID(ctx context.Context, log *model.UserSig
 func (repo *GenRepo) UpdateSignInLogsStatus(ctx context.Context, ids []int64, status enumsv1.SessionStatus) (err error) {
 	q := repo.db.UserSignLog
 	_, err = q.WithContext(ctx).Where(q.ID.In(ids...)).Update(q.Status, int16(status))
+	return
+}
+
+func (repo *GenRepo) UpdateUserBasicByUid(ctx context.Context, basic *model.UserBasic) (err error) {
+	q := repo.db.UserBasic
+	_, err = q.WithContext(ctx).Where(q.ID.Eq(basic.ID)).Updates(basic)
 	return
 }
 

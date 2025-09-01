@@ -9,10 +9,13 @@ import (
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
+	msgv1 "github.com/byteflowing/base/gen/msg/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/idx"
+	"github.com/byteflowing/go-common/trans"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
@@ -33,12 +36,22 @@ type User interface {
 	Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error)
 	ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq) (resp *userv1.ChangePasswordResp, err error)
 	ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error)
+	ChangeUserStatus(ctx context.Context, req *userv1.ChangeUserStatusReq) (resp *userv1.ChangeUserStatusResp, err error)
 	ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error)
 	ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (resp *userv1.ChangeEmailResp, err error)
+	ChangeUserAvatar(ctx context.Context, req *userv1.ChangeUserAvatarReq) (resp *userv1.ChangeUserAvatarResp, err error)
+	ChangeUserGender(ctx context.Context, req *userv1.ChangeUserGenderReq) (resp *userv1.ChangeUserGenderResp, err error)
+	ChangeUserBirthday(ctx context.Context, req *userv1.ChangeUserBirthdayReq) (resp *userv1.ChangeUserBirthdayResp, err error)
+	ChangeUserName(ctx context.Context, req *userv1.ChangeUserNameReq) (resp *userv1.ChangeUserNameResp, err error)
+	ChangeUserAlias(ctx context.Context, req *userv1.ChangeUserAliasReq) (resp *userv1.ChangeUserAliasResp, err error)
+	ChangeUserNumber(ctx context.Context, req *userv1.ChangeUserNumberReq) (resp *userv1.ChangeUserNumberResp, err error)
+	ChangeUserAddress(ctx context.Context, req *userv1.ChangeUserAddressReq) (resp *userv1.ChangeUserAddressResp, err error)
+	ChangeUserType(ctx context.Context, req *userv1.ChangeUserTypeReq) (resp *userv1.ChangeUserTypeResp, err error)
+	ChangeUserLevel(ctx context.Context, req *userv1.ChangeUserLevelReq) (resp *userv1.ChangeUserLevelResp, err error)
+	ChangeUserExt(ctx context.Context, req *userv1.ChangeUserExtReq) (resp *userv1.ChangeUserExtResp, err error)
 	VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (resp *userv1.VerifyPhoneResp, err error)
 	VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (resp *userv1.VerifyEmailResp, err error)
 	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
-	ChangeUserStatus(ctx context.Context, req *userv1.ChangeUserStatusReq) (resp *userv1.ChangeUserStatusResp, err error)
 	GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error)
 	PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error)
 	AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error)
@@ -91,29 +104,12 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) 
 	return
 }
 
-func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (resp *userv1.ChangeEmailResp, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Impl) VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (resp *userv1.VerifyPhoneResp, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Impl) VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (resp *userv1.VerifyEmailResp, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (i *Impl) ChangeUserStatus(ctx context.Context, req *userv1.ChangeUserStatusReq) (resp *userv1.ChangeUserStatusResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:     req.Uid,
+		Status: int16(req.Status),
+	})
+	return nil, err
 }
 
 func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq) (resp *userv1.ChangePasswordResp, err error) {
@@ -143,6 +139,184 @@ func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq
 	return nil, err
 }
 
+func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error) {
+	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:      req.CaptchaToken,
+		Captcha:    req.Captcha,
+		Number:     &msgv1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+	}); err != nil {
+		return nil, err
+	}
+	uid, err := i.tokenVerifier.GetUid(ctx, req.ChangeToken)
+	if err != nil {
+		return nil, err
+	}
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:               uid,
+		PhoneCountryCode: req.Phone.CountryCode,
+		Phone:            req.Phone.Number,
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (resp *userv1.ChangeEmailResp, err error) {
+	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+		SenderType: req.Sender,
+		Token:      req.CaptchaToken,
+		Captcha:    req.Captcha,
+		Number:     &msgv1.VerifyCaptchaReq_Email{Email: req.NewEmail},
+	}); err != nil {
+		return nil, err
+	}
+	uid, err := i.tokenVerifier.GetUid(ctx, req.ChangeToken)
+	if err != nil {
+		return nil, err
+	}
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:    uid,
+		Email: req.NewEmail,
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserAvatar(ctx context.Context, req *userv1.ChangeUserAvatarReq) (resp *userv1.ChangeUserAvatarResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:     req.Uid,
+		Avatar: trans.String(req.Avatar),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserGender(ctx context.Context, req *userv1.ChangeUserGenderReq) (resp *userv1.ChangeUserGenderResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:     req.Uid,
+		Gender: trans.Int16(int16(req.Gender)),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserBirthday(ctx context.Context, req *userv1.ChangeUserBirthdayReq) (resp *userv1.ChangeUserBirthdayResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:       req.Uid,
+		Birthday: trans.Ref(time.Date(int(req.Birthday.Year), time.Month(req.Birthday.Month), int(req.Birthday.Day), 0, 0, 0, 0, time.UTC)),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserName(ctx context.Context, req *userv1.ChangeUserNameReq) (resp *userv1.ChangeUserNameResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:   req.Uid,
+		Name: trans.String(req.Name),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserAlias(ctx context.Context, req *userv1.ChangeUserAliasReq) (resp *userv1.ChangeUserAliasResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:     req.Uid,
+		Alias_: trans.String(req.Alias),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserNumber(ctx context.Context, req *userv1.ChangeUserNumberReq) (resp *userv1.ChangeUserNumberResp, err error) {
+	exist, err := i.repo.CheckUserNumberExists(ctx, req.Number)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		return nil, ecode.ErrUserNumberExists
+	}
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:     req.Uid,
+		Number: req.Number,
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserAddress(ctx context.Context, req *userv1.ChangeUserAddressReq) (resp *userv1.ChangeUserAddressResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:           req.Uid,
+		CountryCode:  req.CountryCode,
+		ProvinceCode: req.ProvinceCode,
+		CityCode:     req.CityCode,
+		DistrictCode: req.DistrictCode,
+		Addr:         trans.String(req.Addr),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserType(ctx context.Context, req *userv1.ChangeUserTypeReq) (resp *userv1.ChangeUserTypeResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:   req.Uid,
+		Type: trans.Int16(int16(req.Type)),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserLevel(ctx context.Context, req *userv1.ChangeUserLevelReq) (resp *userv1.ChangeUserLevelResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:    req.Uid,
+		Level: trans.Int32(req.Level),
+	})
+	return nil, err
+}
+
+func (i *Impl) ChangeUserExt(ctx context.Context, req *userv1.ChangeUserExtReq) (resp *userv1.ChangeUserExtResp, err error) {
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:  req.Uid,
+		Ext: trans.String(req.Ext),
+	})
+	return nil, err
+}
+
+func (i *Impl) VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (resp *userv1.VerifyPhoneResp, err error) {
+	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:      req.CaptchaToken,
+		Captcha:    req.Captcha,
+		Number:     &msgv1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+	}); err != nil {
+		return nil, err
+	}
+	userBasic, err := i.repo.GetUserBasicByUID(ctx, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	if userBasic.PhoneCountryCode != req.Phone.CountryCode || userBasic.Phone != req.Phone.Number {
+		return nil, ecode.ErrPhoneNotMatch
+	}
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:            req.Uid,
+		PhoneVerified: int16(enumsv1.Verified_VERIFIED_VERIFIED),
+	})
+	return nil, err
+}
+
+func (i *Impl) VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (resp *userv1.VerifyEmailResp, err error) {
+	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:      req.CaptchaToken,
+		Captcha:    req.Captcha,
+		Number:     &msgv1.VerifyCaptchaReq_Email{Email: req.Email},
+	}); err != nil {
+		return nil, err
+	}
+	userBasic, err := i.repo.GetUserBasicByUID(ctx, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	if userBasic.Email != req.Email {
+		return nil, ecode.ErrEmailNotMatch
+	}
+	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+		ID:            req.Uid,
+		EmailVerified: int16(enumsv1.Verified_VERIFIED_VERIFIED),
+	})
+	return nil, err
+}
+
 func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error) {
 	uid, err := i.tokenVerifier.GetUid(ctx, req.ResetToken)
 	if err != nil {
@@ -165,33 +339,95 @@ func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) 
 }
 
 func (i *Impl) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	authenticator, err := i.getAuthenticator(req.AuthType)
+	if err != nil {
+		return nil, err
+	}
+	return authenticator.SignUp(ctx, req)
 }
 
 func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	authenticator, err := i.getAuthenticator(req.AuthType)
+	if err != nil {
+		return nil, err
+	}
+	return authenticator.SignIn(ctx, req)
 }
 
 func (i *Impl) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	authenticator, err := i.getAuthenticator(req.AuthType)
+	if err != nil {
+		return nil, err
+	}
+	return authenticator.SignOut(ctx, req)
 }
 
 func (i *Impl) SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	logs, err := i.repo.GetActiveSignInLogs(ctx, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	g := new(errgroup.Group)
+	for _, log := range logs {
+		l := log
+		t := enumsv1.AuthType(log.Type)
+		g.Go(func() error {
+			authenticator, err := i.getAuthenticator(t)
+			if err != nil {
+				return err
+			}
+			_, err = authenticator.SignOut(ctx, &userv1.SignOutReq{
+				SessionId: l.AccessSessionID,
+				Reason:    req.Reason,
+				AuthType:  t,
+			})
+			return err
+		})
+	}
+	err = g.Wait()
+	return nil, err
 }
 
 func (i *Impl) Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	access, refresh, _, _, err := i.jwtService.RefreshToken(ctx, req.RefreshToken, req.ExtraJwtClaims)
+	if err != nil {
+		return nil, err
+	}
+	resp = &userv1.RefreshResp{
+		Data: &userv1.RefreshResp_Data{
+			NewAccessToken:  access,
+			NewRefreshToken: refresh,
+		},
+	}
+	return resp, nil
 }
 
 func (i *Impl) VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	var claims *JwtClaims
+	if req.Type == enumsv1.TokenType_TOKEN_TYPE_ACCESS {
+		claims, err = i.jwtService.VerifyAccessToken(ctx, req.Token)
+	} else if req.Type == enumsv1.TokenType_TOKEN_TYPE_REFRESH {
+		claims, err = i.jwtService.VerifyRefreshToken(ctx, req.Token)
+	} else {
+		return nil, ecode.ErrParams
+	}
+	if err != nil {
+		return nil, err
+	}
+	resp = &userv1.VerifyTokenResp{
+		Data: &userv1.VerifyTokenResp_Data{
+			UserInfo: &userv1.UserProfile{
+				Uid:       claims.Uid,
+				AuthType:  enumsv1.AuthType(claims.AuthType),
+				Appid:     claims.AppId,
+				Openid:    claims.OpenId,
+				Unionid:   claims.UnionId,
+				SessionId: claims.ID,
+				Extra:     claims.Extra,
+			},
+		},
+	}
+	return resp, nil
 }
 
 func (i *Impl) GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error) {
@@ -207,6 +443,14 @@ func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSig
 func (i *Impl) AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error) {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (i *Impl) getAuthenticator(authType enumsv1.AuthType) (Authenticator, error) {
+	authenticator, ok := i.authHandlers[authType]
+	if !ok {
+		return nil, ecode.ErrUnImplemented
+	}
+	return authenticator, nil
 }
 
 func (i *Impl) updatePassword(ctx context.Context, tx *query.Query, password string, userBasic *model.UserBasic) error {
