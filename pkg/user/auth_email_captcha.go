@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/ecode"
@@ -47,7 +48,7 @@ func (e *EmailCaptcha) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA
 }
 
-func (e *EmailCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
+func (e *EmailCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
 	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -62,14 +63,14 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp 
 	}); err != nil {
 		return nil, err
 	}
-	if err = checkUserBasicUnique(ctx, req, e.repo); err != nil {
+	if err = checkUserBasicUnique(ctx, req, e.repo, tx); err != nil {
 		return nil, err
 	}
 	userBasic, err := signUpReqToUserBasic(req, e.globalIDGen, e.shortIDGen, e.passwordHasher)
 	if err != nil {
 		return nil, err
 	}
-	if err = e.repo.CreateUserBasic(ctx, userBasic); err != nil {
+	if err = e.repo.CreateUserBasic(ctx, tx, userBasic); err != nil {
 		return nil, err
 	}
 	resp = &userv1.SignUpResp{
@@ -78,7 +79,7 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp 
 	return resp, nil
 }
 
-func (e *EmailCaptcha) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (e *EmailCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -96,19 +97,30 @@ func (e *EmailCaptcha) SignIn(ctx context.Context, req *userv1.SignInReq) (resp 
 	}); err != nil {
 		return nil, err
 	}
-	userBasic, err := e.repo.GetUserBasicByEmail(ctx, req.Biz, req.Identifier)
+	userBasic, err := e.repo.GetUserBasicByEmail(ctx, tx, req.Biz, req.Identifier)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrEmailNotExist
 		}
 		return nil, err
 	}
-	return checkPasswordAndGenToken(ctx, req, userBasic, e.jwtService, nil, nil)
+	err = tx.Transaction(func(tx *query.Query) error {
+		resp, err = checkPasswordAndGenToken(ctx, tx, req, userBasic, e.jwtService, nil, nil)
+		if err != nil {
+			return err
+		}
+		if userBasic.EmailVerified != int16(enumsv1.Verified_VERIFIED_VERIFIED) {
+			userBasic.EmailVerified = int16(enumsv1.Verified_VERIFIED_VERIFIED)
+			return e.repo.UpdateUserBasicByUid(ctx, tx, userBasic)
+		}
+		return nil
+	})
+	return
 }
 
-func (e *EmailCaptcha) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
+func (e *EmailCaptcha) SignOut(ctx context.Context, tx *query.Query, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
 	if req.AuthType != e.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	return signOutBySessionId(ctx, req, e.repo, e.jwtService)
+	return signOutBySessionId(ctx, req, e.repo, tx, e.jwtService)
 }

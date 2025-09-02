@@ -32,12 +32,16 @@ const (
 type UserProfile struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Uid           int64                  `protobuf:"varint,1,opt,name=uid,proto3" json:"uid,omitempty"`                                                  // userid
-	AuthType      v1.AuthType            `protobuf:"varint,2,opt,name=auth_type,json=authType,proto3,enum=enums.v1.AuthType" json:"auth_type,omitempty"` // 认证类型
-	Appid         string                 `protobuf:"bytes,3,opt,name=appid,proto3" json:"appid,omitempty"`                                               // appid
-	Openid        string                 `protobuf:"bytes,4,opt,name=openid,proto3" json:"openid,omitempty"`                                             // openid
-	Unionid       string                 `protobuf:"bytes,5,opt,name=unionid,proto3" json:"unionid,omitempty"`                                           // unionid
-	SessionId     string                 `protobuf:"bytes,6,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`                      // session_id
-	Extra         *anypb.Any             `protobuf:"bytes,7,opt,name=extra,proto3" json:"extra,omitempty"`                                               // 调用方自定义字段
+	Number        string                 `protobuf:"bytes,2,opt,name=number,proto3" json:"number,omitempty"`                                             // 用户编号
+	Biz           string                 `protobuf:"bytes,3,opt,name=biz,proto3" json:"biz,omitempty"`                                                   // 业务编号
+	UserType      int32                  `protobuf:"varint,4,opt,name=user_type,json=userType,proto3" json:"user_type,omitempty"`                        // 用户类型，业务自定义
+	UserLevel     int32                  `protobuf:"varint,5,opt,name=user_level,json=userLevel,proto3" json:"user_level,omitempty"`                     // 用户等级，业务自定义
+	AuthType      v1.AuthType            `protobuf:"varint,6,opt,name=auth_type,json=authType,proto3,enum=enums.v1.AuthType" json:"auth_type,omitempty"` // 认证类型
+	Appid         string                 `protobuf:"bytes,7,opt,name=appid,proto3" json:"appid,omitempty"`                                               // appid
+	Openid        string                 `protobuf:"bytes,8,opt,name=openid,proto3" json:"openid,omitempty"`                                             // openid
+	Unionid       string                 `protobuf:"bytes,9,opt,name=unionid,proto3" json:"unionid,omitempty"`                                           // unionid
+	SessionId     string                 `protobuf:"bytes,10,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`                     // session_id
+	Extra         *anypb.Any             `protobuf:"bytes,11,opt,name=extra,proto3" json:"extra,omitempty"`                                              // 调用方自定义字段
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +79,34 @@ func (*UserProfile) Descriptor() ([]byte, []int) {
 func (x *UserProfile) GetUid() int64 {
 	if x != nil {
 		return x.Uid
+	}
+	return 0
+}
+
+func (x *UserProfile) GetNumber() string {
+	if x != nil {
+		return x.Number
+	}
+	return ""
+}
+
+func (x *UserProfile) GetBiz() string {
+	if x != nil {
+		return x.Biz
+	}
+	return ""
+}
+
+func (x *UserProfile) GetUserType() int32 {
+	if x != nil {
+		return x.UserType
+	}
+	return 0
+}
+
+func (x *UserProfile) GetUserLevel() int32 {
+	if x != nil {
+		return x.UserLevel
 	}
 	return 0
 }
@@ -3467,123 +3499,6 @@ func (x *ChangeUserStatusReq) GetStatus() v1.UserStatus {
 	return v1.UserStatus(0)
 }
 
-type AddSessionToBlockListReq struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 访问token的jti
-	AccessSessionId string `protobuf:"bytes,1,opt,name=access_session_id,json=accessSessionId,proto3" json:"access_session_id,omitempty"`
-	// 是否同时把refresh的jti加入黑名单
-	BlockRefresh  bool `protobuf:"varint,2,opt,name=block_refresh,json=blockRefresh,proto3" json:"block_refresh,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AddSessionToBlockListReq) Reset() {
-	*x = AddSessionToBlockListReq{}
-	mi := &file_user_v1_auth_proto_msgTypes[50]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AddSessionToBlockListReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddSessionToBlockListReq) ProtoMessage() {}
-
-func (x *AddSessionToBlockListReq) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[50]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddSessionToBlockListReq.ProtoReflect.Descriptor instead.
-func (*AddSessionToBlockListReq) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{50}
-}
-
-func (x *AddSessionToBlockListReq) GetAccessSessionId() string {
-	if x != nil {
-		return x.AccessSessionId
-	}
-	return ""
-}
-
-func (x *AddSessionToBlockListReq) GetBlockRefresh() bool {
-	if x != nil {
-		return x.BlockRefresh
-	}
-	return false
-}
-
-type AddSessionToBlockListResp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 正常返回0，错误返回非0
-	ErrCode uint32 `protobuf:"varint,1,opt,name=err_code,json=errCode,proto3" json:"err_code,omitempty"`
-	// 正常返回OK, 错误返回错误内容
-	ErrMsg string `protobuf:"bytes,2,opt,name=err_msg,json=errMsg,proto3" json:"err_msg,omitempty"`
-	// 开发模式，返回详细错误信息
-	ErrDetail     string `protobuf:"bytes,3,opt,name=err_detail,json=errDetail,proto3" json:"err_detail,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AddSessionToBlockListResp) Reset() {
-	*x = AddSessionToBlockListResp{}
-	mi := &file_user_v1_auth_proto_msgTypes[51]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AddSessionToBlockListResp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddSessionToBlockListResp) ProtoMessage() {}
-
-func (x *AddSessionToBlockListResp) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[51]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddSessionToBlockListResp.ProtoReflect.Descriptor instead.
-func (*AddSessionToBlockListResp) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{51}
-}
-
-func (x *AddSessionToBlockListResp) GetErrCode() uint32 {
-	if x != nil {
-		return x.ErrCode
-	}
-	return 0
-}
-
-func (x *AddSessionToBlockListResp) GetErrMsg() string {
-	if x != nil {
-		return x.ErrMsg
-	}
-	return ""
-}
-
-func (x *AddSessionToBlockListResp) GetErrDetail() string {
-	if x != nil {
-		return x.ErrDetail
-	}
-	return ""
-}
-
 type VerifyTokenReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          v1.TokenType           `protobuf:"varint,1,opt,name=type,proto3,enum=enums.v1.TokenType" json:"type,omitempty"`
@@ -3594,7 +3509,7 @@ type VerifyTokenReq struct {
 
 func (x *VerifyTokenReq) Reset() {
 	*x = VerifyTokenReq{}
-	mi := &file_user_v1_auth_proto_msgTypes[52]
+	mi := &file_user_v1_auth_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3606,7 +3521,7 @@ func (x *VerifyTokenReq) String() string {
 func (*VerifyTokenReq) ProtoMessage() {}
 
 func (x *VerifyTokenReq) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[52]
+	mi := &file_user_v1_auth_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3619,7 +3534,7 @@ func (x *VerifyTokenReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyTokenReq.ProtoReflect.Descriptor instead.
 func (*VerifyTokenReq) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{52}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *VerifyTokenReq) GetType() v1.TokenType {
@@ -3651,7 +3566,7 @@ type VerifyTokenResp struct {
 
 func (x *VerifyTokenResp) Reset() {
 	*x = VerifyTokenResp{}
-	mi := &file_user_v1_auth_proto_msgTypes[53]
+	mi := &file_user_v1_auth_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3663,7 +3578,7 @@ func (x *VerifyTokenResp) String() string {
 func (*VerifyTokenResp) ProtoMessage() {}
 
 func (x *VerifyTokenResp) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[53]
+	mi := &file_user_v1_auth_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3676,7 +3591,7 @@ func (x *VerifyTokenResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyTokenResp.ProtoReflect.Descriptor instead.
 func (*VerifyTokenResp) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{53}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *VerifyTokenResp) GetErrCode() uint32 {
@@ -3745,7 +3660,7 @@ type SignInLog struct {
 
 func (x *SignInLog) Reset() {
 	*x = SignInLog{}
-	mi := &file_user_v1_auth_proto_msgTypes[54]
+	mi := &file_user_v1_auth_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3757,7 +3672,7 @@ func (x *SignInLog) String() string {
 func (*SignInLog) ProtoMessage() {}
 
 func (x *SignInLog) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[54]
+	mi := &file_user_v1_auth_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3770,7 +3685,7 @@ func (x *SignInLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignInLog.ProtoReflect.Descriptor instead.
 func (*SignInLog) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{54}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *SignInLog) GetId() int64 {
@@ -3887,7 +3802,7 @@ type GetActiveSignInLogsReq struct {
 
 func (x *GetActiveSignInLogsReq) Reset() {
 	*x = GetActiveSignInLogsReq{}
-	mi := &file_user_v1_auth_proto_msgTypes[55]
+	mi := &file_user_v1_auth_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3899,7 +3814,7 @@ func (x *GetActiveSignInLogsReq) String() string {
 func (*GetActiveSignInLogsReq) ProtoMessage() {}
 
 func (x *GetActiveSignInLogsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[55]
+	mi := &file_user_v1_auth_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3912,7 +3827,7 @@ func (x *GetActiveSignInLogsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveSignInLogsReq.ProtoReflect.Descriptor instead.
 func (*GetActiveSignInLogsReq) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{55}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *GetActiveSignInLogsReq) GetUid() int64 {
@@ -3937,7 +3852,7 @@ type GetActiveSignInLogsResp struct {
 
 func (x *GetActiveSignInLogsResp) Reset() {
 	*x = GetActiveSignInLogsResp{}
-	mi := &file_user_v1_auth_proto_msgTypes[56]
+	mi := &file_user_v1_auth_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3949,7 +3864,7 @@ func (x *GetActiveSignInLogsResp) String() string {
 func (*GetActiveSignInLogsResp) ProtoMessage() {}
 
 func (x *GetActiveSignInLogsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[56]
+	mi := &file_user_v1_auth_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3962,7 +3877,7 @@ func (x *GetActiveSignInLogsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveSignInLogsResp.ProtoReflect.Descriptor instead.
 func (*GetActiveSignInLogsResp) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{56}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *GetActiveSignInLogsResp) GetErrCode() uint32 {
@@ -4014,7 +3929,7 @@ type PagingGetSignInLogsReq struct {
 
 func (x *PagingGetSignInLogsReq) Reset() {
 	*x = PagingGetSignInLogsReq{}
-	mi := &file_user_v1_auth_proto_msgTypes[57]
+	mi := &file_user_v1_auth_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4026,7 +3941,7 @@ func (x *PagingGetSignInLogsReq) String() string {
 func (*PagingGetSignInLogsReq) ProtoMessage() {}
 
 func (x *PagingGetSignInLogsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[57]
+	mi := &file_user_v1_auth_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4039,7 +3954,7 @@ func (x *PagingGetSignInLogsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PagingGetSignInLogsReq.ProtoReflect.Descriptor instead.
 func (*PagingGetSignInLogsReq) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{57}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *PagingGetSignInLogsReq) GetPage() int32 {
@@ -4106,7 +4021,7 @@ type PagingGetSignInLogsResp struct {
 
 func (x *PagingGetSignInLogsResp) Reset() {
 	*x = PagingGetSignInLogsResp{}
-	mi := &file_user_v1_auth_proto_msgTypes[58]
+	mi := &file_user_v1_auth_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4118,7 +4033,7 @@ func (x *PagingGetSignInLogsResp) String() string {
 func (*PagingGetSignInLogsResp) ProtoMessage() {}
 
 func (x *PagingGetSignInLogsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[58]
+	mi := &file_user_v1_auth_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4131,7 +4046,7 @@ func (x *PagingGetSignInLogsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PagingGetSignInLogsResp.ProtoReflect.Descriptor instead.
 func (*PagingGetSignInLogsResp) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{58}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *PagingGetSignInLogsResp) GetErrCode() uint32 {
@@ -4174,7 +4089,7 @@ type SendCaptchaResp_Data struct {
 
 func (x *SendCaptchaResp_Data) Reset() {
 	*x = SendCaptchaResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[59]
+	mi := &file_user_v1_auth_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4186,7 +4101,7 @@ func (x *SendCaptchaResp_Data) String() string {
 func (*SendCaptchaResp_Data) ProtoMessage() {}
 
 func (x *SendCaptchaResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[59]
+	mi := &file_user_v1_auth_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4225,7 +4140,7 @@ type VerifyCaptchaResp_Data struct {
 
 func (x *VerifyCaptchaResp_Data) Reset() {
 	*x = VerifyCaptchaResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[60]
+	mi := &file_user_v1_auth_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4237,7 +4152,7 @@ func (x *VerifyCaptchaResp_Data) String() string {
 func (*VerifyCaptchaResp_Data) ProtoMessage() {}
 
 func (x *VerifyCaptchaResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[60]
+	mi := &file_user_v1_auth_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4270,7 +4185,7 @@ type SignUpResp_Data struct {
 
 func (x *SignUpResp_Data) Reset() {
 	*x = SignUpResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[61]
+	mi := &file_user_v1_auth_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4282,7 +4197,7 @@ func (x *SignUpResp_Data) String() string {
 func (*SignUpResp_Data) ProtoMessage() {}
 
 func (x *SignUpResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[61]
+	mi := &file_user_v1_auth_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4339,7 +4254,7 @@ type SignInResp_Data struct {
 
 func (x *SignInResp_Data) Reset() {
 	*x = SignInResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[62]
+	mi := &file_user_v1_auth_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4351,7 +4266,7 @@ func (x *SignInResp_Data) String() string {
 func (*SignInResp_Data) ProtoMessage() {}
 
 func (x *SignInResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[62]
+	mi := &file_user_v1_auth_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4407,7 +4322,7 @@ type RefreshResp_Data struct {
 
 func (x *RefreshResp_Data) Reset() {
 	*x = RefreshResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[63]
+	mi := &file_user_v1_auth_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4419,7 +4334,7 @@ func (x *RefreshResp_Data) String() string {
 func (*RefreshResp_Data) ProtoMessage() {}
 
 func (x *RefreshResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[63]
+	mi := &file_user_v1_auth_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4458,7 +4373,7 @@ type VerifyTokenResp_Data struct {
 
 func (x *VerifyTokenResp_Data) Reset() {
 	*x = VerifyTokenResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[64]
+	mi := &file_user_v1_auth_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4470,7 +4385,7 @@ func (x *VerifyTokenResp_Data) String() string {
 func (*VerifyTokenResp_Data) ProtoMessage() {}
 
 func (x *VerifyTokenResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[64]
+	mi := &file_user_v1_auth_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4483,7 +4398,7 @@ func (x *VerifyTokenResp_Data) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyTokenResp_Data.ProtoReflect.Descriptor instead.
 func (*VerifyTokenResp_Data) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{53, 0}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{51, 0}
 }
 
 func (x *VerifyTokenResp_Data) GetUserInfo() *UserProfile {
@@ -4502,7 +4417,7 @@ type GetActiveSignInLogsResp_Data struct {
 
 func (x *GetActiveSignInLogsResp_Data) Reset() {
 	*x = GetActiveSignInLogsResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[65]
+	mi := &file_user_v1_auth_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4514,7 +4429,7 @@ func (x *GetActiveSignInLogsResp_Data) String() string {
 func (*GetActiveSignInLogsResp_Data) ProtoMessage() {}
 
 func (x *GetActiveSignInLogsResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[65]
+	mi := &file_user_v1_auth_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4527,7 +4442,7 @@ func (x *GetActiveSignInLogsResp_Data) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveSignInLogsResp_Data.ProtoReflect.Descriptor instead.
 func (*GetActiveSignInLogsResp_Data) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{56, 0}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{54, 0}
 }
 
 func (x *GetActiveSignInLogsResp_Data) GetLogs() []*SignInLog {
@@ -4550,7 +4465,7 @@ type PagingGetSignInLogsResp_Data struct {
 
 func (x *PagingGetSignInLogsResp_Data) Reset() {
 	*x = PagingGetSignInLogsResp_Data{}
-	mi := &file_user_v1_auth_proto_msgTypes[66]
+	mi := &file_user_v1_auth_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4562,7 +4477,7 @@ func (x *PagingGetSignInLogsResp_Data) String() string {
 func (*PagingGetSignInLogsResp_Data) ProtoMessage() {}
 
 func (x *PagingGetSignInLogsResp_Data) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_auth_proto_msgTypes[66]
+	mi := &file_user_v1_auth_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4575,7 +4490,7 @@ func (x *PagingGetSignInLogsResp_Data) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PagingGetSignInLogsResp_Data.ProtoReflect.Descriptor instead.
 func (*PagingGetSignInLogsResp_Data) Descriptor() ([]byte, []int) {
-	return file_user_v1_auth_proto_rawDescGZIP(), []int{58, 0}
+	return file_user_v1_auth_proto_rawDescGZIP(), []int{56, 0}
 }
 
 func (x *PagingGetSignInLogsResp_Data) GetLogs() []*SignInLog {
@@ -4617,16 +4532,22 @@ var File_user_v1_auth_proto protoreflect.FileDescriptor
 
 const file_user_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/auth.proto\x12\auser.v1\x1a\x13enums/v1/user.proto\x1a\x16enums/v1/message.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\x1a\x16common/v1/common.proto\x1a\x16google/type/date.proto\x1a\x14msg/v1/captcha.proto\"\xe3\x01\n" +
+	"\x12user/v1/auth.proto\x12\auser.v1\x1a\x13enums/v1/user.proto\x1a\x16enums/v1/message.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\x1a$validation/v1/predefined_rules.proto\x1a\x16common/v1/common.proto\x1a\x16google/type/date.proto\x1a\x14msg/v1/captcha.proto\"\xc9\x02\n" +
 	"\vUserProfile\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12/\n" +
-	"\tauth_type\x18\x02 \x01(\x0e2\x12.enums.v1.AuthTypeR\bauthType\x12\x14\n" +
-	"\x05appid\x18\x03 \x01(\tR\x05appid\x12\x16\n" +
-	"\x06openid\x18\x04 \x01(\tR\x06openid\x12\x18\n" +
-	"\aunionid\x18\x05 \x01(\tR\aunionid\x12\x1d\n" +
+	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\tR\x06number\x12\x10\n" +
+	"\x03biz\x18\x03 \x01(\tR\x03biz\x12\x1b\n" +
+	"\tuser_type\x18\x04 \x01(\x05R\buserType\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x06 \x01(\tR\tsessionId\x12*\n" +
-	"\x05extra\x18\a \x01(\v2\x14.google.protobuf.AnyR\x05extra\"\x8f\x05\n" +
+	"user_level\x18\x05 \x01(\x05R\tuserLevel\x12/\n" +
+	"\tauth_type\x18\x06 \x01(\x0e2\x12.enums.v1.AuthTypeR\bauthType\x12\x14\n" +
+	"\x05appid\x18\a \x01(\tR\x05appid\x12\x16\n" +
+	"\x06openid\x18\b \x01(\tR\x06openid\x12\x18\n" +
+	"\aunionid\x18\t \x01(\tR\aunionid\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\n" +
+	" \x01(\tR\tsessionId\x12*\n" +
+	"\x05extra\x18\v \x01(\v2\x14.google.protobuf.AnyR\x05extra\"\x8f\x05\n" +
 	"\bUserInfo\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\tR\x06number\x12,\n" +
@@ -4968,15 +4889,7 @@ const file_user_v1_auth_proto_rawDesc = "" +
 	"err_detail\x18\x03 \x01(\tR\terrDetail\"U\n" +
 	"\x13ChangeUserStatusReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12,\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x14.enums.v1.UserStatusR\x06status\"u\n" +
-	"\x18AddSessionToBlockListReq\x124\n" +
-	"\x11access_session_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x0faccessSessionId\x12#\n" +
-	"\rblock_refresh\x18\x02 \x01(\bR\fblockRefresh\"n\n" +
-	"\x19AddSessionToBlockListResp\x12\x19\n" +
-	"\berr_code\x18\x01 \x01(\rR\aerrCode\x12\x17\n" +
-	"\aerr_msg\x18\x02 \x01(\tR\x06errMsg\x12\x1d\n" +
-	"\n" +
-	"err_detail\x18\x03 \x01(\tR\terrDetail\"W\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x14.enums.v1.UserStatusR\x06status\"W\n" +
 	"\x0eVerifyTokenReq\x12'\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x13.enums.v1.TokenTypeR\x04type\x12\x1c\n" +
 	"\x05token\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x05token\"\xe5\x01\n" +
@@ -5063,7 +4976,7 @@ func file_user_v1_auth_proto_rawDescGZIP() []byte {
 	return file_user_v1_auth_proto_rawDescData
 }
 
-var file_user_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 67)
+var file_user_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 65)
 var file_user_v1_auth_proto_goTypes = []any{
 	(*UserProfile)(nil),                  // 0: user.v1.UserProfile
 	(*UserInfo)(nil),                     // 1: user.v1.UserInfo
@@ -5115,95 +5028,93 @@ var file_user_v1_auth_proto_goTypes = []any{
 	(*VerifyEmailReq)(nil),               // 47: user.v1.VerifyEmailReq
 	(*VerifyEmailResp)(nil),              // 48: user.v1.VerifyEmailResp
 	(*ChangeUserStatusReq)(nil),          // 49: user.v1.ChangeUserStatusReq
-	(*AddSessionToBlockListReq)(nil),     // 50: user.v1.AddSessionToBlockListReq
-	(*AddSessionToBlockListResp)(nil),    // 51: user.v1.AddSessionToBlockListResp
-	(*VerifyTokenReq)(nil),               // 52: user.v1.VerifyTokenReq
-	(*VerifyTokenResp)(nil),              // 53: user.v1.VerifyTokenResp
-	(*SignInLog)(nil),                    // 54: user.v1.SignInLog
-	(*GetActiveSignInLogsReq)(nil),       // 55: user.v1.GetActiveSignInLogsReq
-	(*GetActiveSignInLogsResp)(nil),      // 56: user.v1.GetActiveSignInLogsResp
-	(*PagingGetSignInLogsReq)(nil),       // 57: user.v1.PagingGetSignInLogsReq
-	(*PagingGetSignInLogsResp)(nil),      // 58: user.v1.PagingGetSignInLogsResp
-	(*SendCaptchaResp_Data)(nil),         // 59: user.v1.SendCaptchaResp.Data
-	(*VerifyCaptchaResp_Data)(nil),       // 60: user.v1.VerifyCaptchaResp.Data
-	(*SignUpResp_Data)(nil),              // 61: user.v1.SignUpResp.Data
-	(*SignInResp_Data)(nil),              // 62: user.v1.SignInResp.Data
-	(*RefreshResp_Data)(nil),             // 63: user.v1.RefreshResp.Data
-	(*VerifyTokenResp_Data)(nil),         // 64: user.v1.VerifyTokenResp.Data
-	(*GetActiveSignInLogsResp_Data)(nil), // 65: user.v1.GetActiveSignInLogsResp.Data
-	(*PagingGetSignInLogsResp_Data)(nil), // 66: user.v1.PagingGetSignInLogsResp.Data
-	(v1.AuthType)(0),                     // 67: enums.v1.AuthType
-	(*anypb.Any)(nil),                    // 68: google.protobuf.Any
-	(v1.UserStatus)(0),                   // 69: enums.v1.UserStatus
-	(v1.Gender)(0),                       // 70: enums.v1.Gender
-	(*date.Date)(nil),                    // 71: google.type.Date
-	(*v11.PhoneNumber)(nil),              // 72: common.v1.PhoneNumber
-	(*v11.AdminRegion)(nil),              // 73: common.v1.AdminRegion
-	(*timestamppb.Timestamp)(nil),        // 74: google.protobuf.Timestamp
-	(*v12.SendCaptchaReq)(nil),           // 75: msg.v1.SendCaptchaReq
-	(*v12.VerifyCaptchaReq)(nil),         // 76: msg.v1.VerifyCaptchaReq
-	(v1.UserSource)(0),                   // 77: enums.v1.UserSource
-	(v1.SessionStatus)(0),                // 78: enums.v1.SessionStatus
-	(v1.MessageSenderType)(0),            // 79: enums.v1.MessageSenderType
-	(v1.TokenType)(0),                    // 80: enums.v1.TokenType
-	(*v11.LimitRule)(nil),                // 81: common.v1.LimitRule
+	(*VerifyTokenReq)(nil),               // 50: user.v1.VerifyTokenReq
+	(*VerifyTokenResp)(nil),              // 51: user.v1.VerifyTokenResp
+	(*SignInLog)(nil),                    // 52: user.v1.SignInLog
+	(*GetActiveSignInLogsReq)(nil),       // 53: user.v1.GetActiveSignInLogsReq
+	(*GetActiveSignInLogsResp)(nil),      // 54: user.v1.GetActiveSignInLogsResp
+	(*PagingGetSignInLogsReq)(nil),       // 55: user.v1.PagingGetSignInLogsReq
+	(*PagingGetSignInLogsResp)(nil),      // 56: user.v1.PagingGetSignInLogsResp
+	(*SendCaptchaResp_Data)(nil),         // 57: user.v1.SendCaptchaResp.Data
+	(*VerifyCaptchaResp_Data)(nil),       // 58: user.v1.VerifyCaptchaResp.Data
+	(*SignUpResp_Data)(nil),              // 59: user.v1.SignUpResp.Data
+	(*SignInResp_Data)(nil),              // 60: user.v1.SignInResp.Data
+	(*RefreshResp_Data)(nil),             // 61: user.v1.RefreshResp.Data
+	(*VerifyTokenResp_Data)(nil),         // 62: user.v1.VerifyTokenResp.Data
+	(*GetActiveSignInLogsResp_Data)(nil), // 63: user.v1.GetActiveSignInLogsResp.Data
+	(*PagingGetSignInLogsResp_Data)(nil), // 64: user.v1.PagingGetSignInLogsResp.Data
+	(v1.AuthType)(0),                     // 65: enums.v1.AuthType
+	(*anypb.Any)(nil),                    // 66: google.protobuf.Any
+	(v1.UserStatus)(0),                   // 67: enums.v1.UserStatus
+	(v1.Gender)(0),                       // 68: enums.v1.Gender
+	(*date.Date)(nil),                    // 69: google.type.Date
+	(*v11.PhoneNumber)(nil),              // 70: common.v1.PhoneNumber
+	(*v11.AdminRegion)(nil),              // 71: common.v1.AdminRegion
+	(*timestamppb.Timestamp)(nil),        // 72: google.protobuf.Timestamp
+	(*v12.SendCaptchaReq)(nil),           // 73: msg.v1.SendCaptchaReq
+	(*v12.VerifyCaptchaReq)(nil),         // 74: msg.v1.VerifyCaptchaReq
+	(v1.UserSource)(0),                   // 75: enums.v1.UserSource
+	(v1.SessionStatus)(0),                // 76: enums.v1.SessionStatus
+	(v1.MessageSenderType)(0),            // 77: enums.v1.MessageSenderType
+	(v1.TokenType)(0),                    // 78: enums.v1.TokenType
+	(*v11.LimitRule)(nil),                // 79: common.v1.LimitRule
 }
 var file_user_v1_auth_proto_depIdxs = []int32{
-	67, // 0: user.v1.UserProfile.auth_type:type_name -> enums.v1.AuthType
-	68, // 1: user.v1.UserProfile.extra:type_name -> google.protobuf.Any
-	69, // 2: user.v1.UserInfo.status:type_name -> enums.v1.UserStatus
-	70, // 3: user.v1.UserInfo.gender:type_name -> enums.v1.Gender
-	71, // 4: user.v1.UserInfo.birthday:type_name -> google.type.Date
-	72, // 5: user.v1.UserInfo.phone_number:type_name -> common.v1.PhoneNumber
-	73, // 6: user.v1.UserInfo.region:type_name -> common.v1.AdminRegion
-	74, // 7: user.v1.UserInfo.password_updated_at:type_name -> google.protobuf.Timestamp
-	75, // 8: user.v1.SendCaptchaReq.captcha_params:type_name -> msg.v1.SendCaptchaReq
-	59, // 9: user.v1.SendCaptchaResp.data:type_name -> user.v1.SendCaptchaResp.Data
-	76, // 10: user.v1.VerifyCaptchaReq.param:type_name -> msg.v1.VerifyCaptchaReq
-	60, // 11: user.v1.VerifyCaptchaResp.data:type_name -> user.v1.VerifyCaptchaResp.Data
-	67, // 12: user.v1.SignUpReq.auth_type:type_name -> enums.v1.AuthType
-	70, // 13: user.v1.SignUpReq.gender:type_name -> enums.v1.Gender
-	71, // 14: user.v1.SignUpReq.birthday:type_name -> google.type.Date
-	72, // 15: user.v1.SignUpReq.phone:type_name -> common.v1.PhoneNumber
-	73, // 16: user.v1.SignUpReq.region:type_name -> common.v1.AdminRegion
-	69, // 17: user.v1.SignUpReq.status:type_name -> enums.v1.UserStatus
-	77, // 18: user.v1.SignUpReq.source:type_name -> enums.v1.UserSource
-	61, // 19: user.v1.SignUpResp.data:type_name -> user.v1.SignUpResp.Data
-	67, // 20: user.v1.SignInReq.auth_type:type_name -> enums.v1.AuthType
-	72, // 21: user.v1.SignInReq.phone_number:type_name -> common.v1.PhoneNumber
-	68, // 22: user.v1.SignInReq.extra_jwt_claims:type_name -> google.protobuf.Any
-	62, // 23: user.v1.SignInResp.data:type_name -> user.v1.SignInResp.Data
-	78, // 24: user.v1.SignOutReq.reason:type_name -> enums.v1.SessionStatus
-	67, // 25: user.v1.SignOutReq.auth_type:type_name -> enums.v1.AuthType
-	78, // 26: user.v1.SignOutByUidReq.reason:type_name -> enums.v1.SessionStatus
-	68, // 27: user.v1.RefreshReq.extra_jwt_claims:type_name -> google.protobuf.Any
-	63, // 28: user.v1.RefreshResp.data:type_name -> user.v1.RefreshResp.Data
-	72, // 29: user.v1.ChangePhoneReq.phone:type_name -> common.v1.PhoneNumber
-	79, // 30: user.v1.ChangeEmailReq.sender:type_name -> enums.v1.MessageSenderType
-	70, // 31: user.v1.ChangeUserGenderReq.gender:type_name -> enums.v1.Gender
-	71, // 32: user.v1.ChangeUserBirthdayReq.birthday:type_name -> google.type.Date
-	72, // 33: user.v1.VerifyPhoneReq.phone:type_name -> common.v1.PhoneNumber
-	69, // 34: user.v1.ChangeUserStatusReq.status:type_name -> enums.v1.UserStatus
-	80, // 35: user.v1.VerifyTokenReq.type:type_name -> enums.v1.TokenType
-	64, // 36: user.v1.VerifyTokenResp.data:type_name -> user.v1.VerifyTokenResp.Data
-	67, // 37: user.v1.SignInLog.type:type_name -> enums.v1.AuthType
-	78, // 38: user.v1.SignInLog.status:type_name -> enums.v1.SessionStatus
-	74, // 39: user.v1.SignInLog.access_expired_at:type_name -> google.protobuf.Timestamp
-	74, // 40: user.v1.SignInLog.refresh_expired_at:type_name -> google.protobuf.Timestamp
-	74, // 41: user.v1.SignInLog.updated_at:type_name -> google.protobuf.Timestamp
-	74, // 42: user.v1.SignInLog.created_at:type_name -> google.protobuf.Timestamp
-	65, // 43: user.v1.GetActiveSignInLogsResp.data:type_name -> user.v1.GetActiveSignInLogsResp.Data
-	67, // 44: user.v1.PagingGetSignInLogsReq.types:type_name -> enums.v1.AuthType
-	78, // 45: user.v1.PagingGetSignInLogsReq.statuses:type_name -> enums.v1.SessionStatus
-	66, // 46: user.v1.PagingGetSignInLogsResp.data:type_name -> user.v1.PagingGetSignInLogsResp.Data
-	81, // 47: user.v1.SendCaptchaResp.Data.limit:type_name -> common.v1.LimitRule
+	65, // 0: user.v1.UserProfile.auth_type:type_name -> enums.v1.AuthType
+	66, // 1: user.v1.UserProfile.extra:type_name -> google.protobuf.Any
+	67, // 2: user.v1.UserInfo.status:type_name -> enums.v1.UserStatus
+	68, // 3: user.v1.UserInfo.gender:type_name -> enums.v1.Gender
+	69, // 4: user.v1.UserInfo.birthday:type_name -> google.type.Date
+	70, // 5: user.v1.UserInfo.phone_number:type_name -> common.v1.PhoneNumber
+	71, // 6: user.v1.UserInfo.region:type_name -> common.v1.AdminRegion
+	72, // 7: user.v1.UserInfo.password_updated_at:type_name -> google.protobuf.Timestamp
+	73, // 8: user.v1.SendCaptchaReq.captcha_params:type_name -> msg.v1.SendCaptchaReq
+	57, // 9: user.v1.SendCaptchaResp.data:type_name -> user.v1.SendCaptchaResp.Data
+	74, // 10: user.v1.VerifyCaptchaReq.param:type_name -> msg.v1.VerifyCaptchaReq
+	58, // 11: user.v1.VerifyCaptchaResp.data:type_name -> user.v1.VerifyCaptchaResp.Data
+	65, // 12: user.v1.SignUpReq.auth_type:type_name -> enums.v1.AuthType
+	68, // 13: user.v1.SignUpReq.gender:type_name -> enums.v1.Gender
+	69, // 14: user.v1.SignUpReq.birthday:type_name -> google.type.Date
+	70, // 15: user.v1.SignUpReq.phone:type_name -> common.v1.PhoneNumber
+	71, // 16: user.v1.SignUpReq.region:type_name -> common.v1.AdminRegion
+	67, // 17: user.v1.SignUpReq.status:type_name -> enums.v1.UserStatus
+	75, // 18: user.v1.SignUpReq.source:type_name -> enums.v1.UserSource
+	59, // 19: user.v1.SignUpResp.data:type_name -> user.v1.SignUpResp.Data
+	65, // 20: user.v1.SignInReq.auth_type:type_name -> enums.v1.AuthType
+	70, // 21: user.v1.SignInReq.phone_number:type_name -> common.v1.PhoneNumber
+	66, // 22: user.v1.SignInReq.extra_jwt_claims:type_name -> google.protobuf.Any
+	60, // 23: user.v1.SignInResp.data:type_name -> user.v1.SignInResp.Data
+	76, // 24: user.v1.SignOutReq.reason:type_name -> enums.v1.SessionStatus
+	65, // 25: user.v1.SignOutReq.auth_type:type_name -> enums.v1.AuthType
+	76, // 26: user.v1.SignOutByUidReq.reason:type_name -> enums.v1.SessionStatus
+	66, // 27: user.v1.RefreshReq.extra_jwt_claims:type_name -> google.protobuf.Any
+	61, // 28: user.v1.RefreshResp.data:type_name -> user.v1.RefreshResp.Data
+	70, // 29: user.v1.ChangePhoneReq.phone:type_name -> common.v1.PhoneNumber
+	77, // 30: user.v1.ChangeEmailReq.sender:type_name -> enums.v1.MessageSenderType
+	68, // 31: user.v1.ChangeUserGenderReq.gender:type_name -> enums.v1.Gender
+	69, // 32: user.v1.ChangeUserBirthdayReq.birthday:type_name -> google.type.Date
+	70, // 33: user.v1.VerifyPhoneReq.phone:type_name -> common.v1.PhoneNumber
+	67, // 34: user.v1.ChangeUserStatusReq.status:type_name -> enums.v1.UserStatus
+	78, // 35: user.v1.VerifyTokenReq.type:type_name -> enums.v1.TokenType
+	62, // 36: user.v1.VerifyTokenResp.data:type_name -> user.v1.VerifyTokenResp.Data
+	65, // 37: user.v1.SignInLog.type:type_name -> enums.v1.AuthType
+	76, // 38: user.v1.SignInLog.status:type_name -> enums.v1.SessionStatus
+	72, // 39: user.v1.SignInLog.access_expired_at:type_name -> google.protobuf.Timestamp
+	72, // 40: user.v1.SignInLog.refresh_expired_at:type_name -> google.protobuf.Timestamp
+	72, // 41: user.v1.SignInLog.updated_at:type_name -> google.protobuf.Timestamp
+	72, // 42: user.v1.SignInLog.created_at:type_name -> google.protobuf.Timestamp
+	63, // 43: user.v1.GetActiveSignInLogsResp.data:type_name -> user.v1.GetActiveSignInLogsResp.Data
+	65, // 44: user.v1.PagingGetSignInLogsReq.types:type_name -> enums.v1.AuthType
+	76, // 45: user.v1.PagingGetSignInLogsReq.statuses:type_name -> enums.v1.SessionStatus
+	64, // 46: user.v1.PagingGetSignInLogsResp.data:type_name -> user.v1.PagingGetSignInLogsResp.Data
+	79, // 47: user.v1.SendCaptchaResp.Data.limit:type_name -> common.v1.LimitRule
 	1,  // 48: user.v1.SignUpResp.Data.user_info:type_name -> user.v1.UserInfo
-	81, // 49: user.v1.SignUpResp.Data.rule:type_name -> common.v1.LimitRule
+	79, // 49: user.v1.SignUpResp.Data.rule:type_name -> common.v1.LimitRule
 	1,  // 50: user.v1.SignInResp.Data.user_info:type_name -> user.v1.UserInfo
-	81, // 51: user.v1.SignInResp.Data.rule:type_name -> common.v1.LimitRule
+	79, // 51: user.v1.SignInResp.Data.rule:type_name -> common.v1.LimitRule
 	0,  // 52: user.v1.VerifyTokenResp.Data.user_info:type_name -> user.v1.UserProfile
-	54, // 53: user.v1.GetActiveSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
-	54, // 54: user.v1.PagingGetSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
+	52, // 53: user.v1.GetActiveSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
+	52, // 54: user.v1.PagingGetSignInLogsResp.Data.logs:type_name -> user.v1.SignInLog
 	55, // [55:55] is the sub-list for method output_type
 	55, // [55:55] is the sub-list for method input_type
 	55, // [55:55] is the sub-list for extension type_name
@@ -5219,19 +5130,19 @@ func file_user_v1_auth_proto_init() {
 	file_user_v1_auth_proto_msgTypes[1].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[6].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[8].OneofWrappers = []any{}
-	file_user_v1_auth_proto_msgTypes[54].OneofWrappers = []any{}
+	file_user_v1_auth_proto_msgTypes[52].OneofWrappers = []any{}
+	file_user_v1_auth_proto_msgTypes[55].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[57].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[59].OneofWrappers = []any{}
-	file_user_v1_auth_proto_msgTypes[61].OneofWrappers = []any{}
+	file_user_v1_auth_proto_msgTypes[60].OneofWrappers = []any{}
 	file_user_v1_auth_proto_msgTypes[62].OneofWrappers = []any{}
-	file_user_v1_auth_proto_msgTypes[64].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_auth_proto_rawDesc), len(file_user_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   67,
+			NumMessages:   65,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

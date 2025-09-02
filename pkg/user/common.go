@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/byteflowing/base/dal/model"
+	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
@@ -20,6 +21,7 @@ func isAuthDisabled(userAuth *model.UserAuth) bool {
 
 func checkPasswordAndGenToken(
 	ctx context.Context,
+	tx *query.Query,
 	req *userv1.SignInReq,
 	userBasic *model.UserBasic,
 	jwtService *JwtService,
@@ -61,7 +63,7 @@ func checkPasswordAndGenToken(
 		}
 	}
 	// 生成jwt token
-	accessToken, refreshToken, _, _, err := jwtService.GenerateToken(ctx, &GenerateJwtReq{
+	accessToken, refreshToken, _, _, err := jwtService.GenerateToken(ctx, tx, &GenerateJwtReq{
 		UserBasic:      userBasic,
 		SignInReq:      req,
 		ExtraJwtClaims: req.ExtraJwtClaims,
@@ -84,9 +86,10 @@ func signOutBySessionId(
 	ctx context.Context,
 	req *userv1.SignOutReq,
 	repo Repo,
+	tx *query.Query,
 	jwtService *JwtService,
 ) (*userv1.SignOutResp, error) {
-	log, err := repo.GetSignInLogByAccess(ctx, req.SessionId)
+	log, err := repo.GetSignInLogByAccess(ctx, tx, req.SessionId)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +97,7 @@ func signOutBySessionId(
 		return nil, err
 	}
 	log.Status = int16(req.Reason)
-	err = repo.UpdateSignInLogByID(ctx, log)
+	err = repo.UpdateSignInLogByID(ctx, tx, log)
 	return nil, err
 }
 
@@ -102,9 +105,10 @@ func checkUserBasicUnique(
 	ctx context.Context,
 	req *userv1.SignUpReq,
 	repo Repo,
+	tx *query.Query,
 ) (err error) {
 	if req.Phone != nil {
-		exist, err := repo.CheckPhoneExists(ctx, req.Biz, req.Phone)
+		exist, err := repo.CheckPhoneExists(ctx, tx, req.Biz, req.Phone)
 		if err != nil {
 			return err
 		}
@@ -113,7 +117,7 @@ func checkUserBasicUnique(
 		}
 	}
 	if req.Number != nil && *req.Number != "" {
-		exist, err := repo.CheckUserNumberExists(ctx, *req.Number)
+		exist, err := repo.CheckUserNumberExists(ctx, tx, *req.Number)
 		if err != nil {
 			return err
 		}
@@ -122,7 +126,7 @@ func checkUserBasicUnique(
 		}
 	}
 	if req.Email != nil && *req.Email != "" {
-		exist, err := repo.CheckEmailExists(ctx, req.Biz, *req.Email)
+		exist, err := repo.CheckEmailExists(ctx, tx, req.Biz, *req.Email)
 		if err != nil {
 			return err
 		}

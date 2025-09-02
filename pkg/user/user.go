@@ -21,9 +21,9 @@ import (
 
 type Authenticator interface {
 	AuthType() enumsv1.AuthType
-	SignUp(ctx context.Context, req *userv1.SignUpReq) (*userv1.SignUpResp, error)
-	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
-	SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
+	SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (*userv1.SignUpResp, error)
+	SignIn(ctx context.Context, tx *query.Query, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
+	SignOut(ctx context.Context, tx *query.Query, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
 }
 
 type User interface {
@@ -54,12 +54,12 @@ type User interface {
 	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
 	GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error)
 	PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error)
-	AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error)
 }
 
 type Impl struct {
 	authHandlers  map[enumsv1.AuthType]Authenticator
 	repo          Repo
+	query         *query.Query
 	passHasher    *crypto.PasswordHasher
 	jwtService    *JwtService
 	tokenVerifier TokenVerifier
@@ -88,9 +88,9 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) 
 	var uid int64
 	switch req.Param.SenderType {
 	case enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS:
-		uid, err = i.repo.GetUidByPhone(ctx, req.Biz, req.Param.GetPhoneNumber())
+		uid, err = i.repo.GetUidByPhone(ctx, i.query, req.Biz, req.Param.GetPhoneNumber())
 	case enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL:
-		uid, err = i.repo.GetUidByEmail(ctx, req.Biz, req.Param.GetEmail())
+		uid, err = i.repo.GetUidByEmail(ctx, i.query, req.Biz, req.Param.GetEmail())
 	default:
 		return nil, ecode.ErrParams
 	}
@@ -105,16 +105,21 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) 
 }
 
 func (i *Impl) ChangeUserStatus(ctx context.Context, req *userv1.ChangeUserStatusReq) (resp *userv1.ChangeUserStatusResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
-		ID:     req.Uid,
-		Status: int16(req.Status),
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:     req.Uid,
+			Status: int16(req.Status),
+		}); err != nil {
+			return err
+		}
+		return i.revokeAccessSessions(ctx, tx, req.Uid)
 	})
 	return nil, err
 }
 
 func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq) (resp *userv1.ChangePasswordResp, err error) {
-	err = i.repo.Transaction(func(tx *query.Query) error {
-		userBasic, err := tx.UserBasic.WithContext(ctx).Where(tx.UserBasic.ID.Eq(req.Uid)).Take()
+	err = i.query.Transaction(func(tx *query.Query) error {
+		userBasic, err := i.repo.GetUserBasicByUID(ctx, tx, req.Uid)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ecode.ErrUserNotExist
@@ -139,6 +144,27 @@ func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq
 	return nil, err
 }
 
+func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error) {
+	uid, err := i.tokenVerifier.GetUid(ctx, req.ResetToken)
+	if err != nil {
+		return nil, err
+	}
+	err = i.query.Transaction(func(tx *query.Query) error {
+		userBasic, err := tx.UserBasic.WithContext(ctx).Where(tx.UserBasic.ID.Eq(uid)).Take()
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ecode.ErrUserNotExist
+			}
+			return err
+		}
+		if err = i.updatePassword(ctx, tx, req.NewPassword, userBasic); err != nil {
+			return err
+		}
+		return i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT, "")
+	})
+	return nil, err
+}
+
 func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error) {
 	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
@@ -152,7 +178,7 @@ func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (res
 	if err != nil {
 		return nil, err
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:               uid,
 		PhoneCountryCode: req.Phone.CountryCode,
 		Phone:            req.Phone.Number,
@@ -173,7 +199,7 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 	if err != nil {
 		return nil, err
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:    uid,
 		Email: req.NewEmail,
 	})
@@ -181,7 +207,7 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 }
 
 func (i *Impl) ChangeUserAvatar(ctx context.Context, req *userv1.ChangeUserAvatarReq) (resp *userv1.ChangeUserAvatarResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:     req.Uid,
 		Avatar: trans.String(req.Avatar),
 	})
@@ -189,7 +215,7 @@ func (i *Impl) ChangeUserAvatar(ctx context.Context, req *userv1.ChangeUserAvata
 }
 
 func (i *Impl) ChangeUserGender(ctx context.Context, req *userv1.ChangeUserGenderReq) (resp *userv1.ChangeUserGenderResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:     req.Uid,
 		Gender: trans.Int16(int16(req.Gender)),
 	})
@@ -197,7 +223,7 @@ func (i *Impl) ChangeUserGender(ctx context.Context, req *userv1.ChangeUserGende
 }
 
 func (i *Impl) ChangeUserBirthday(ctx context.Context, req *userv1.ChangeUserBirthdayReq) (resp *userv1.ChangeUserBirthdayResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:       req.Uid,
 		Birthday: trans.Ref(time.Date(int(req.Birthday.Year), time.Month(req.Birthday.Month), int(req.Birthday.Day), 0, 0, 0, 0, time.UTC)),
 	})
@@ -205,7 +231,7 @@ func (i *Impl) ChangeUserBirthday(ctx context.Context, req *userv1.ChangeUserBir
 }
 
 func (i *Impl) ChangeUserName(ctx context.Context, req *userv1.ChangeUserNameReq) (resp *userv1.ChangeUserNameResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:   req.Uid,
 		Name: trans.String(req.Name),
 	})
@@ -213,7 +239,7 @@ func (i *Impl) ChangeUserName(ctx context.Context, req *userv1.ChangeUserNameReq
 }
 
 func (i *Impl) ChangeUserAlias(ctx context.Context, req *userv1.ChangeUserAliasReq) (resp *userv1.ChangeUserAliasResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:     req.Uid,
 		Alias_: trans.String(req.Alias),
 	})
@@ -221,22 +247,24 @@ func (i *Impl) ChangeUserAlias(ctx context.Context, req *userv1.ChangeUserAliasR
 }
 
 func (i *Impl) ChangeUserNumber(ctx context.Context, req *userv1.ChangeUserNumberReq) (resp *userv1.ChangeUserNumberResp, err error) {
-	exist, err := i.repo.CheckUserNumberExists(ctx, req.Number)
-	if err != nil {
-		return nil, err
-	}
-	if exist {
-		return nil, ecode.ErrUserNumberExists
-	}
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
-		ID:     req.Uid,
-		Number: req.Number,
+	err = i.query.Transaction(func(tx *query.Query) error {
+		exist, err := i.repo.CheckUserNumberExists(ctx, tx, req.Number)
+		if err != nil {
+			return err
+		}
+		if exist {
+			return ecode.ErrUserNumberExists
+		}
+		return i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:     req.Uid,
+			Number: req.Number,
+		})
 	})
 	return nil, err
 }
 
 func (i *Impl) ChangeUserAddress(ctx context.Context, req *userv1.ChangeUserAddressReq) (resp *userv1.ChangeUserAddressResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:           req.Uid,
 		CountryCode:  req.CountryCode,
 		ProvinceCode: req.ProvinceCode,
@@ -248,25 +276,40 @@ func (i *Impl) ChangeUserAddress(ctx context.Context, req *userv1.ChangeUserAddr
 }
 
 func (i *Impl) ChangeUserType(ctx context.Context, req *userv1.ChangeUserTypeReq) (resp *userv1.ChangeUserTypeResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
-		ID:   req.Uid,
-		Type: trans.Int16(int16(req.Type)),
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:   req.Uid,
+			Type: trans.Int16(int16(req.Type)),
+		}); err != nil {
+			return err
+		}
+		return i.revokeAccessSessions(ctx, tx, req.Uid)
 	})
 	return nil, err
 }
 
 func (i *Impl) ChangeUserLevel(ctx context.Context, req *userv1.ChangeUserLevelReq) (resp *userv1.ChangeUserLevelResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
-		ID:    req.Uid,
-		Level: trans.Int32(req.Level),
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:    req.Uid,
+			Level: trans.Int32(req.Level),
+		}); err != nil {
+			return err
+		}
+		return i.revokeAccessSessions(ctx, tx, req.Uid)
 	})
 	return nil, err
 }
 
 func (i *Impl) ChangeUserExt(ctx context.Context, req *userv1.ChangeUserExtReq) (resp *userv1.ChangeUserExtResp, err error) {
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
-		ID:  req.Uid,
-		Ext: trans.String(req.Ext),
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:  req.Uid,
+			Ext: trans.String(req.Ext),
+		}); err != nil {
+			return err
+		}
+		return i.revokeAccessSessions(ctx, tx, req.Uid)
 	})
 	return nil, err
 }
@@ -280,14 +323,14 @@ func (i *Impl) VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (res
 	}); err != nil {
 		return nil, err
 	}
-	userBasic, err := i.repo.GetUserBasicByUID(ctx, req.Uid)
+	userBasic, err := i.repo.GetUserBasicByUID(ctx, i.query, req.Uid)
 	if err != nil {
 		return nil, err
 	}
 	if userBasic.PhoneCountryCode != req.Phone.CountryCode || userBasic.Phone != req.Phone.Number {
 		return nil, ecode.ErrPhoneNotMatch
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:            req.Uid,
 		PhoneVerified: int16(enumsv1.Verified_VERIFIED_VERIFIED),
 	})
@@ -303,37 +346,16 @@ func (i *Impl) VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (res
 	}); err != nil {
 		return nil, err
 	}
-	userBasic, err := i.repo.GetUserBasicByUID(ctx, req.Uid)
+	userBasic, err := i.repo.GetUserBasicByUID(ctx, i.query, req.Uid)
 	if err != nil {
 		return nil, err
 	}
 	if userBasic.Email != req.Email {
 		return nil, ecode.ErrEmailNotMatch
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, &model.UserBasic{
+	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
 		ID:            req.Uid,
 		EmailVerified: int16(enumsv1.Verified_VERIFIED_VERIFIED),
-	})
-	return nil, err
-}
-
-func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error) {
-	uid, err := i.tokenVerifier.GetUid(ctx, req.ResetToken)
-	if err != nil {
-		return nil, err
-	}
-	err = i.repo.Transaction(func(tx *query.Query) error {
-		userBasic, err := tx.UserBasic.WithContext(ctx).Where(tx.UserBasic.ID.Eq(uid)).Take()
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return ecode.ErrUserNotExist
-			}
-			return err
-		}
-		if err = i.updatePassword(ctx, tx, req.NewPassword, userBasic); err != nil {
-			return err
-		}
-		return i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT, "")
 	})
 	return nil, err
 }
@@ -343,7 +365,7 @@ func (i *Impl) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.
 	if err != nil {
 		return nil, err
 	}
-	return authenticator.SignUp(ctx, req)
+	return authenticator.SignUp(ctx, i.query, req)
 }
 
 func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
@@ -351,7 +373,7 @@ func (i *Impl) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.
 	if err != nil {
 		return nil, err
 	}
-	return authenticator.SignIn(ctx, req)
+	return authenticator.SignIn(ctx, i.query, req)
 }
 
 func (i *Impl) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
@@ -359,11 +381,11 @@ func (i *Impl) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv
 	if err != nil {
 		return nil, err
 	}
-	return authenticator.SignOut(ctx, req)
+	return authenticator.SignOut(ctx, i.query, req)
 }
 
 func (i *Impl) SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error) {
-	logs, err := i.repo.GetActiveSignInLogs(ctx, req.Uid)
+	logs, err := i.repo.GetActiveSignInLogs(ctx, i.query, req.Uid)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +398,7 @@ func (i *Impl) SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (r
 			if err != nil {
 				return err
 			}
-			_, err = authenticator.SignOut(ctx, &userv1.SignOutReq{
+			_, err = authenticator.SignOut(ctx, i.query, &userv1.SignOutReq{
 				SessionId: l.AccessSessionID,
 				Reason:    req.Reason,
 				AuthType:  t,
@@ -389,7 +411,7 @@ func (i *Impl) SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (r
 }
 
 func (i *Impl) Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error) {
-	access, refresh, _, _, err := i.jwtService.RefreshToken(ctx, req.RefreshToken, req.ExtraJwtClaims)
+	access, refresh, _, _, err := i.jwtService.RefreshToken(ctx, i.query, req.RefreshToken, req.ExtraJwtClaims)
 	if err != nil {
 		return nil, err
 	}
@@ -418,6 +440,10 @@ func (i *Impl) VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (res
 		Data: &userv1.VerifyTokenResp_Data{
 			UserInfo: &userv1.UserProfile{
 				Uid:       claims.Uid,
+				Number:    claims.Number,
+				Biz:       claims.Biz,
+				UserType:  claims.UserType,
+				UserLevel: claims.UserLevel,
 				AuthType:  enumsv1.AuthType(claims.AuthType),
 				Appid:     claims.AppId,
 				Openid:    claims.OpenId,
@@ -431,18 +457,41 @@ func (i *Impl) VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (res
 }
 
 func (i *Impl) GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	activeLogs, err := i.repo.GetActiveSignInLogs(ctx, i.query, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	var logs = make([]*userv1.SignInLog, len(activeLogs))
+	for i, log := range activeLogs {
+		logs[i] = userSignInModelToSignInLog(log)
+	}
+	resp = &userv1.GetActiveSignInLogsResp{
+		Data: &userv1.GetActiveSignInLogsResp_Data{
+			Logs: logs,
+		},
+	}
+	return resp, nil
 }
 
 func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Impl) AddSessionToBlockList(ctx context.Context, req *userv1.AddSessionToBlockListReq) (resp *userv1.AddSessionToBlockListResp, err error) {
-	//TODO implement me
-	panic("implement me")
+	res, err := i.repo.PagingGetSignInLogs(ctx, i.query, req)
+	if err != nil {
+		return nil, err
+	}
+	var logs = make([]*userv1.SignInLog, len(res.List))
+	for i, log := range res.List {
+		logs[i] = userSignInModelToSignInLog(log)
+	}
+	resp = &userv1.PagingGetSignInLogsResp{
+		Data: &userv1.PagingGetSignInLogsResp_Data{
+			Logs:       logs,
+			Page:       res.Page,
+			Size:       res.PageSize,
+			Total:      res.Total,
+			TotalPages: res.TotalPages,
+		},
+	}
+	return resp, nil
 }
 
 func (i *Impl) getAuthenticator(authType enumsv1.AuthType) (Authenticator, error) {
@@ -460,20 +509,29 @@ func (i *Impl) updatePassword(ctx context.Context, tx *query.Query, password str
 	}
 	userBasic.Password = &newPassword
 	userBasic.PasswordUpdatedAt = time.Now().UnixMilli()
-	_, err = tx.UserBasic.WithContext(ctx).Where(tx.UserBasic.ID.Eq(userBasic.ID)).Updates(userBasic)
-	return err
+	return i.repo.UpdateUserBasicByUid(ctx, tx, userBasic)
 }
 
-func (i *Impl) revokeSessions(ctx context.Context, tx *query.Query, uid int64, reason enumsv1.SessionStatus, exceptSessionId string) error {
-	now := time.Now().UnixMilli()
-	activeLogs, err := tx.UserSignLog.WithContext(ctx).Where(
-		tx.UserSignLog.UID.Eq(int64(uid)),
-		tx.UserBasic.Status.Eq(int16(enumsv1.SessionStatus_SESSION_STATUS_OK)),
-		tx.UserSignLog.RefreshExpiredAt.Gt(now),
-	).Order(tx.UserSignLog.RefreshExpiredAt.Desc()).Find()
+func (i *Impl) revokeAccessSessions(ctx context.Context, tx *query.Query, uid int64) error {
+	activeLogs, err := i.repo.GetActiveSignInLogs(ctx, tx, uid)
 	if err != nil {
 		return err
 	}
+	if len(activeLogs) == 0 {
+		return nil
+	}
+	var items []*SessionItem
+	for _, item := range activeLogs {
+		items = append(items, &SessionItem{
+			SessionID: item.AccessSessionID,
+			TTL:       i.jwtService.TTLFromExpiredAt(item.AccessExpiredAt),
+		})
+	}
+	return i.jwtService.RevokeTokens(ctx, items)
+}
+
+func (i *Impl) revokeSessions(ctx context.Context, tx *query.Query, uid int64, reason enumsv1.SessionStatus, exceptSessionId string) error {
+	activeLogs, err := i.repo.GetActiveSignInLogs(ctx, tx, uid)
 	if len(activeLogs) == 0 {
 		return nil
 	}

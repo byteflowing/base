@@ -16,13 +16,17 @@ type SessionItem struct {
 }
 
 type JwtClaims struct {
-	Uid      int64      `json:"uid"`
-	Type     int32      `json:"type"`
-	AuthType int32      `json:"auth_type"`
-	OpenId   string     `json:"open_id"`
-	UnionId  string     `json:"union_id"`
-	AppId    string     `json:"app_id"`
-	Extra    *anypb.Any `json:"extra"`
+	Uid       int64      `json:"uid"`
+	Number    string     `json:"number"`
+	Biz       string     `json:"biz"`
+	UserType  int32      `json:"user_type"`
+	UserLevel int32      `json:"user_level"`
+	TokenType int32      `json:"token_type"`
+	AuthType  int32      `json:"auth_type"`
+	OpenId    string     `json:"open_id"`
+	UnionId   string     `json:"union_id"`
+	AppId     string     `json:"app_id"`
+	Extra     *anypb.Any `json:"extra"`
 	jwt.RegisteredClaims
 }
 

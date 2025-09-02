@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/ecode"
@@ -47,7 +48,7 @@ func (p *PhoneCaptcha) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA
 }
 
-func (p *PhoneCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
+func (p *PhoneCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error) {
 	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -63,14 +64,14 @@ func (p *PhoneCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp 
 	if err != nil {
 		return nil, err
 	}
-	if err = checkUserBasicUnique(ctx, req, p.repo); err != nil {
+	if err = checkUserBasicUnique(ctx, req, p.repo, tx); err != nil {
 		return nil, err
 	}
 	userBasic, err := signUpReqToUserBasic(req, p.globalIDGen, p.shortIDGen, p.passwordHasher)
 	if err != nil {
 		return nil, err
 	}
-	if err = p.repo.CreateUserBasic(ctx, userBasic); err != nil {
+	if err = p.repo.CreateUserBasic(ctx, tx, userBasic); err != nil {
 		return nil, err
 	}
 	resp = &userv1.SignUpResp{
@@ -79,7 +80,7 @@ func (p *PhoneCaptcha) SignUp(ctx context.Context, req *userv1.SignUpReq) (resp 
 	return resp, nil
 }
 
-func (p *PhoneCaptcha) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (p *PhoneCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -101,22 +102,30 @@ func (p *PhoneCaptcha) SignIn(ctx context.Context, req *userv1.SignInReq) (resp 
 	if err != nil {
 		return nil, err
 	}
-	userBasic, err := p.repo.GetUserBasicByPhone(ctx, req.Biz, req.PhoneNumber)
+	userBasic, err := p.repo.GetUserBasicByPhone(ctx, tx, req.Biz, req.PhoneNumber)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ecode.ErrPhoneNotExist
 		}
 		return nil, err
 	}
-	if isDisabled(userBasic) {
-		return nil, ecode.ErrUserDisabled
-	}
-	return checkPasswordAndGenToken(ctx, req, userBasic, p.jwtService, nil, nil)
+	err = tx.Transaction(func(tx *query.Query) error {
+		resp, err = checkPasswordAndGenToken(ctx, tx, req, userBasic, p.jwtService, nil, nil)
+		if err != nil {
+			return err
+		}
+		if userBasic.PhoneVerified != int16(enumsv1.Verified_VERIFIED_VERIFIED) {
+			userBasic.PhoneVerified = int16(enumsv1.Verified_VERIFIED_VERIFIED)
+			return p.repo.UpdateUserBasicByUid(ctx, tx, userBasic)
+		}
+		return nil
+	})
+	return
 }
 
-func (p *PhoneCaptcha) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
+func (p *PhoneCaptcha) SignOut(ctx context.Context, tx *query.Query, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
 	if req.AuthType != p.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	return signOutBySessionId(ctx, req, p.repo, p.jwtService)
+	return signOutBySessionId(ctx, req, p.repo, tx, p.jwtService)
 }

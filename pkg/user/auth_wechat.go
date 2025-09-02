@@ -44,11 +44,11 @@ func (w *WeChat) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_WECHAT
 }
 
-func (w *WeChat) SignUp(ctx context.Context, req *userv1.SignUpReq) (*userv1.SignUpResp, error) {
+func (w *WeChat) SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (*userv1.SignUpResp, error) {
 	return nil, ecode.ErrUnImplemented
 }
 
-func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
+func (w *WeChat) SignIn(ctx context.Context, tx *query.Query, req *userv1.SignInReq) (resp *userv1.SignInResp, err error) {
 	if req.AuthType != w.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
@@ -66,7 +66,7 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 	)
 
 	// 2. 通过openid查找用户
-	userAuth, err = w.repo.GetUserAuthByOpenID(ctx, res.Openid)
+	userAuth, err = w.repo.GetUserAuthByOpenID(ctx, tx, res.Openid)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +77,10 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 		}
 		userAuth.Credential = res.SessionKey
 		userAuth.UnionID = trans.Ref(res.UnionId)
-		if err = w.repo.UpdateUserAuth(ctx, userAuth); err != nil {
+		if err = w.repo.UpdateUserAuth(ctx, tx, userAuth); err != nil {
 			return nil, err
 		}
-		if userBasic, err = w.repo.GetUserBasicByUID(ctx, userAuth.UID); err != nil {
+		if userBasic, err = w.repo.GetUserBasicByUID(ctx, tx, userAuth.UID); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, ecode.ErrUserNotExist
 			}
@@ -89,13 +89,13 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 	} else {
 		// 4. 如果没有找到，再通过unionid去查找
 		if res.UnionId != "" {
-			userAuth, err = w.repo.GetUserAuthByUnionID(ctx, req.Biz, res.UnionId)
+			userAuth, err = w.repo.GetUserAuthByUnionID(ctx, tx, req.Biz, res.UnionId)
 			if err != nil {
 				return nil, err
 			}
 			// 5. 如果找到userAuth说明是老用户,只是第一次使用appid登录
 			if userAuth != nil {
-				userBasic, err = w.repo.GetUserBasicByUID(ctx, userAuth.UID)
+				userBasic, err = w.repo.GetUserBasicByUID(ctx, tx, userAuth.UID)
 				if err != nil {
 					if errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, ecode.ErrUserNotExist
@@ -112,7 +112,7 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 					Credential: res.SessionKey,
 					UnionID:    trans.Ref(res.UnionId),
 				}
-				if err = w.repo.CreateUserAuth(ctx, userAuth); err != nil {
+				if err = w.repo.CreateUserAuth(ctx, tx, userAuth); err != nil {
 					return nil, err
 				}
 			}
@@ -137,7 +137,7 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 				RegisterDevice: req.Device,
 				RegisterAgent:  req.UserAgent,
 			}
-			if err = w.repo.Transaction(func(tx *query.Query) error {
+			if err = tx.Transaction(func(tx *query.Query) error {
 				if err := tx.UserBasic.WithContext(ctx).Create(userBasic); err != nil {
 					return err
 				}
@@ -157,12 +157,12 @@ func (w *WeChat) SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv
 			}
 		}
 	}
-	return checkPasswordAndGenToken(ctx, req, userBasic, w.jwtService, nil, nil)
+	return checkPasswordAndGenToken(ctx, tx, req, userBasic, w.jwtService, nil, nil)
 }
 
-func (w *WeChat) SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
+func (w *WeChat) SignOut(ctx context.Context, tx *query.Query, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error) {
 	if req.AuthType != w.AuthType() {
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
-	return signOutBySessionId(ctx, req, w.repo, w.jwtService)
+	return signOutBySessionId(ctx, req, w.repo, tx, w.jwtService)
 }

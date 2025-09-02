@@ -14,12 +14,16 @@ import "msg/v1/captcha.proto";
 
 message UserProfile {
   int64 uid = 1; // userid
-  enums.v1.AuthType auth_type = 2; // 认证类型
-  string appid = 3; // appid
-  string openid = 4; // openid
-  string unionid = 5; // unionid
-  string session_id = 6; // session_id
-  google.protobuf.Any extra = 7; // 调用方自定义字段
+  string number = 2; // 用户编号
+  string biz = 3; // 业务编号
+  int32 user_type = 4; // 用户类型，业务自定义
+  int32 user_level = 5; // 用户等级，业务自定义
+  enums.v1.AuthType auth_type = 6; // 认证类型
+  string appid = 7; // appid
+  string openid = 8; // openid
+  string unionid = 9; // unionid
+  string session_id = 10; // session_id
+  google.protobuf.Any extra = 11; // 调用方自定义字段
 }
 
 message UserInfo {
@@ -509,22 +513,6 @@ message VerifyEmailResp {
 message ChangeUserStatusReq {
   int64 uid = 1;
   enums.v1.UserStatus status = 2;
-}
-
-message AddSessionToBlockListReq {
-  // 访问token的jti
-  string access_session_id = 1 [(buf.validate.field).string.uuid = true];
-  // 是否同时把refresh的jti加入黑名单
-  bool block_refresh = 2;
-}
-
-message AddSessionToBlockListResp {
-  // 正常返回0，错误返回非0
-  uint32 err_code = 1;
-  // 正常返回OK, 错误返回错误内容
-  string err_msg = 2;
-  // 开发模式，返回详细错误信息
-  string err_detail = 3;
 }
 
 message VerifyTokenReq {

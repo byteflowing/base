@@ -5,9 +5,11 @@ import (
 	"time"
 
 	"github.com/byteflowing/base/dal/model"
+	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
+	"github.com/byteflowing/go-common/trans"
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -50,12 +52,12 @@ func NewJwtService(opts *JwtOpts) *JwtService {
 	}
 }
 
-func (s *JwtService) GenerateToken(ctx context.Context, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, freshClaims *JwtClaims, err error) {
+func (s *JwtService) GenerateToken(ctx context.Context, tx *query.Query, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, freshClaims *JwtClaims, err error) {
 	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_SIGN_IN); err != nil {
 		return "", "", nil, nil, err
 	}
 	// 检查最大同时在线数
-	logs, err := s.repo.GetActiveSignInLogs(ctx, req.UserBasic.ID)
+	logs, err := s.repo.GetActiveSignInLogs(ctx, tx, req.UserBasic.ID)
 	if err != nil {
 		return "", "", nil, nil, err
 	}
@@ -65,7 +67,7 @@ func (s *JwtService) GenerateToken(ctx context.Context, req *GenerateJwtReq) (ac
 			return "", "", nil, nil, err
 		}
 		log.Status = int16(enumsv1.SessionStatus_SESSION_STATUS_KICKED_OUT)
-		if err = s.repo.UpdateSignInLogByID(ctx, log); err != nil {
+		if err = s.repo.UpdateSignInLogByID(ctx, tx, log); err != nil {
 			return "", "", nil, nil, err
 		}
 	}
@@ -73,7 +75,7 @@ func (s *JwtService) GenerateToken(ctx context.Context, req *GenerateJwtReq) (ac
 	if err != nil {
 		return "", "", nil, nil, err
 	}
-	if err = s.repo.AddSignInLog(ctx, req.SignInReq, accessClaims, refreshClaims); err != nil {
+	if err = s.repo.AddSignInLog(ctx, tx, req.SignInReq, accessClaims, refreshClaims); err != nil {
 		return "", "", nil, nil, err
 	}
 	return
@@ -105,7 +107,7 @@ func (s *JwtService) RevokeByLog(ctx context.Context, log *model.UserSignLog) (e
 	return s.revoke(ctx, items)
 }
 
-func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, extraClaims *anypb.Any) (newAccessToken, newRefreshToken string, newAccessClaims, newRefreshClaims *JwtClaims, err error) {
+func (s *JwtService) RefreshToken(ctx context.Context, tx *query.Query, refreshToken string, extraClaims *anypb.Any) (newAccessToken, newRefreshToken string, newAccessClaims, newRefreshClaims *JwtClaims, err error) {
 	refreshClaim, err := s.VerifyRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return "", "", nil, nil, err
@@ -113,9 +115,12 @@ func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, extr
 	if err = s.limiter.Allow(ctx, refreshClaim.Uid, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
 		return "", "", nil, nil, err
 	}
-	userBasic, err := s.repo.GetUserBasicByUID(ctx, refreshClaim.Uid)
+	userBasic, err := s.repo.GetUserBasicByUID(ctx, tx, refreshClaim.Uid)
 	if err != nil {
 		return "", "", nil, nil, err
+	}
+	if isDisabled(userBasic) {
+		return "", "", nil, nil, ecode.ErrUserDisabled
 	}
 	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(ctx, &GenerateJwtReq{
 		UserBasic:      userBasic,
@@ -128,7 +133,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, extr
 	if err != nil {
 		return "", "", nil, nil, err
 	}
-	log, err := s.repo.GetSignInLogByRefresh(ctx, refreshClaim.ID)
+	log, err := s.repo.GetSignInLogByRefresh(ctx, tx, refreshClaim.ID)
 	if err != nil {
 		return "", "", nil, nil, err
 	}
@@ -136,7 +141,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, refreshToken string, extr
 	log.RefreshSessionID = newRefreshClaims.ID
 	log.AccessExpiredAt = newAccessClaims.ExpiresAt.Unix()
 	log.RefreshExpiredAt = newRefreshClaims.ExpiresAt.Unix()
-	if err = s.repo.UpdateSignInLogByID(ctx, log); err != nil {
+	if err = s.repo.UpdateSignInLogByID(ctx, tx, log); err != nil {
 		return "", "", nil, nil, err
 	}
 	if err = s.RevokeByLog(ctx, log); err != nil {
@@ -176,7 +181,7 @@ func (s *JwtService) verifyToken(ctx context.Context, token string, t enumsv1.To
 	if err != nil {
 		return nil, err
 	}
-	if parsedClaims.Type != int32(t) {
+	if parsedClaims.TokenType != int32(t) {
 		return nil, ecode.ErrUserTokenMisMatch
 	}
 	// 验证token是否在黑名单中
@@ -235,16 +240,19 @@ func (s *JwtService) keyFunc(token *jwt.Token) (interface{}, error) {
 
 func (s *JwtService) createClaims(t time.Time, typ enumsv1.TokenType, req *GenerateJwtReq) *JwtClaims {
 	return &JwtClaims{
-		Uid:      req.UserBasic.ID,
-		Type:     int32(typ),
-		AuthType: int32(req.AuthType),
-		AppId:    req.AppId,
-		OpenId:   req.OpenId,
-		UnionId:  req.UnionId,
-		Extra:    req.ExtraJwtClaims,
+		Uid:       req.UserBasic.ID,
+		Number:    req.UserBasic.Number,
+		Biz:       req.UserBasic.Biz,
+		UserType:  int32(trans.Int16Value(req.UserBasic.Type)),
+		UserLevel: trans.Int32Value(req.UserBasic.Level),
+		TokenType: int32(typ),
+		AuthType:  int32(req.AuthType),
+		OpenId:    req.OpenId,
+		UnionId:   req.UnionId,
+		AppId:     req.AppId,
+		Extra:     req.ExtraJwtClaims,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    s.issuer,
-			Subject:   req.UserBasic.Number,
 			ExpiresAt: jwt.NewNumericDate(t.Add(s.accessTTL)),
 			NotBefore: jwt.NewNumericDate(t),
 			IssuedAt:  jwt.NewNumericDate(t),

@@ -11,6 +11,7 @@ import (
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/trans"
 	"google.golang.org/genproto/googleapis/type/date"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func signUpReqToUserBasic(
@@ -124,4 +125,25 @@ func userBasicToUserInfo(userBasic *model.UserBasic) *userv1.UserInfo {
 		}
 	}
 	return info
+}
+
+func userSignInModelToSignInLog(model *model.UserSignLog) (log *userv1.SignInLog) {
+	log = &userv1.SignInLog{
+		Id:               model.ID,
+		Uid:              model.UID,
+		Type:             enumsv1.AuthType(model.Type),
+		Status:           enumsv1.SessionStatus(model.Status),
+		AccessTokenId:    model.AccessSessionID,
+		RefreshTokenId:   model.RefreshSessionID,
+		Ip:               model.IP,
+		Location:         model.Location,
+		Agent:            model.Agent,
+		Device:           model.Device,
+		DeletedAt:        model.DeletedAt,
+		AccessExpiredAt:  timestamppb.New(time.Unix(model.AccessExpiredAt, 0)),
+		RefreshExpiredAt: timestamppb.New(time.Unix(model.RefreshExpiredAt, 0)),
+		UpdatedAt:        timestamppb.New(time.UnixMilli(model.UpdatedAt)),
+		CreatedAt:        timestamppb.New(time.UnixMilli(model.CreatedAt)),
+	}
+	return
 }
