@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
+	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	messagev1 "github.com/byteflowing/base/gen/msg/v1"
@@ -109,8 +109,9 @@ func (e *EmailCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.
 		if err != nil {
 			return err
 		}
-		if userBasic.EmailVerified != int16(enumsv1.Verified_VERIFIED_VERIFIED) {
-			userBasic.EmailVerified = int16(enumsv1.Verified_VERIFIED_VERIFIED)
+		verified := int16(enumsv1.Verified_VERIFIED_VERIFIED)
+		if userBasic.EmailVerified != verified {
+			userBasic.EmailVerified = verified
 			return e.repo.UpdateUserBasicByUid(ctx, tx, userBasic)
 		}
 		return nil

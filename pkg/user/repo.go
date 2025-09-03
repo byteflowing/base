@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/byteflowing/go-common/orm"
-	"github.com/byteflowing/go-common/slicex"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/dal/model"
@@ -14,6 +12,8 @@ import (
 	commonv1 "github.com/byteflowing/base/gen/common/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
+	"github.com/byteflowing/go-common/orm"
+	"github.com/byteflowing/go-common/slicex"
 )
 
 type Repo interface {

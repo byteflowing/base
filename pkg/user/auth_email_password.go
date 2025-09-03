@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
+	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
