@@ -5,6 +5,9 @@ import (
 	"errors"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
+
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
@@ -12,11 +15,10 @@ import (
 	msgv1 "github.com/byteflowing/base/gen/msg/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
+	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/trans"
-	"golang.org/x/sync/errgroup"
-	"gorm.io/gorm"
 )
 
 type Authenticator interface {
@@ -24,6 +26,7 @@ type Authenticator interface {
 	SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (*userv1.SignUpResp, error)
 	SignIn(ctx context.Context, tx *query.Query, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
 	SignOut(ctx context.Context, tx *query.Query, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
+	Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error)
 }
 
 type User interface {
@@ -54,6 +57,14 @@ type User interface {
 	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
 	GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error)
 	PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error)
+	PagingGetUsers(ctx context.Context, req *userv1.PagingGetUsersReq) (resp *userv1.PagingGetUsersResp, err error)
+	CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error)
+	UpdateUser(ctx context.Context, req *userv1.UpdateUserReq) (resp *userv1.UpdateUserResp, err error)
+	DeleteUser(ctx context.Context, req *userv1.DeleteUserReq) (resp *userv1.DeleteUserResp, err error)
+	DeleteUsers(ctx context.Context, req *userv1.DeleteUsersReq) (resp *userv1.DeleteUsersResp, err error)
+	GetUserAuth(ctx context.Context, req *userv1.GetUserAuthReq) (resp *userv1.GetUserAuthResp, err error)
+	UnbindUserAuth(ctx context.Context, req *userv1.UnbindUserAuthReq) (resp *userv1.UnbindUserAuthResp, err error)
+	BindUserAuth(ctx context.Context, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error)
 }
 
 type Impl struct {
@@ -64,6 +75,106 @@ type Impl struct {
 	jwtService    *JwtService
 	tokenVerifier TokenVerifier
 	captcha       captcha.Captcha
+	shortIDGen    *common.ShortIDGenerator
+	globalIDGen   common.GlobalIdGenerator
+}
+
+func (i *Impl) CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error) {
+	if err = checkUserBasicUnique(ctx, i.query, i.repo, req.Biz, req.Phone, req.Number, req.Email); err != nil {
+		return nil, err
+	}
+	userBasic, err := createUserReqToUserBasic(req, i.globalIDGen, i.shortIDGen, i.passHasher)
+	if err != nil {
+		return nil, err
+	}
+	if err = i.repo.CreateUserBasic(ctx, i.query, userBasic); err != nil {
+		return nil, err
+	}
+	resp = &userv1.CreateUserResp{
+		Data: &userv1.CreateUserResp_Data{Uid: userBasic.ID},
+	}
+	return
+}
+
+func (i *Impl) UpdateUser(ctx context.Context, req *userv1.UpdateUserReq) (resp *userv1.UpdateUserResp, err error) {
+	if err = checkUserBasicUnique(ctx, i.query, i.repo, req.Biz, req.Phone, req.Number, req.Email); err != nil {
+		return nil, err
+	}
+	userBasic, err := updateUserReqToUserBasic(req, i.passHasher)
+	if err != nil {
+		return nil, err
+	}
+	if err = i.repo.UpdateUserBasicByUid(ctx, i.query, userBasic); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (i *Impl) DeleteUser(ctx context.Context, req *userv1.DeleteUserReq) (resp *userv1.DeleteUserResp, err error) {
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err := i.repo.DeleteUserBasic(ctx, tx, req.Uid); err != nil {
+			return err
+		}
+		if err = i.repo.DeleteUserAuth(ctx, tx, req.Uid); err != nil {
+			return err
+		}
+		return i.revokeSessions(ctx, tx, req.Uid, enumsv1.SessionStatus_SESSION_STATUS_DELETE_OUT, "")
+	})
+	return nil, err
+}
+
+func (i *Impl) DeleteUsers(ctx context.Context, req *userv1.DeleteUsersReq) (resp *userv1.DeleteUsersResp, err error) {
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err := i.repo.DeleteUsersBasic(ctx, tx, req.Uids); err != nil {
+			return err
+		}
+		if err = i.repo.DeleteUsersAuth(ctx, tx, req.Uids); err != nil {
+			return err
+		}
+		g := new(errgroup.Group)
+		for _, uid := range req.Uids {
+			g.Go(func() error {
+				return i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_DELETE_OUT, "")
+			})
+		}
+		if err = g.Wait(); err != nil {
+			return err
+		}
+		return i.repo.DeleteUsersSignLogs(ctx, tx, req.Uids)
+	})
+	return nil, err
+}
+
+func (i *Impl) GetUserAuth(ctx context.Context, req *userv1.GetUserAuthReq) (resp *userv1.GetUserAuthResp, err error) {
+	auth, err := i.repo.GetUserAuthByUid(ctx, i.query, req.Uid)
+	if err != nil {
+		return nil, err
+	}
+	var userAuth = make([]*userv1.UserAuth, len(auth))
+	for i, a := range auth {
+		userAuth[i] = userAuthModelToAuth(a)
+	}
+	resp = &userv1.GetUserAuthResp{
+		Data: &userv1.GetUserAuthResp_Data{
+			Auth: userAuth,
+		},
+	}
+	return
+}
+
+func (i *Impl) UnbindUserAuth(ctx context.Context, req *userv1.UnbindUserAuthReq) (resp *userv1.UnbindUserAuthResp, err error) {
+	err = i.repo.UnbindUserAuth(ctx, i.query, req.Uid, req.Identifier)
+	return
+}
+
+// BindUserAuth
+// 绑定第三方登录，手机，邮箱等
+func (i *Impl) BindUserAuth(ctx context.Context, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error) {
+	authenticator, err := i.getAuthenticator(req.Type)
+	if err != nil {
+		return nil, err
+	}
+	return authenticator.Bind(ctx, i.query, req)
 }
 
 func (i *Impl) SendCaptcha(ctx context.Context, req *userv1.SendCaptchaReq) (resp *userv1.SendCaptchaResp, err error) {
@@ -485,6 +596,27 @@ func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSig
 	resp = &userv1.PagingGetSignInLogsResp{
 		Data: &userv1.PagingGetSignInLogsResp_Data{
 			Logs:       logs,
+			Page:       res.Page,
+			Size:       res.PageSize,
+			Total:      res.Total,
+			TotalPages: res.TotalPages,
+		},
+	}
+	return resp, nil
+}
+
+func (i *Impl) PagingGetUsers(ctx context.Context, req *userv1.PagingGetUsersReq) (resp *userv1.PagingGetUsersResp, err error) {
+	res, err := i.repo.PagingGetUsers(ctx, i.query, req)
+	if err != nil {
+		return nil, err
+	}
+	var users = make([]*userv1.UserInfo, len(res.List))
+	for i, user := range res.List {
+		users[i] = userBasicToUserInfo(user)
+	}
+	resp = &userv1.PagingGetUsersResp{
+		Data: &userv1.PagingGetUsersResp_Data{
+			Users:      users,
 			Page:       res.Page,
 			Size:       res.PageSize,
 			Total:      res.Total,

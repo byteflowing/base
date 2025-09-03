@@ -60,3 +60,7 @@ func (p *PhonePassword) SignOut(ctx context.Context, tx *query.Query, req *userv
 	}
 	return signOutBySessionId(ctx, req, p.repo, tx, p.jwtService)
 }
+
+func (p *PhonePassword) Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error) {
+	return nil, ecode.ErrUnImplemented
+}

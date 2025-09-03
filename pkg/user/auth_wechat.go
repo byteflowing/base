@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/byteflowing/base/dal/query"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/dal/model"
+	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
 	commonv1 "github.com/byteflowing/base/gen/common/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
@@ -89,7 +89,7 @@ func (w *WeChat) SignIn(ctx context.Context, tx *query.Query, req *userv1.SignIn
 	} else {
 		// 4. 如果没有找到，再通过unionid去查找
 		if res.UnionId != "" {
-			userAuth, err = w.repo.GetUserAuthByUnionID(ctx, tx, req.Biz, res.UnionId)
+			userAuth, err = w.repo.GetOneUserAuthByUnionID(ctx, tx, req.Biz, res.UnionId)
 			if err != nil {
 				return nil, err
 			}
@@ -165,4 +165,48 @@ func (w *WeChat) SignOut(ctx context.Context, tx *query.Query, req *userv1.SignO
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	return signOutBySessionId(ctx, req, w.repo, tx, w.jwtService)
+}
+
+func (w *WeChat) Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error) {
+	if req.Type != w.AuthType() {
+		return nil, ecode.ErrUserAuthTypeMisMatch
+	}
+	// 1. 换取微信登录信息
+	res, err := w.wechatMgr.WechatSignIn(ctx, &commonv1.WechatSignInReq{
+		Appid: trans.StringValue(req.AppId),
+		Code:  trans.StringValue(req.Code),
+	})
+	if err != nil {
+		return nil, err
+	}
+	userAuth, err := w.repo.GetUserAuthByOpenID(ctx, tx, res.Openid)
+	if err != nil {
+		return nil, err
+	}
+	if userAuth == nil {
+		auth := &model.UserAuth{
+			UID:        req.Uid,
+			Type:       int16(enumsv1.AuthType_AUTH_TYPE_WECHAT),
+			Status:     int16(enumsv1.AuthStatus_AUTH_STATUS_OK),
+			Appid:      trans.StringValue(req.AppId),
+			Biz:        req.Biz,
+			Identifier: res.Openid,
+			Credential: res.SessionKey,
+		}
+		if res.UnionId != "" {
+			auth.UnionID = trans.String(res.UnionId)
+		}
+		if err := w.repo.CreateUserAuth(ctx, tx, auth); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+	userAuth.Credential = res.SessionKey
+	if res.UnionId != "" {
+		userAuth.UnionID = trans.String(res.UnionId)
+	}
+	if err = w.repo.UpdateUserAuth(ctx, tx, userAuth); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }

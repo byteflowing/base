@@ -26,6 +26,7 @@ enum SessionStatus {
   SESSION_STATUS_FORCE_SIGN_OUT = 4; // 强制退出
   SESSION_STATUS_CHANGE_PASSWORD_OUT = 5; // 更改密码导致退出
   SESSION_STATUS_RESET_PASSWORD_OUT = 6; // 重置密码导致退出
+  SESSION_STATUS_DELETE_OUT = 7; // 用户删除导致退出
 }
 
 enum UserStatus {

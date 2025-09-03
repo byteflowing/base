@@ -6,6 +6,7 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
+	commonv1 "github.com/byteflowing/base/gen/common/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/go-common/crypto"
@@ -103,12 +104,15 @@ func signOutBySessionId(
 
 func checkUserBasicUnique(
 	ctx context.Context,
-	req *userv1.SignUpReq,
-	repo Repo,
 	tx *query.Query,
+	repo Repo,
+	biz string,
+	phone *commonv1.PhoneNumber,
+	number *string,
+	email *string,
 ) (err error) {
-	if req.Phone != nil {
-		exist, err := repo.CheckPhoneExists(ctx, tx, req.Biz, req.Phone)
+	if phone != nil {
+		exist, err := repo.CheckPhoneExists(ctx, tx, biz, phone)
 		if err != nil {
 			return err
 		}
@@ -116,8 +120,8 @@ func checkUserBasicUnique(
 			return ecode.ErrPhoneExists
 		}
 	}
-	if req.Number != nil && *req.Number != "" {
-		exist, err := repo.CheckUserNumberExists(ctx, tx, *req.Number)
+	if number != nil && *number != "" {
+		exist, err := repo.CheckUserNumberExists(ctx, tx, *number)
 		if err != nil {
 			return err
 		}
@@ -125,8 +129,8 @@ func checkUserBasicUnique(
 			return ecode.ErrUserNumberExists
 		}
 	}
-	if req.Email != nil && *req.Email != "" {
-		exist, err := repo.CheckEmailExists(ctx, tx, req.Biz, *req.Email)
+	if email != nil && *email != "" {
+		exist, err := repo.CheckEmailExists(ctx, tx, biz, *email)
 		if err != nil {
 			return err
 		}

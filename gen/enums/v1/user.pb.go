@@ -141,6 +141,7 @@ const (
 	SessionStatus_SESSION_STATUS_FORCE_SIGN_OUT      SessionStatus = 4 // 强制退出
 	SessionStatus_SESSION_STATUS_CHANGE_PASSWORD_OUT SessionStatus = 5 // 更改密码导致退出
 	SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT  SessionStatus = 6 // 重置密码导致退出
+	SessionStatus_SESSION_STATUS_DELETE_OUT          SessionStatus = 7 // 用户删除导致退出
 )
 
 // Enum value maps for SessionStatus.
@@ -153,6 +154,7 @@ var (
 		4: "SESSION_STATUS_FORCE_SIGN_OUT",
 		5: "SESSION_STATUS_CHANGE_PASSWORD_OUT",
 		6: "SESSION_STATUS_RESET_PASSWORD_OUT",
+		7: "SESSION_STATUS_DELETE_OUT",
 	}
 	SessionStatus_value = map[string]int32{
 		"SESSION_STATUS_UNSPECIFIED":         0,
@@ -162,6 +164,7 @@ var (
 		"SESSION_STATUS_FORCE_SIGN_OUT":      4,
 		"SESSION_STATUS_CHANGE_PASSWORD_OUT": 5,
 		"SESSION_STATUS_RESET_PASSWORD_OUT":  6,
+		"SESSION_STATUS_DELETE_OUT":          7,
 	}
 )
 
@@ -463,7 +466,7 @@ const file_enums_v1_user_proto_rawDesc = "" +
 	"AuthStatus\x12\x1b\n" +
 	"\x17AUTH_STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eAUTH_STATUS_OK\x10\x01\x12\x18\n" +
-	"\x14AUTH_STATUS_DISABLED\x10\x02*\xf4\x01\n" +
+	"\x14AUTH_STATUS_DISABLED\x10\x02*\x93\x02\n" +
 	"\rSessionStatus\x12\x1e\n" +
 	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11SESSION_STATUS_OK\x10\x01\x12\x1b\n" +
@@ -471,7 +474,8 @@ const file_enums_v1_user_proto_rawDesc = "" +
 	"\x19SESSION_STATUS_KICKED_OUT\x10\x03\x12!\n" +
 	"\x1dSESSION_STATUS_FORCE_SIGN_OUT\x10\x04\x12&\n" +
 	"\"SESSION_STATUS_CHANGE_PASSWORD_OUT\x10\x05\x12%\n" +
-	"!SESSION_STATUS_RESET_PASSWORD_OUT\x10\x06*W\n" +
+	"!SESSION_STATUS_RESET_PASSWORD_OUT\x10\x06\x12\x1d\n" +
+	"\x19SESSION_STATUS_DELETE_OUT\x10\a*W\n" +
 	"\n" +
 	"UserStatus\x12\x1b\n" +
 	"\x17USER_STATUS_UNSPECIFIED\x10\x00\x12\x12\n" +

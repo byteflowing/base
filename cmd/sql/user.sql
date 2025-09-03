@@ -36,6 +36,8 @@ CREATE TABLE user_basic
 CREATE UNIQUE INDEX idx_basic_uni_number ON user_basic (number);
 CREATE UNIQUE INDEX idx_basic_uni_biz_phone ON user_basic (biz, phone_country_code, phone);
 CREATE UNIQUE INDEX idx_basic_uni_biz_email ON user_basic (biz, email);
+CREATE INDEX idx_basic_name ON user_basic (name);
+CREATE INDEX idx_basic_alias ON user_basic(alias);
 CREATE INDEX idx_basic_admin_region ON user_basic (country_code, province_code, city_code, district_code);
 
 CREATE TABLE user_auth

@@ -63,7 +63,7 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 	}); err != nil {
 		return nil, err
 	}
-	if err = checkUserBasicUnique(ctx, req, e.repo, tx); err != nil {
+	if err = checkUserBasicUnique(ctx, tx, e.repo, req.Biz, req.Phone, req.Number, req.Email); err != nil {
 		return nil, err
 	}
 	userBasic, err := signUpReqToUserBasic(req, e.globalIDGen, e.shortIDGen, e.passwordHasher)
@@ -123,4 +123,47 @@ func (e *EmailCaptcha) SignOut(ctx context.Context, tx *query.Query, req *userv1
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	return signOutBySessionId(ctx, req, e.repo, tx, e.jwtService)
+}
+
+func (e *EmailCaptcha) Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error) {
+	if req.Type != e.AuthType() {
+		return nil, ecode.ErrUserAuthTypeMisMatch
+	}
+	if req.CaptchaToken == nil {
+		return nil, ecode.ErrUserCaptchaTokenIsEmpty
+	}
+	if req.Email == nil {
+		return nil, ecode.ErrEmailIsEmpty
+	}
+	if _, err = e.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:      trans.Deref(req.CaptchaToken),
+		Captcha:    trans.StringValue(req.Captcha),
+		Number:     &messagev1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
+	}); err != nil {
+		return nil, err
+	}
+	exist, err := e.repo.CheckEmailExists(ctx, tx, req.Biz, *req.Email)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		return nil, ecode.ErrEmailExists
+	}
+	userBasic, err := e.repo.GetUserBasicByUID(ctx, tx, req.Uid)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ecode.ErrUserNotExist
+		}
+		return nil, err
+	}
+	if len(userBasic.Email) > 0 {
+		return nil, ecode.ErrEmailAlreadyBind
+	}
+	userBasic.Email = trans.Deref(req.Email)
+	userBasic.EmailVerified = int16(enumsv1.Verified_VERIFIED_VERIFIED)
+	if err = e.repo.UpdateUserBasicByUid(ctx, tx, userBasic); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }

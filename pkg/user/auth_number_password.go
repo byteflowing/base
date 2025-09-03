@@ -57,3 +57,7 @@ func (n *NumberPassword) SignOut(ctx context.Context, tx *query.Query, req *user
 	}
 	return signOutBySessionId(ctx, req, n.repo, tx, n.jwtService)
 }
+
+func (n *NumberPassword) Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error) {
+	return nil, ecode.ErrUnImplemented
+}

@@ -28,19 +28,42 @@ message UserProfile {
 
 message UserInfo {
   int64 uid = 1; // 用户id
-  string number = 2; // 用户编号
-  enums.v1.UserStatus status = 3; // 状态
-  optional string name = 4; // 姓名
-  optional string alias = 5; // 别名
-  optional string avatar = 6; // 头像
-  optional enums.v1.Gender gender = 7; // 性别
-  optional google.type.Date birthday = 8; // 生日
-  optional common.v1.PhoneNumber phone_number = 9; // 手机
-  optional string email = 10;// 邮箱
-  optional common.v1.AdminRegion region = 11; // 行政区域
-  optional string addr = 12; // 详细地址
-  optional string ext = 13; // 扩展字段，json格式，（由业务方自定义）
-  google.protobuf.Timestamp password_updated_at = 14; // 上次密码修改时间
+  string biz = 2; // 业务编号
+  string number = 3; // 用户编号
+  enums.v1.UserStatus status = 4; // 状态
+  enums.v1.UserSource source = 5; // 用户来源
+  enums.v1.AuthType sign_up_type = 6; // 注册方式
+  optional int32 user_type = 7; // 用户类型，由业务方定义
+  optional int32 user_level = 8; // 用户等级，由业务方定义
+  optional string name = 9; // 姓名
+  optional string alias = 10; // 别名
+  optional string avatar = 11; // 头像
+  optional enums.v1.Gender gender = 12; // 性别
+  optional google.type.Date birthday = 13; // 生日
+  optional common.v1.PhoneNumber phone_number = 14; // 手机
+  optional string email = 15;// 邮箱
+  optional common.v1.AdminRegion region = 16; // 行政区域
+  optional string addr = 17; // 详细地址
+  optional string ext = 18; // 扩展字段，json格式，（由业务方自定义）
+  bool phone_verify = 19; // 手机是否验证
+  bool email_verify = 20; // 邮箱是否验证
+  string register_ip = 21; // 注册时ip
+  string register_device = 22; // 注册设备
+  string register_agent = 23; // ua
+  google.protobuf.Timestamp password_updated_at = 24; // 上次密码修改时间
+  google.protobuf.Timestamp delete_at = 25; // 删除时间
+  google.protobuf.Timestamp updated_at = 26; // 更新时间
+  google.protobuf.Timestamp created_at = 27; // 更新时间
+}
+
+message UserAuth {
+  int64 id = 1;
+  int64 uid = 2;
+  enums.v1.AuthType type = 3;
+  enums.v1.AuthStatus status = 4;
+  string app_id = 5;
+  string identifier = 6;
+  string biz = 255;
 }
 
 message SendCaptchaReq {
@@ -619,4 +642,229 @@ message PagingGetSignInLogsResp {
   // 开发模式，返回详细错误信息
   string err_detail = 3;
   Data data = 4;
+}
+
+message PagingGetUsersReq {
+  int32 page = 1;
+  int32 size = 2;
+  bool asc = 3;
+  optional int64 uid = 4;
+  optional string number = 5;
+  optional string name = 6;
+  optional enums.v1.Gender gender = 7;
+  optional common.v1.PhoneNumber phone = 8;
+  optional string email = 9;
+  optional string country_code = 10;
+  optional string province_code = 11;
+  optional string city_code = 12;
+  optional string district_code = 13;
+  optional enums.v1.AuthType sign_up_type = 14;
+  optional enums.v1.UserStatus status = 15;
+  repeated enums.v1.UserSource source = 16;
+  optional int32 type = 17;
+  optional int32 level = 18;
+  optional bool phone_verified = 19;
+  optional bool email_verified = 20;
+  optional google.type.Date birthday_start = 21;
+  optional google.type.Date birthday_end = 22;
+  optional google.protobuf.Timestamp created_at_start = 23;
+  optional google.protobuf.Timestamp created_at_end = 24;
+  optional google.protobuf.Timestamp updated_at_start = 25;
+  optional google.protobuf.Timestamp updated_at_end = 26;
+  optional google.protobuf.Timestamp deleted_at_start = 27;
+  optional google.protobuf.Timestamp deleted_at_end = 28;
+  bool show_deleted = 29;
+  string biz = 255;
+}
+
+message PagingGetUsersResp {
+  message Data {
+    repeated UserInfo users = 1;
+    uint32 page = 2;
+    uint32 size = 3;
+    uint64 total = 4;
+    uint32 total_pages = 5;
+  }
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+  Data data = 4;
+}
+
+message CreateUserReq {
+  // 用户编码，全局唯一, 数据库中定义的有唯一索引
+  optional string number = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 用户姓名
+  optional string name = 2 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 别名
+  optional string alias = 3 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 密码
+  optional string password = 4 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 头像
+  optional string avatar = 5 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  // 性别
+  optional enums.v1.Gender gender = 6 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 生日
+  optional google.type.Date birthday = 7;
+  // 手机
+  optional common.v1.PhoneNumber phone = 8;
+  // 邮箱
+  optional string email = 9 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 行政区域
+  optional common.v1.AdminRegion region = 10;
+  // 详细地址
+  optional string addr = 11 [(buf.validate.field).string.(validation.v1.optional_100) = true];
+  // 状态
+  optional enums.v1.UserStatus status = 12 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 用户类型（由业务方自定义）
+  optional int32 type = 13 [(buf.validate.field).int32.gt = 0];
+  // 用户等级（由业务方自定义）
+  optional int32 level = 14 [(buf.validate.field).int32.gt = 0];
+  // 用户来源
+  optional enums.v1.UserSource source = 15 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 扩展字段，json格式，（由业务方自定义）
+  optional string ext = 16;
+  // 业务编码
+  string biz = 255;
+}
+
+message CreateUserResp {
+ message Data {
+   int64 uid = 1;
+ }
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+  Data data = 4;
+}
+
+message DeleteUserReq {
+  int64 uid = 1;
+}
+
+message DeleteUserResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message DeleteUsersReq {
+  repeated int64 uids = 1;
+}
+
+message DeleteUsersResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message UpdateUserReq {
+  // 用户id
+  int64 uid = 1;
+  // 用户编码，全局唯一, 数据库中定义的有唯一索引
+  optional string number = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+  // 用户姓名
+  optional string name = 3 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 别名
+  optional string alias = 4 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 密码
+  optional string password = 5 [(buf.validate.field).string.(validation.v1.optional_20) = true];
+  // 头像
+  optional string avatar = 6 [(buf.validate.field).string.(validation.v1.optional_255) = true];
+  // 性别
+  optional enums.v1.Gender gender = 7 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 生日
+  optional google.type.Date birthday = 8;
+  // 手机
+  optional common.v1.PhoneNumber phone = 9;
+  // 邮箱
+  optional string email = 10 [(buf.validate.field).string.(validation.v1.optional_30) = true];
+  // 行政区域
+  optional common.v1.AdminRegion region = 11;
+  // 详细地址
+  optional string addr = 12 [(buf.validate.field).string.(validation.v1.optional_100) = true];
+  // 状态
+  optional enums.v1.UserStatus status = 13 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 用户类型（由业务方自定义）
+  optional int32 type = 14 [(buf.validate.field).int32.gt = 0];
+  // 用户等级（由业务方自定义）
+  optional int32 level = 15 [(buf.validate.field).int32.gt = 0];
+  // 用户来源
+  optional enums.v1.UserSource source = 16 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
+  // 扩展字段，json格式，（由业务方自定义）
+  optional string ext = 17;
+  string biz = 255;
+}
+
+message UpdateUserResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message GetUserAuthReq {
+  int64 uid = 1;
+}
+
+message GetUserAuthResp {
+  message Data {
+    repeated UserAuth auth = 1;
+  }
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+  Data data = 4;
+}
+
+message BindUserAuthReq {
+  enums.v1.AuthType type = 1;
+  int64 uid = 2;
+  optional string app_id = 3;
+  optional string code = 4;
+  optional string captcha_token = 5;
+  optional string captcha = 6;
+  optional common.v1.PhoneNumber phone = 7;
+  optional string email = 8;
+  string biz = 255;
+}
+
+message BindUserAuthResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
+}
+
+message UnbindUserAuthReq {
+  int64 uid = 1;
+  string identifier = 2;
+}
+
+message UnbindUserAuthResp {
+  // 正常返回0，错误返回非0
+  uint32 err_code = 1;
+  // 正常返回OK, 错误返回错误内容
+  string err_msg = 2;
+  // 开发模式，返回详细错误信息
+  string err_detail = 3;
 }
