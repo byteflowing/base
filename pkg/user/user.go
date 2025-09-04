@@ -29,44 +29,6 @@ type Authenticator interface {
 	Bind(ctx context.Context, tx *query.Query, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error)
 }
 
-type User interface {
-	SendCaptcha(ctx context.Context, req *userv1.SendCaptchaReq) (resp *userv1.SendCaptchaResp, err error)
-	VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) (resp *userv1.VerifyCaptchaResp, err error)
-	SignUp(ctx context.Context, req *userv1.SignUpReq) (resp *userv1.SignUpResp, err error)
-	SignIn(ctx context.Context, req *userv1.SignInReq) (resp *userv1.SignInResp, err error)
-	SignOut(ctx context.Context, req *userv1.SignOutReq) (resp *userv1.SignOutResp, err error)
-	SignOutByUid(ctx context.Context, req *userv1.SignOutByUidReq) (resp *userv1.SignOutByUidResp, err error)
-	Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv1.RefreshResp, err error)
-	ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq) (resp *userv1.ChangePasswordResp, err error)
-	ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error)
-	ChangeUserStatus(ctx context.Context, req *userv1.ChangeUserStatusReq) (resp *userv1.ChangeUserStatusResp, err error)
-	ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error)
-	ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (resp *userv1.ChangeEmailResp, err error)
-	ChangeUserAvatar(ctx context.Context, req *userv1.ChangeUserAvatarReq) (resp *userv1.ChangeUserAvatarResp, err error)
-	ChangeUserGender(ctx context.Context, req *userv1.ChangeUserGenderReq) (resp *userv1.ChangeUserGenderResp, err error)
-	ChangeUserBirthday(ctx context.Context, req *userv1.ChangeUserBirthdayReq) (resp *userv1.ChangeUserBirthdayResp, err error)
-	ChangeUserName(ctx context.Context, req *userv1.ChangeUserNameReq) (resp *userv1.ChangeUserNameResp, err error)
-	ChangeUserAlias(ctx context.Context, req *userv1.ChangeUserAliasReq) (resp *userv1.ChangeUserAliasResp, err error)
-	ChangeUserNumber(ctx context.Context, req *userv1.ChangeUserNumberReq) (resp *userv1.ChangeUserNumberResp, err error)
-	ChangeUserAddress(ctx context.Context, req *userv1.ChangeUserAddressReq) (resp *userv1.ChangeUserAddressResp, err error)
-	ChangeUserType(ctx context.Context, req *userv1.ChangeUserTypeReq) (resp *userv1.ChangeUserTypeResp, err error)
-	ChangeUserLevel(ctx context.Context, req *userv1.ChangeUserLevelReq) (resp *userv1.ChangeUserLevelResp, err error)
-	ChangeUserExt(ctx context.Context, req *userv1.ChangeUserExtReq) (resp *userv1.ChangeUserExtResp, err error)
-	VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (resp *userv1.VerifyPhoneResp, err error)
-	VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (resp *userv1.VerifyEmailResp, err error)
-	VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (resp *userv1.VerifyTokenResp, err error)
-	GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSignInLogsReq) (resp *userv1.GetActiveSignInLogsResp, err error)
-	PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSignInLogsReq) (resp *userv1.PagingGetSignInLogsResp, err error)
-	PagingGetUsers(ctx context.Context, req *userv1.PagingGetUsersReq) (resp *userv1.PagingGetUsersResp, err error)
-	CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error)
-	UpdateUser(ctx context.Context, req *userv1.UpdateUserReq) (resp *userv1.UpdateUserResp, err error)
-	DeleteUser(ctx context.Context, req *userv1.DeleteUserReq) (resp *userv1.DeleteUserResp, err error)
-	DeleteUsers(ctx context.Context, req *userv1.DeleteUsersReq) (resp *userv1.DeleteUsersResp, err error)
-	GetUserAuth(ctx context.Context, req *userv1.GetUserAuthReq) (resp *userv1.GetUserAuthResp, err error)
-	UnbindUserAuth(ctx context.Context, req *userv1.UnbindUserAuthReq) (resp *userv1.UnbindUserAuthResp, err error)
-	BindUserAuth(ctx context.Context, req *userv1.BindUserAuthReq) (resp *userv1.BindUserAuthResp, err error)
-}
-
 type Impl struct {
 	authHandlers  map[enumsv1.AuthType]Authenticator
 	repo          Repo
@@ -77,6 +39,8 @@ type Impl struct {
 	captcha       captcha.Captcha
 	shortIDGen    *common.ShortIDGenerator
 	globalIDGen   common.GlobalIdGenerator
+
+	userv1.UnimplementedUserServiceServer
 }
 
 func (i *Impl) CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error) {

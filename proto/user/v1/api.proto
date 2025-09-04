@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "user/v1/user.proto";
+
+service UserService {
+  rpc SendCaptcha(SendCaptchaReq) returns (SendCaptchaResp);
+  rpc VerifyCaptcha(VerifyCaptchaReq) returns (VerifyCaptchaResp);
+  rpc SignUp(SignUpReq) returns (SignUpResp);
+  rpc SignIn(SignInReq) returns (SignInResp);
+  rpc SignOut(SignOutReq) returns (SignOutResp);
+  rpc SignOutByUid(SignOutByUidReq) returns (SignOutByUidResp);
+  rpc Refresh(RefreshReq) returns (RefreshResp);
+  rpc ChangePassword(ChangePasswordReq) returns (ChangePasswordResp);
+  rpc ResetPassword(ResetPasswordReq) returns (ResetPasswordResp);
+  rpc ChangeUserStatus(ChangeUserStatusReq) returns (ChangeUserStatusResp);
+  rpc ChangePhone(ChangePhoneReq) returns (ChangePhoneResp);
+  rpc ChangeEmail(ChangeEmailReq) returns (ChangeEmailResp);
+  rpc ChangeUserAvatar(ChangeUserAvatarReq) returns (ChangeUserAvatarResp);
+  rpc ChangeUserGender(ChangeUserGenderReq) returns (ChangeUserGenderResp);
+  rpc ChangeUserBirthday(ChangeUserBirthdayReq) returns (ChangeUserBirthdayResp);
+  rpc ChangeUserName(ChangeUserNameReq) returns (ChangeUserNameResp);
+  rpc ChangeUserAlias(ChangeUserAliasReq) returns (ChangeUserAliasResp);
+  rpc ChangeUserNumber(ChangeUserNumberReq) returns (ChangeUserNumberResp);
+  rpc ChangeUserAddress(ChangeUserAddressReq) returns (ChangeUserAddressResp);
+  rpc ChangeUserType(ChangeUserTypeReq) returns (ChangeUserTypeResp);
+  rpc ChangeUserLevel(ChangeUserLevelReq) returns (ChangeUserLevelResp);
+  rpc ChangeUserExt(ChangeUserExtReq) returns (ChangeUserExtResp);
+  rpc VerifyPhone(VerifyPhoneReq) returns (VerifyPhoneResp);
+  rpc VerifyEmail(VerifyEmailReq) returns (VerifyEmailResp);
+  rpc VerifyToken(VerifyTokenReq) returns (VerifyTokenResp);
+  rpc GetActiveSignInLogs(GetActiveSignInLogsReq) returns (GetActiveSignInLogsResp);
+  rpc PagingGetSignInLogs(PagingGetSignInLogsReq) returns (PagingGetSignInLogsResp);
+  rpc PagingGetUsers(PagingGetUsersReq) returns (PagingGetUsersResp);
+  rpc CreateUser(CreateUserReq) returns (CreateUserResp);
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp);
+  rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp);
+  rpc DeleteUsers(DeleteUsersReq) returns (DeleteUsersResp);
+  rpc GetUserAuth(GetUserAuthReq) returns (GetUserAuthResp);
+  rpc  UnbindUserAuth(UnbindUserAuthReq) returns (UnbindUserAuthResp);
+  rpc BindUserAuth(BindUserAuthReq) returns (BindUserAuthResp);
+}
