@@ -10,27 +10,23 @@ import (
 	"github.com/byteflowing/go-common/redis"
 )
 
-type TokenVerifier interface {
-	Store(ctx context.Context, token string, uid int64) error
-	GetUid(ctx context.Context, token string) (uid int64, err error)
-}
-
-type RedisTokenVerifier struct {
+type TowStepVerifier struct {
 	config *configv1.TokenVerify
 	rdb    *redis.Redis
 }
 
-func NewRedisTokenVerifier(config *configv1.TokenVerify) TokenVerifier {
-	return &RedisTokenVerifier{
+func NewTwoStepVerifier(config *configv1.TokenVerify, rdb *redis.Redis) *TowStepVerifier {
+	return &TowStepVerifier{
 		config: config,
+		rdb:    rdb,
 	}
 }
 
-func (r *RedisTokenVerifier) Store(ctx context.Context, token string, uid int64) error {
+func (r *TowStepVerifier) Store(ctx context.Context, token string, uid int64) error {
 	return r.rdb.Set(ctx, r.key(token), uid, r.config.Keeping.AsDuration()).Err()
 }
 
-func (r *RedisTokenVerifier) GetUid(ctx context.Context, token string) (uid int64, err error) {
+func (r *TowStepVerifier) Verify(ctx context.Context, token string) (uid int64, err error) {
 	uid, err = r.rdb.Get(ctx, r.key(token)).Int64()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -41,6 +37,6 @@ func (r *RedisTokenVerifier) GetUid(ctx context.Context, token string) (uid int6
 	return
 }
 
-func (r *RedisTokenVerifier) key(token string) string {
+func (r *TowStepVerifier) key(token string) string {
 	return fmt.Sprintf("%s:%s", r.config.Prefix, token)
 }

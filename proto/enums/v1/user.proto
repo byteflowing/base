@@ -49,10 +49,11 @@ enum TokenType {
   TOKEN_TYPE_REFRESH = 2; // 刷新token
 }
 
-enum UserLimitType {
-  USER_LIMIT_TYPE_UNSPECIFIED = 0;
-  USER_LIMIT_TYPE_SIGN_IN = 1; // 登录限制
-  USER_LIMIT_TYPE_REFRESH = 2; // 刷新限制
+enum UserAuthLimitType {
+  USER_AUTH_LIMIT_TYPE_UNSPECIFIED = 0;
+  USER_AUTH_LIMIT_TYPE_SIGN_IN = 1; // 登录限制
+  USER_AUTH_LIMIT_TYPE_REFRESH = 2; // 刷新限制
+  USER_AUTH_LIMIT_TYPE_SIGN_IN_ERR = 3; // 登录错误次数
 }
 
 enum Gender {

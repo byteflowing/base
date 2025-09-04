@@ -26,7 +26,7 @@ func checkPasswordAndGenToken(
 	req *userv1.SignInReq,
 	userBasic *model.UserBasic,
 	jwtService *JwtService,
-	limiter Limiter,
+	limiter *AuthLimiter,
 	passHasher *crypto.PasswordHasher,
 ) (resp *userv1.SignInResp, err error) {
 	if isDisabled(userBasic) {

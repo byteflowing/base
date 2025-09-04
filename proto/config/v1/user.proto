@@ -8,11 +8,12 @@ import "buf/validate/validate.proto";
 import "common/v1/common.proto";
 import "google/protobuf/duration.proto";
 
-message UserLimiter {
-  // 限制类型
-  enums.v1.UserLimitType type = 1 [(buf.validate.field).enum.(validation.v1.not_unspecified) = true];
-  // 限制规则
-  common.v1.LimitRule rule = 2 [(buf.validate.field).required = true];
+message UserAuthLimiter {
+  string prefix = 1;
+  string err_prefix = 2;
+  common.v1.LimitRule sign_in_rule = 3;
+  common.v1.LimitRule refresh_rule= 4;
+  repeated common.v1.LimitRule sign_in_err_rules = 5;
 }
 
 message UserJwt {

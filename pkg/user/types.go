@@ -10,9 +10,9 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-type SessionItem struct {
-	SessionID string
-	TTL       time.Duration
+type BlockItem struct {
+	Target string
+	TTL    time.Duration
 }
 
 type JwtClaims struct {

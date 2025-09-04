@@ -35,7 +35,7 @@ type Impl struct {
 	query         *query.Query
 	passHasher    *crypto.PasswordHasher
 	jwtService    *JwtService
-	tokenVerifier TokenVerifier
+	tokenVerifier *TowStepVerifier
 	captcha       captcha.Captcha
 	shortIDGen    *common.ShortIDGenerator
 	globalIDGen   common.GlobalIdGenerator
@@ -220,7 +220,7 @@ func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq
 }
 
 func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error) {
-	uid, err := i.tokenVerifier.GetUid(ctx, req.ResetToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ResetToken)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +249,7 @@ func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (res
 	}); err != nil {
 		return nil, err
 	}
-	uid, err := i.tokenVerifier.GetUid(ctx, req.ChangeToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 	}); err != nil {
 		return nil, err
 	}
-	uid, err := i.tokenVerifier.GetUid(ctx, req.ChangeToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken)
 	if err != nil {
 		return nil, err
 	}
@@ -616,11 +616,11 @@ func (i *Impl) revokeAccessSessions(ctx context.Context, tx *query.Query, uid in
 	if len(activeLogs) == 0 {
 		return nil
 	}
-	var items []*SessionItem
+	var items []*BlockItem
 	for _, item := range activeLogs {
-		items = append(items, &SessionItem{
-			SessionID: item.AccessSessionID,
-			TTL:       i.jwtService.TTLFromExpiredAt(item.AccessExpiredAt),
+		items = append(items, &BlockItem{
+			Target: item.AccessSessionID,
+			TTL:    i.jwtService.TTLFromExpiredAt(item.AccessExpiredAt),
 		})
 	}
 	return i.jwtService.RevokeTokens(ctx, items)
@@ -632,20 +632,20 @@ func (i *Impl) revokeSessions(ctx context.Context, tx *query.Query, uid int64, r
 		return nil
 	}
 	var ids []int64
-	var items []*SessionItem
+	var items []*BlockItem
 	for _, log := range activeLogs {
 		if log.AccessSessionID == exceptSessionId {
 			continue
 		}
 		ids = append(ids, log.ID)
 		items = append(items,
-			&SessionItem{
-				SessionID: log.AccessSessionID,
-				TTL:       i.jwtService.TTLFromExpiredAt(log.AccessExpiredAt),
+			&BlockItem{
+				Target: log.AccessSessionID,
+				TTL:    i.jwtService.TTLFromExpiredAt(log.AccessExpiredAt),
 			},
-			&SessionItem{
-				SessionID: log.RefreshSessionID,
-				TTL:       i.jwtService.TTLFromExpiredAt(log.RefreshExpiredAt),
+			&BlockItem{
+				Target: log.RefreshSessionID,
+				TTL:    i.jwtService.TTLFromExpiredAt(log.RefreshExpiredAt),
 			},
 		)
 	}

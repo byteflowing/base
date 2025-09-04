@@ -348,52 +348,55 @@ func (TokenType) EnumDescriptor() ([]byte, []int) {
 	return file_enums_v1_user_proto_rawDescGZIP(), []int{5}
 }
 
-type UserLimitType int32
+type UserAuthLimitType int32
 
 const (
-	UserLimitType_USER_LIMIT_TYPE_UNSPECIFIED UserLimitType = 0
-	UserLimitType_USER_LIMIT_TYPE_SIGN_IN     UserLimitType = 1 // 登录限制
-	UserLimitType_USER_LIMIT_TYPE_REFRESH     UserLimitType = 2 // 刷新限制
+	UserAuthLimitType_USER_AUTH_LIMIT_TYPE_UNSPECIFIED UserAuthLimitType = 0
+	UserAuthLimitType_USER_AUTH_LIMIT_TYPE_SIGN_IN     UserAuthLimitType = 1 // 登录限制
+	UserAuthLimitType_USER_AUTH_LIMIT_TYPE_REFRESH     UserAuthLimitType = 2 // 刷新限制
+	UserAuthLimitType_USER_AUTH_LIMIT_TYPE_SIGN_IN_ERR UserAuthLimitType = 3 // 登录错误次数
 )
 
-// Enum value maps for UserLimitType.
+// Enum value maps for UserAuthLimitType.
 var (
-	UserLimitType_name = map[int32]string{
-		0: "USER_LIMIT_TYPE_UNSPECIFIED",
-		1: "USER_LIMIT_TYPE_SIGN_IN",
-		2: "USER_LIMIT_TYPE_REFRESH",
+	UserAuthLimitType_name = map[int32]string{
+		0: "USER_AUTH_LIMIT_TYPE_UNSPECIFIED",
+		1: "USER_AUTH_LIMIT_TYPE_SIGN_IN",
+		2: "USER_AUTH_LIMIT_TYPE_REFRESH",
+		3: "USER_AUTH_LIMIT_TYPE_SIGN_IN_ERR",
 	}
-	UserLimitType_value = map[string]int32{
-		"USER_LIMIT_TYPE_UNSPECIFIED": 0,
-		"USER_LIMIT_TYPE_SIGN_IN":     1,
-		"USER_LIMIT_TYPE_REFRESH":     2,
+	UserAuthLimitType_value = map[string]int32{
+		"USER_AUTH_LIMIT_TYPE_UNSPECIFIED": 0,
+		"USER_AUTH_LIMIT_TYPE_SIGN_IN":     1,
+		"USER_AUTH_LIMIT_TYPE_REFRESH":     2,
+		"USER_AUTH_LIMIT_TYPE_SIGN_IN_ERR": 3,
 	}
 )
 
-func (x UserLimitType) Enum() *UserLimitType {
-	p := new(UserLimitType)
+func (x UserAuthLimitType) Enum() *UserAuthLimitType {
+	p := new(UserAuthLimitType)
 	*p = x
 	return p
 }
 
-func (x UserLimitType) String() string {
+func (x UserAuthLimitType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (UserLimitType) Descriptor() protoreflect.EnumDescriptor {
+func (UserAuthLimitType) Descriptor() protoreflect.EnumDescriptor {
 	return file_enums_v1_user_proto_enumTypes[6].Descriptor()
 }
 
-func (UserLimitType) Type() protoreflect.EnumType {
+func (UserAuthLimitType) Type() protoreflect.EnumType {
 	return &file_enums_v1_user_proto_enumTypes[6]
 }
 
-func (x UserLimitType) Number() protoreflect.EnumNumber {
+func (x UserAuthLimitType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use UserLimitType.Descriptor instead.
-func (UserLimitType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use UserAuthLimitType.Descriptor instead.
+func (UserAuthLimitType) EnumDescriptor() ([]byte, []int) {
 	return file_enums_v1_user_proto_rawDescGZIP(), []int{6}
 }
 
@@ -491,11 +494,12 @@ const file_enums_v1_user_proto_rawDesc = "" +
 	"\tTokenType\x12\x1a\n" +
 	"\x16TOKEN_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11TOKEN_TYPE_ACCESS\x10\x01\x12\x16\n" +
-	"\x12TOKEN_TYPE_REFRESH\x10\x02*j\n" +
-	"\rUserLimitType\x12\x1f\n" +
-	"\x1bUSER_LIMIT_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
-	"\x17USER_LIMIT_TYPE_SIGN_IN\x10\x01\x12\x1b\n" +
-	"\x17USER_LIMIT_TYPE_REFRESH\x10\x02*V\n" +
+	"\x12TOKEN_TYPE_REFRESH\x10\x02*\xa3\x01\n" +
+	"\x11UserAuthLimitType\x12$\n" +
+	" USER_AUTH_LIMIT_TYPE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cUSER_AUTH_LIMIT_TYPE_SIGN_IN\x10\x01\x12 \n" +
+	"\x1cUSER_AUTH_LIMIT_TYPE_REFRESH\x10\x02\x12$\n" +
+	" USER_AUTH_LIMIT_TYPE_SIGN_IN_ERR\x10\x03*V\n" +
 	"\x06Gender\x12\x16\n" +
 	"\x12GENDER_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vGENDER_MALE\x10\x01\x12\x11\n" +
@@ -517,14 +521,14 @@ func file_enums_v1_user_proto_rawDescGZIP() []byte {
 
 var file_enums_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
 var file_enums_v1_user_proto_goTypes = []any{
-	(AuthType)(0),      // 0: enums.v1.AuthType
-	(AuthStatus)(0),    // 1: enums.v1.AuthStatus
-	(SessionStatus)(0), // 2: enums.v1.SessionStatus
-	(UserStatus)(0),    // 3: enums.v1.UserStatus
-	(UserSource)(0),    // 4: enums.v1.UserSource
-	(TokenType)(0),     // 5: enums.v1.TokenType
-	(UserLimitType)(0), // 6: enums.v1.UserLimitType
-	(Gender)(0),        // 7: enums.v1.Gender
+	(AuthType)(0),          // 0: enums.v1.AuthType
+	(AuthStatus)(0),        // 1: enums.v1.AuthStatus
+	(SessionStatus)(0),     // 2: enums.v1.SessionStatus
+	(UserStatus)(0),        // 3: enums.v1.UserStatus
+	(UserSource)(0),        // 4: enums.v1.UserSource
+	(TokenType)(0),         // 5: enums.v1.TokenType
+	(UserAuthLimitType)(0), // 6: enums.v1.UserAuthLimitType
+	(Gender)(0),            // 7: enums.v1.Gender
 }
 var file_enums_v1_user_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

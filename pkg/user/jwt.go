@@ -21,8 +21,8 @@ type JwtService struct {
 	accessTTL         time.Duration
 	refreshTTL        time.Duration
 	repo              Repo
-	limiter           Limiter
-	blk               BlockList
+	authLimiter       *AuthLimiter
+	sessionBlk        BlockList
 	maxActiveSessions int
 }
 
@@ -33,8 +33,8 @@ type JwtOpts struct {
 	AccessTTL         time.Duration
 	RefreshTTL        time.Duration
 	Repo              Repo
-	Limiter           Limiter
-	BlockList         BlockList
+	AuthLimiter       *AuthLimiter
+	SessionBlockList  BlockList
 	MaxActiveSessions int
 }
 
@@ -46,14 +46,14 @@ func NewJwtService(opts *JwtOpts) *JwtService {
 		accessTTL:         opts.AccessTTL,
 		refreshTTL:        opts.RefreshTTL,
 		repo:              opts.Repo,
-		limiter:           opts.Limiter,
-		blk:               opts.BlockList,
+		authLimiter:       opts.AuthLimiter,
+		sessionBlk:        opts.SessionBlockList,
 		maxActiveSessions: opts.MaxActiveSessions,
 	}
 }
 
 func (s *JwtService) GenerateToken(ctx context.Context, tx *query.Query, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, freshClaims *JwtClaims, err error) {
-	if err = s.limiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserLimitType_USER_LIMIT_TYPE_SIGN_IN); err != nil {
+	if err = s.authLimiter.Allow(ctx, req.UserBasic.ID, enumsv1.UserAuthLimitType_USER_AUTH_LIMIT_TYPE_SIGN_IN); err != nil {
 		return "", "", nil, nil, err
 	}
 	// 检查最大同时在线数
@@ -89,19 +89,19 @@ func (s *JwtService) VerifyRefreshToken(ctx context.Context, tokenStr string) (c
 	return s.verifyToken(ctx, tokenStr, enumsv1.TokenType_TOKEN_TYPE_REFRESH)
 }
 
-func (s *JwtService) RevokeTokens(ctx context.Context, items []*SessionItem) (err error) {
+func (s *JwtService) RevokeTokens(ctx context.Context, items []*BlockItem) (err error) {
 	return s.revoke(ctx, items)
 }
 
 func (s *JwtService) RevokeByLog(ctx context.Context, log *model.UserSignLog) (err error) {
-	items := []*SessionItem{
+	items := []*BlockItem{
 		{
-			SessionID: log.AccessSessionID,
-			TTL:       s.TTLFromExpiredAt(log.AccessExpiredAt),
+			Target: log.AccessSessionID,
+			TTL:    s.TTLFromExpiredAt(log.AccessExpiredAt),
 		},
 		{
-			SessionID: log.RefreshSessionID,
-			TTL:       s.TTLFromExpiredAt(log.RefreshExpiredAt),
+			Target: log.RefreshSessionID,
+			TTL:    s.TTLFromExpiredAt(log.RefreshExpiredAt),
 		},
 	}
 	return s.revoke(ctx, items)
@@ -112,7 +112,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, tx *query.Query, refreshT
 	if err != nil {
 		return "", "", nil, nil, err
 	}
-	if err = s.limiter.Allow(ctx, refreshClaim.Uid, enumsv1.UserLimitType_USER_LIMIT_TYPE_REFRESH); err != nil {
+	if err = s.authLimiter.Allow(ctx, refreshClaim.Uid, enumsv1.UserAuthLimitType_USER_AUTH_LIMIT_TYPE_REFRESH); err != nil {
 		return "", "", nil, nil, err
 	}
 	userBasic, err := s.repo.GetUserBasicByUID(ctx, tx, refreshClaim.Uid)
@@ -185,7 +185,7 @@ func (s *JwtService) verifyToken(ctx context.Context, token string, t enumsv1.To
 		return nil, ecode.ErrUserTokenMisMatch
 	}
 	// 验证token是否在黑名单中
-	isBlock, err := s.blk.Exists(ctx, parsedClaims.ID)
+	isBlock, err := s.sessionBlk.Exists(ctx, parsedClaims.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -195,8 +195,8 @@ func (s *JwtService) verifyToken(ctx context.Context, token string, t enumsv1.To
 	return parsedClaims, nil
 }
 
-func (s *JwtService) revoke(ctx context.Context, items []*SessionItem) error {
-	var willAdd []*SessionItem
+func (s *JwtService) revoke(ctx context.Context, items []*BlockItem) error {
+	var willAdd []*BlockItem
 	for _, item := range items {
 		if item.TTL > 0 {
 			willAdd = append(willAdd, item)
@@ -206,9 +206,9 @@ func (s *JwtService) revoke(ctx context.Context, items []*SessionItem) error {
 		return nil
 	}
 	if len(willAdd) > 1 {
-		return s.blk.BatchAdd(ctx, willAdd)
+		return s.sessionBlk.BatchAdd(ctx, willAdd)
 	}
-	return s.blk.Add(ctx, willAdd[0].SessionID, willAdd[0].TTL)
+	return s.sessionBlk.Add(ctx, willAdd[0].Target, willAdd[0].TTL)
 }
 
 func (s *JwtService) parseClaims(tokenStr string, validate bool) (*JwtClaims, error) {

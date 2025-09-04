@@ -8,8 +8,8 @@ package configv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v11 "github.com/byteflowing/base/gen/common/v1"
-	v1 "github.com/byteflowing/base/gen/enums/v1"
+	v1 "github.com/byteflowing/base/gen/common/v1"
+	_ "github.com/byteflowing/base/gen/enums/v1"
 	_ "github.com/byteflowing/base/gen/validation/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -26,30 +26,31 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UserLimiter struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 限制类型
-	Type v1.UserLimitType `protobuf:"varint,1,opt,name=type,proto3,enum=enums.v1.UserLimitType" json:"type,omitempty"`
-	// 限制规则
-	Rule          *v11.LimitRule `protobuf:"bytes,2,opt,name=rule,proto3" json:"rule,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type UserAuthLimiter struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Prefix         string                 `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	ErrPrefix      string                 `protobuf:"bytes,2,opt,name=err_prefix,json=errPrefix,proto3" json:"err_prefix,omitempty"`
+	SignInRule     *v1.LimitRule          `protobuf:"bytes,3,opt,name=sign_in_rule,json=signInRule,proto3" json:"sign_in_rule,omitempty"`
+	RefreshRule    *v1.LimitRule          `protobuf:"bytes,4,opt,name=refresh_rule,json=refreshRule,proto3" json:"refresh_rule,omitempty"`
+	SignInErrRules []*v1.LimitRule        `protobuf:"bytes,5,rep,name=sign_in_err_rules,json=signInErrRules,proto3" json:"sign_in_err_rules,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *UserLimiter) Reset() {
-	*x = UserLimiter{}
+func (x *UserAuthLimiter) Reset() {
+	*x = UserAuthLimiter{}
 	mi := &file_config_v1_user_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UserLimiter) String() string {
+func (x *UserAuthLimiter) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UserLimiter) ProtoMessage() {}
+func (*UserAuthLimiter) ProtoMessage() {}
 
-func (x *UserLimiter) ProtoReflect() protoreflect.Message {
+func (x *UserAuthLimiter) ProtoReflect() protoreflect.Message {
 	mi := &file_config_v1_user_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -61,21 +62,42 @@ func (x *UserLimiter) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UserLimiter.ProtoReflect.Descriptor instead.
-func (*UserLimiter) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserAuthLimiter.ProtoReflect.Descriptor instead.
+func (*UserAuthLimiter) Descriptor() ([]byte, []int) {
 	return file_config_v1_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserLimiter) GetType() v1.UserLimitType {
+func (x *UserAuthLimiter) GetPrefix() string {
 	if x != nil {
-		return x.Type
+		return x.Prefix
 	}
-	return v1.UserLimitType(0)
+	return ""
 }
 
-func (x *UserLimiter) GetRule() *v11.LimitRule {
+func (x *UserAuthLimiter) GetErrPrefix() string {
 	if x != nil {
-		return x.Rule
+		return x.ErrPrefix
+	}
+	return ""
+}
+
+func (x *UserAuthLimiter) GetSignInRule() *v1.LimitRule {
+	if x != nil {
+		return x.SignInRule
+	}
+	return nil
+}
+
+func (x *UserAuthLimiter) GetRefreshRule() *v1.LimitRule {
+	if x != nil {
+		return x.RefreshRule
+	}
+	return nil
+}
+
+func (x *UserAuthLimiter) GetSignInErrRules() []*v1.LimitRule {
+	if x != nil {
+		return x.SignInErrRules
 	}
 	return nil
 }
@@ -264,10 +286,15 @@ var File_config_v1_user_proto protoreflect.FileDescriptor
 
 const file_config_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x14config/v1/user.proto\x12\tconfig.v1\x1a\x13enums/v1/user.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1egoogle/protobuf/duration.proto\"y\n" +
-	"\vUserLimiter\x128\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x17.enums.v1.UserLimitTypeB\v\xbaH\b\x82\x01\x05\xc8\xe2\xe8\x03\x01R\x04type\x120\n" +
-	"\x04rule\x18\x02 \x01(\v2\x14.common.v1.LimitRuleB\x06\xbaH\x03\xc8\x01\x01R\x04rule\"\x88\x02\n" +
+	"\x14config/v1/user.proto\x12\tconfig.v1\x1a\x13enums/v1/user.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1egoogle/protobuf/duration.proto\"\xfa\x01\n" +
+	"\x0fUserAuthLimiter\x12\x16\n" +
+	"\x06prefix\x18\x01 \x01(\tR\x06prefix\x12\x1d\n" +
+	"\n" +
+	"err_prefix\x18\x02 \x01(\tR\terrPrefix\x126\n" +
+	"\fsign_in_rule\x18\x03 \x01(\v2\x14.common.v1.LimitRuleR\n" +
+	"signInRule\x127\n" +
+	"\frefresh_rule\x18\x04 \x01(\v2\x14.common.v1.LimitRuleR\vrefreshRule\x12?\n" +
+	"\x11sign_in_err_rules\x18\x05 \x03(\v2\x14.common.v1.LimitRuleR\x0esignInErrRules\"\x88\x02\n" +
 	"\aUserJwt\x12\"\n" +
 	"\x06issuer\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x06issuer\x12)\n" +
@@ -306,24 +333,24 @@ func file_config_v1_user_proto_rawDescGZIP() []byte {
 
 var file_config_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_config_v1_user_proto_goTypes = []any{
-	(*UserLimiter)(nil),         // 0: config.v1.UserLimiter
+	(*UserAuthLimiter)(nil),     // 0: config.v1.UserAuthLimiter
 	(*UserJwt)(nil),             // 1: config.v1.UserJwt
 	(*UserBlockList)(nil),       // 2: config.v1.UserBlockList
 	(*UserWechatMini)(nil),      // 3: config.v1.UserWechatMini
-	(v1.UserLimitType)(0),       // 4: enums.v1.UserLimitType
-	(*v11.LimitRule)(nil),       // 5: common.v1.LimitRule
-	(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
+	(*v1.LimitRule)(nil),        // 4: common.v1.LimitRule
+	(*durationpb.Duration)(nil), // 5: google.protobuf.Duration
 }
 var file_config_v1_user_proto_depIdxs = []int32{
-	4, // 0: config.v1.UserLimiter.type:type_name -> enums.v1.UserLimitType
-	5, // 1: config.v1.UserLimiter.rule:type_name -> common.v1.LimitRule
-	6, // 2: config.v1.UserJwt.access_ttl:type_name -> google.protobuf.Duration
-	6, // 3: config.v1.UserJwt.refresh_ttl:type_name -> google.protobuf.Duration
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: config.v1.UserAuthLimiter.sign_in_rule:type_name -> common.v1.LimitRule
+	4, // 1: config.v1.UserAuthLimiter.refresh_rule:type_name -> common.v1.LimitRule
+	4, // 2: config.v1.UserAuthLimiter.sign_in_err_rules:type_name -> common.v1.LimitRule
+	5, // 3: config.v1.UserJwt.access_ttl:type_name -> google.protobuf.Duration
+	5, // 4: config.v1.UserJwt.refresh_ttl:type_name -> google.protobuf.Duration
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_user_proto_init() }

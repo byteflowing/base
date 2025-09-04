@@ -17,10 +17,10 @@ type PhonePassword struct {
 	passHasher *crypto.PasswordHasher
 	repo       Repo
 	jwtService *JwtService
-	limiter    Limiter
+	limiter    *AuthLimiter
 }
 
-func NewPhonePassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter Limiter) Authenticator {
+func NewPhonePassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter *AuthLimiter) Authenticator {
 	return &PhonePassword{
 		passHasher: passHasher,
 		repo:       repo,
