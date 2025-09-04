@@ -35,10 +35,6 @@ func checkPasswordAndGenToken(
 	if req.AuthType == enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD ||
 		req.AuthType == enumsv1.AuthType_AUTH_TYPE_PHONE_PASSWORD ||
 		req.AuthType == enumsv1.AuthType_AUTH_TYPE_EMAIL_PASSWORD {
-		// 验证密码是否正确
-		if userBasic.Password == nil {
-			return nil, ecode.ErrUserPasswordNotSet
-		}
 		// 检查密码错误次数
 		rule, allow, err := limiter.AllowErr(ctx, userBasic.ID)
 		if err != nil {
@@ -50,7 +46,11 @@ func checkPasswordAndGenToken(
 					Rule: rule,
 				},
 			}
-			return resp, nil
+			return resp, ecode.ErrUserPasswordWrongTooMany
+		}
+		// 验证密码是否正确
+		if userBasic.Password == nil {
+			return nil, ecode.ErrUserPasswordNotSet
 		}
 		ok, err := passHasher.VerifyPassword(req.Credential, *userBasic.Password)
 		if err != nil {
