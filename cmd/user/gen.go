@@ -8,7 +8,7 @@ import (
 
 func main() {
 	c := &orm.Config{}
-	if err := config.ReadConfig("./config.yaml", c); err != nil {
+	if err := config.ReadConfig("./config.db.yaml", c); err != nil {
 		panic(err)
 	}
 	db := orm.New(c)

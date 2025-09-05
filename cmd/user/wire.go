@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package user
+package main
 
 import (
 	"github.com/byteflowing/base/dal"
@@ -10,6 +10,7 @@ import (
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/base/pkg/msg/mail"
 	"github.com/byteflowing/base/pkg/msg/sms"
+	"github.com/byteflowing/base/pkg/user"
 	"github.com/google/wire"
 )
 
@@ -29,19 +30,19 @@ var publicSet = wire.NewSet(
 )
 
 var userProviderSet = wire.NewSet(
-	NewCache,
-	NewRepo,
-	NewJwtService,
-	NewTwoStepVerifier,
-	NewAuthLimiter,
-	New,
-	NewSessionBlockList,
-	NewConfig,
+	user.NewCache,
+	user.NewRepo,
+	user.NewJwtService,
+	user.NewTwoStepVerifier,
+	user.NewAuthLimiter,
+	user.New,
+	user.NewSessionBlockList,
+	user.NewConfig,
 	wire.FieldsOf(new(*configv1.Config), "Sms", "Mail", "Captcha", "GlobalId", "ShortId", "Wechat", "Db", "Redis", "DistributedLock", "User"),
 	wire.FieldsOf(new(*configv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"),
 )
 
-func NewWithConfig(confFile string) *Impl {
+func NewWithConfig(confFile string) *user.Impl {
 	panic(wire.Build(
 		publicSet,
 		userProviderSet,

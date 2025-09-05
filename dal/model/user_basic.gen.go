@@ -13,7 +13,7 @@ const TableNameUserBasic = "user_basic"
 // UserBasic mapped from table <user_basic>
 type UserBasic struct {
 	ID                int64      `gorm:"column:id;type:bigint;primaryKey" json:"id"`
-	Biz               string     `gorm:"column:biz;type:character varying(50);not null;uniqueIndex:idx_basic_phone,priority:1;uniqueIndex:idx_basic_email,priority:1" json:"biz"`
+	Biz               string     `gorm:"column:biz;type:character varying(50);not null;uniqueIndex:idx_basic_email,priority:1;uniqueIndex:idx_basic_phone,priority:1" json:"biz"`
 	Number            string     `gorm:"column:number;type:character varying(50);not null;uniqueIndex:idx_basic_number,priority:1" json:"number"`
 	Name              *string    `gorm:"column:name;type:character varying(50)" json:"name"`
 	Alias_            *string    `gorm:"column:alias;type:character varying(50)" json:"alias"`
