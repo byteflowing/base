@@ -21,7 +21,7 @@ type Impl struct {
 	limits  map[enumsv1.MailVendor]map[string]*ratelimit.Limiter
 }
 
-func New(c *configv1.Mail) *Impl {
+func New(c *configv1.Mail) Mail {
 	clients := make(map[enumsv1.MailVendor]map[string]*mail.SMTP, len(c.Providers))
 	limits := make(map[enumsv1.MailVendor]map[string]*ratelimit.Limiter)
 	for _, provider := range c.Providers {

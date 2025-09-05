@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package config.v1;
+
+import "config/v1/sms.proto";
+import "config/v1/mail.proto";
+import "config/v1/captcha.proto";
+import "config/v1/common.proto";
+import "config/v1/user.proto";
+
+message Base {
+  string listen_addr = 1;
+  int32 listen_port = 2;
+}
+
+message Config {
+  Base base = 1;
+  config.v1.Sms sms = 2;
+  config.v1.Mail mail = 3;
+  config.v1.Captcha captcha = 4;
+  config.v1.GlobalId global_id = 5;
+  config.v1.ShortId short_id = 6;
+  config.v1.Wechat wechat = 7;
+  config.v1.Db db = 8;
+  config.v1.Redis redis = 9;
+  config.v1.DistributedLock distributed_lock = 10;
+  config.v1.User user = 100;
+}

@@ -20,7 +20,7 @@ type EmailPassword struct {
 	limiter    *AuthLimiter
 }
 
-func NewEmailPassword(passHasher *crypto.PasswordHasher, repo Repo, query *query.Query, jwtService *JwtService, limiter *AuthLimiter) Authenticator {
+func NewEmailPassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter *AuthLimiter) Authenticator {
 	return &EmailPassword{
 		passHasher: passHasher,
 		repo:       repo,

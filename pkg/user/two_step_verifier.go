@@ -10,24 +10,24 @@ import (
 	"github.com/byteflowing/go-common/redis"
 )
 
-type TowStepVerifier struct {
+type TwoStepVerifier struct {
 	config *configv1.TokenVerify
 	rdb    *redis.Redis
 }
 
-func NewTwoStepVerifier(config *configv1.TokenVerify, rdb *redis.Redis) *TowStepVerifier {
-	return &TowStepVerifier{
+func NewTwoStepVerifier(config *configv1.TokenVerify, rdb *redis.Redis) *TwoStepVerifier {
+	return &TwoStepVerifier{
 		config: config,
 		rdb:    rdb,
 	}
 }
 
-func (r *TowStepVerifier) Store(ctx context.Context, token string, uid int64) error {
-	return r.rdb.Set(ctx, r.key(token), uid, r.config.Keeping.AsDuration()).Err()
+func (t *TwoStepVerifier) Store(ctx context.Context, token string, uid int64) error {
+	return t.rdb.Set(ctx, t.key(token), uid, t.config.Keeping.AsDuration()).Err()
 }
 
-func (r *TowStepVerifier) Verify(ctx context.Context, token string) (uid int64, err error) {
-	uid, err = r.rdb.Get(ctx, r.key(token)).Int64()
+func (t *TwoStepVerifier) Verify(ctx context.Context, token string) (uid int64, err error) {
+	uid, err = t.rdb.Get(ctx, t.key(token)).Int64()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return 0, ecode.ErrCaptchaNotExist
@@ -37,6 +37,10 @@ func (r *TowStepVerifier) Verify(ctx context.Context, token string) (uid int64, 
 	return
 }
 
-func (r *TowStepVerifier) key(token string) string {
-	return fmt.Sprintf("%s:%s", r.config.Prefix, token)
+func (t *TwoStepVerifier) Delete(ctx context.Context, token string) error {
+	return t.rdb.Del(ctx, t.key(token)).Err()
+}
+
+func (t *TwoStepVerifier) key(token string) string {
+	return fmt.Sprintf("%s:%s", t.config.Prefix, token)
 }

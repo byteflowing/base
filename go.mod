@@ -4,8 +4,9 @@ go 1.25.1
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1
-	github.com/byteflowing/go-common v0.0.0-20250904033419-79382c8a3999
+	github.com/byteflowing/go-common v0.0.0-20250905033712-50c0f16a7a50
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/google/wire v0.7.0
 	golang.org/x/sync v0.16.0
 	google.golang.org/genproto v0.0.0-20250826171959-ef028d996bc1
 	google.golang.org/grpc v1.75.0

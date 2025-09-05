@@ -54,7 +54,7 @@ type GenRepo struct {
 	cache Cache
 }
 
-func NewStore(cache Cache) Repo {
+func NewRepo(cache Cache) Repo {
 	return &GenRepo{
 		cache: cache,
 	}

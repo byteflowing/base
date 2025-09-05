@@ -3,19 +3,25 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"net"
 	"time"
 
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
 
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
+	configv1 "github.com/byteflowing/base/gen/config/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	msgv1 "github.com/byteflowing/base/gen/msg/v1"
 	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
+	"github.com/byteflowing/go-common/config"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/trans"
@@ -30,17 +36,95 @@ type Authenticator interface {
 }
 
 type Impl struct {
+	config        *configv1.User
 	authHandlers  map[enumsv1.AuthType]Authenticator
 	repo          Repo
 	query         *query.Query
 	passHasher    *crypto.PasswordHasher
 	jwtService    *JwtService
-	tokenVerifier *TowStepVerifier
+	tokenVerifier *TwoStepVerifier
 	captcha       captcha.Captcha
 	shortIDGen    *common.ShortIDGenerator
 	globalIDGen   common.GlobalIdGenerator
-
+	grpServer     *grpc.Server
 	userv1.UnimplementedUserServiceServer
+}
+
+func NewConfig(filePath string) *configv1.Config {
+	conf := &configv1.Config{}
+	if err := config.ReadProtoConfig(filePath, conf); err != nil {
+		panic(err)
+	}
+	return conf
+}
+
+func New(
+	config *configv1.User,
+	repo Repo,
+	query *query.Query,
+	jwtService *JwtService,
+	tokenVerifier *TwoStepVerifier,
+	shortIDGen *common.ShortIDGenerator,
+	globalIDGen common.GlobalIdGenerator,
+	_captcha captcha.Captcha,
+	wechat *common.WechatManager,
+	authLimiter *AuthLimiter,
+) *Impl {
+	var authHandlers = make(map[enumsv1.AuthType]Authenticator, len(config.EnableAuth))
+	passHasher := crypto.NewPasswordHasher(int(config.PasswordHasher))
+	for _, authType := range config.EnableAuth {
+		switch authType {
+		case enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD:
+			authHandlers[authType] = NewNumberPassword(passHasher, repo, jwtService, authLimiter)
+		case enumsv1.AuthType_AUTH_TYPE_EMAIL_PASSWORD:
+			authHandlers[authType] = NewEmailPassword(passHasher, repo, jwtService, authLimiter)
+		case enumsv1.AuthType_AUTH_TYPE_PHONE_PASSWORD:
+			authHandlers[authType] = NewPhonePassword(passHasher, repo, jwtService, authLimiter)
+		case enumsv1.AuthType_AUTH_TYPE_PHONE_CAPTCHA:
+			authHandlers[authType] = NewPhoneCaptcha(_captcha, repo, jwtService, shortIDGen, globalIDGen, passHasher)
+		case enumsv1.AuthType_AUTH_TYPE_EMAIL_CAPTCHA:
+			authHandlers[authType] = NewEmailCaptcha(_captcha, repo, jwtService, shortIDGen, globalIDGen, passHasher)
+		case enumsv1.AuthType_AUTH_TYPE_WECHAT:
+			authHandlers[authType] = NewWeChat(repo, jwtService, wechat, shortIDGen, globalIDGen)
+		default:
+			panic(fmt.Sprintf("unknown auth type: %s", authType))
+		}
+	}
+	return &Impl{
+		config:                         config,
+		authHandlers:                   authHandlers,
+		repo:                           repo,
+		query:                          query,
+		passHasher:                     passHasher,
+		jwtService:                     jwtService,
+		tokenVerifier:                  tokenVerifier,
+		captcha:                        _captcha,
+		shortIDGen:                     shortIDGen,
+		globalIDGen:                    globalIDGen,
+		UnimplementedUserServiceServer: userv1.UnimplementedUserServiceServer{},
+	}
+}
+
+// Start 当单独作为grpc服务的时候调用本方法可以启动grpc server
+// TODO: 添加zap日志库，设置日志中间件
+func (i *Impl) Start() {
+	s := grpc.NewServer()
+	userv1.RegisterUserServiceServer(s, i)
+	if len(i.config.ListenAddr) == 0 || i.config.ListenPort <= 0 {
+		panic(errors.New("config.listen_addr and config.listen_port must be positive"))
+	}
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", i.config.ListenAddr, i.config.ListenPort))
+	if err != nil {
+		panic(err)
+	}
+	i.grpServer = s
+	if err = s.Serve(lis); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (i *Impl) Stop() {
+	i.grpServer.GracefulStop()
 }
 
 func (i *Impl) CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error) {
@@ -235,7 +319,10 @@ func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) 
 		if err = i.updatePassword(ctx, tx, req.NewPassword, userBasic); err != nil {
 			return err
 		}
-		return i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT, "")
+		if err = i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT, ""); err != nil {
+			return err
+		}
+		return i.tokenVerifier.Delete(ctx, req.ResetToken)
 	})
 	return nil, err
 }
@@ -253,10 +340,15 @@ func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (res
 	if err != nil {
 		return nil, err
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
-		ID:               uid,
-		PhoneCountryCode: req.Phone.CountryCode,
-		Phone:            req.Phone.Number,
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:               uid,
+			PhoneCountryCode: req.Phone.CountryCode,
+			Phone:            req.Phone.Number,
+		}); err != nil {
+			return err
+		}
+		return i.tokenVerifier.Delete(ctx, req.ChangeToken)
 	})
 	return nil, err
 }
@@ -274,9 +366,14 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 	if err != nil {
 		return nil, err
 	}
-	err = i.repo.UpdateUserBasicByUid(ctx, i.query, &model.UserBasic{
-		ID:    uid,
-		Email: req.NewEmail,
+	err = i.query.Transaction(func(tx *query.Query) error {
+		if err = i.repo.UpdateUserBasicByUid(ctx, tx, &model.UserBasic{
+			ID:    uid,
+			Email: req.NewEmail,
+		}); err != nil {
+			return err
+		}
+		return i.tokenVerifier.Delete(ctx, req.ChangeToken)
 	})
 	return nil, err
 }

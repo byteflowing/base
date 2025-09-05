@@ -40,3 +40,98 @@ message  DistributedLock {
   google.protobuf.Duration ttl = 1;
   string prefix = 2;
 }
+
+message LogRotation {
+  string log_file = 1; // 文件名
+  uint32 max_size = 2; // 文件大小，单位M
+  uint32 max_age = 3; // 最长保留天数
+  uint32 max_backups = 4; // 最多保留分数
+  bool compress = 5; // 是否启用压缩
+  bool local_time = 6; // 是否使用本地时间
+}
+
+message DbLog {
+  // 慢日志阈值，单位ms
+  uint32 slow_threshold = 1;
+  // 输出
+  // stdout, file
+  string out = 2;
+  // 是否彩色打印日志
+  bool colorful = 3;
+  // 忽略RecordNotFoundError
+  bool ignore_record_not_found_err = 4;
+  // 不在日志中打印参数
+  bool parameterized_queries = 5;
+  // 日志级别
+  // silent
+  // error
+  // warn
+  // info
+  string level = 6;
+  // 日志轮转，仅当out为file时有效
+  LogRotation rotation = 7;
+}
+
+message DbConn {
+  int32 conn_max_life_time = 1; // 单位：秒
+  int32 max_idle_time = 2; // 单位：秒
+  int32 max_idle_connes = 3; // 最大空闲连接
+  int32 max_open_connes = 4; // 最大打开连接
+}
+
+message DbMysql {
+  string host = 1; // 数据库地址
+  string user = 2; // 数据库用户名
+  string password = 3; // 数据库密码
+  string db_name = 4; // 数据库名
+  int32 port = 5;  // 端口号
+  string charset = 6; // 字符集
+  string location = 7; // 时区
+  int32 conn_timeout = 8; // 单位：秒
+  int32 read_timeout = 9; // 单位：秒
+  int32 write_timeout = 10; // 单位：秒
+}
+
+message DbPostgres {
+  string host = 1; // 数据库地址
+  int32 port = 2; // 端口号
+  string user = 3; // 数据库用户名
+  string password = 4; // 数据库密码
+  string db_name = 5; // 数据库名
+  bool ssl_mode = 6; // 是否使用ssl
+  string time_zone = 7; // 时区
+  string schema = 8; // schema
+}
+
+message DbSQLServer {
+  string host = 1; // 数据库地址
+  int32 port = 2; // 端口号
+  string user = 3; // 数据库用户名
+  string password = 4; // 数据库密码
+  string db_name = 5; // 数据库名
+}
+
+message DbSQLite {
+  string db_path = 1;
+}
+
+message Db {
+  // 数据库类型
+  // "mysql" "postgres" "sqlserver" "sqlite"
+  string db_type = 1;
+  DbLog log = 2;
+  DbConn conn = 3;
+  DbMysql mysql = 4;
+  DbPostgres postgres = 5;
+  DbSQLServer sqlserver = 6;
+  DbSQLite sqlite = 7;
+}
+
+message Redis {
+  string addr = 1; // 连接地址 e.g. 127.0.0.1:6379
+  string user = 2;  // 用户名
+  string password = 3; // 密码
+  int32 db = 4; // redis db 1 - 16
+  int32 protocol = 5; // RESP版本：2或者3
+  string client_name = 6; // 客户端名称
+}

@@ -7,6 +7,7 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
+	configv1 "github.com/byteflowing/base/gen/config/v1"
 	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/trans"
@@ -26,29 +27,22 @@ type JwtService struct {
 	maxActiveSessions int
 }
 
-type JwtOpts struct {
-	Issuer            string
-	SecretKey         string
-	SignMethod        jwt.SigningMethod
-	AccessTTL         time.Duration
-	RefreshTTL        time.Duration
-	Repo              Repo
-	AuthLimiter       *AuthLimiter
-	SessionBlockList  BlockList
-	MaxActiveSessions int
-}
-
-func NewJwtService(opts *JwtOpts) *JwtService {
+func NewJwtService(
+	config *configv1.UserJwt,
+	repo Repo,
+	authLimiter *AuthLimiter,
+	sessionBlockList BlockList,
+) *JwtService {
 	return &JwtService{
-		issuer:            opts.Issuer,
-		secretKey:         opts.SecretKey,
-		signMethod:        opts.SignMethod,
-		accessTTL:         opts.AccessTTL,
-		refreshTTL:        opts.RefreshTTL,
-		repo:              opts.Repo,
-		authLimiter:       opts.AuthLimiter,
-		sessionBlk:        opts.SessionBlockList,
-		maxActiveSessions: opts.MaxActiveSessions,
+		issuer:            config.Issuer,
+		secretKey:         config.SecretKey,
+		maxActiveSessions: int(config.MaxActiveSessions),
+		signMethod:        jwt.GetSigningMethod(config.SignMethod),
+		accessTTL:         config.AccessTtl.AsDuration(),
+		refreshTTL:        config.RefreshTtl.AsDuration(),
+		repo:              repo,
+		authLimiter:       authLimiter,
+		sessionBlk:        sessionBlockList,
 	}
 }
 

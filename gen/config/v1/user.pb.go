@@ -9,7 +9,7 @@ package configv1
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/byteflowing/base/gen/common/v1"
-	_ "github.com/byteflowing/base/gen/enums/v1"
+	v11 "github.com/byteflowing/base/gen/enums/v1"
 	_ "github.com/byteflowing/base/gen/validation/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -102,6 +102,50 @@ func (x *UserAuthLimiter) GetSignInErrRules() []*v1.LimitRule {
 	return nil
 }
 
+type SessionBlockList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Prefix        string                 `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SessionBlockList) Reset() {
+	*x = SessionBlockList{}
+	mi := &file_config_v1_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SessionBlockList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SessionBlockList) ProtoMessage() {}
+
+func (x *SessionBlockList) ProtoReflect() protoreflect.Message {
+	mi := &file_config_v1_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SessionBlockList.ProtoReflect.Descriptor instead.
+func (*SessionBlockList) Descriptor() ([]byte, []int) {
+	return file_config_v1_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SessionBlockList) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
 type UserJwt struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// token签发者
@@ -109,18 +153,19 @@ type UserJwt struct {
 	// 安全密钥
 	SecretKey string `protobuf:"bytes,2,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
 	// 签名方法
-	SignMethod string `protobuf:"bytes,3,opt,name=sign_method,json=signMethod,proto3" json:"sign_method,omitempty"`
+	SignMethod        string `protobuf:"bytes,3,opt,name=sign_method,json=signMethod,proto3" json:"sign_method,omitempty"`
+	MaxActiveSessions int32  `protobuf:"varint,4,opt,name=max_active_sessions,json=maxActiveSessions,proto3" json:"max_active_sessions,omitempty"`
 	// 访问token有效时间
-	AccessTtl *durationpb.Duration `protobuf:"bytes,4,opt,name=access_ttl,json=accessTtl,proto3" json:"access_ttl,omitempty"`
+	AccessTtl *durationpb.Duration `protobuf:"bytes,5,opt,name=access_ttl,json=accessTtl,proto3" json:"access_ttl,omitempty"`
 	// 刷新token有效时间
-	RefreshTtl    *durationpb.Duration `protobuf:"bytes,5,opt,name=refresh_ttl,json=refreshTtl,proto3" json:"refresh_ttl,omitempty"`
+	RefreshTtl    *durationpb.Duration `protobuf:"bytes,6,opt,name=refresh_ttl,json=refreshTtl,proto3" json:"refresh_ttl,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserJwt) Reset() {
 	*x = UserJwt{}
-	mi := &file_config_v1_user_proto_msgTypes[1]
+	mi := &file_config_v1_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -132,7 +177,7 @@ func (x *UserJwt) String() string {
 func (*UserJwt) ProtoMessage() {}
 
 func (x *UserJwt) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_user_proto_msgTypes[1]
+	mi := &file_config_v1_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -145,7 +190,7 @@ func (x *UserJwt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserJwt.ProtoReflect.Descriptor instead.
 func (*UserJwt) Descriptor() ([]byte, []int) {
-	return file_config_v1_user_proto_rawDescGZIP(), []int{1}
+	return file_config_v1_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UserJwt) GetIssuer() string {
@@ -169,6 +214,13 @@ func (x *UserJwt) GetSignMethod() string {
 	return ""
 }
 
+func (x *UserJwt) GetMaxActiveSessions() int32 {
+	if x != nil {
+		return x.MaxActiveSessions
+	}
+	return 0
+}
+
 func (x *UserJwt) GetAccessTtl() *durationpb.Duration {
 	if x != nil {
 		return x.AccessTtl
@@ -183,75 +235,26 @@ func (x *UserJwt) GetRefreshTtl() *durationpb.Duration {
 	return nil
 }
 
-type UserBlockList struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 前缀
-	Prefix        string `protobuf:"bytes,1,opt,name=prefix,proto3" json:"prefix,omitempty"`
+type UserCache struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UserBlockList) Reset() {
-	*x = UserBlockList{}
-	mi := &file_config_v1_user_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UserBlockList) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UserBlockList) ProtoMessage() {}
-
-func (x *UserBlockList) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_user_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UserBlockList.ProtoReflect.Descriptor instead.
-func (*UserBlockList) Descriptor() ([]byte, []int) {
-	return file_config_v1_user_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *UserBlockList) GetPrefix() string {
-	if x != nil {
-		return x.Prefix
-	}
-	return ""
-}
-
-type UserWechatMini struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 小程序 appId
-	AppId string `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	// 小程序 appSecret
-	Secret        string `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UserWechatMini) Reset() {
-	*x = UserWechatMini{}
+func (x *UserCache) Reset() {
+	*x = UserCache{}
 	mi := &file_config_v1_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UserWechatMini) String() string {
+func (x *UserCache) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UserWechatMini) ProtoMessage() {}
+func (*UserCache) ProtoMessage() {}
 
-func (x *UserWechatMini) ProtoReflect() protoreflect.Message {
+func (x *UserCache) ProtoReflect() protoreflect.Message {
 	mi := &file_config_v1_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -263,30 +266,132 @@ func (x *UserWechatMini) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UserWechatMini.ProtoReflect.Descriptor instead.
-func (*UserWechatMini) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserCache.ProtoReflect.Descriptor instead.
+func (*UserCache) Descriptor() ([]byte, []int) {
 	return file_config_v1_user_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *UserWechatMini) GetAppId() string {
+type User struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	ListenAddr             string                 `protobuf:"bytes,1,opt,name=listen_addr,json=listenAddr,proto3" json:"listen_addr,omitempty"`
+	ListenPort             int32                  `protobuf:"varint,2,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	PasswordHasher         int32                  `protobuf:"varint,3,opt,name=password_hasher,json=passwordHasher,proto3" json:"password_hasher,omitempty"`
+	SessionBlockListPrefix string                 `protobuf:"bytes,4,opt,name=session_block_list_prefix,json=sessionBlockListPrefix,proto3" json:"session_block_list_prefix,omitempty"`
+	EnableAuth             []v11.AuthType         `protobuf:"varint,5,rep,packed,name=enable_auth,json=enableAuth,proto3,enum=enums.v1.AuthType" json:"enable_auth,omitempty"`
+	AuthLimiter            *UserAuthLimiter       `protobuf:"bytes,6,opt,name=auth_limiter,json=authLimiter,proto3" json:"auth_limiter,omitempty"`
+	Jwt                    *UserJwt               `protobuf:"bytes,7,opt,name=jwt,proto3" json:"jwt,omitempty"`
+	TwoStepVerifier        *TokenVerify           `protobuf:"bytes,8,opt,name=two_step_verifier,json=twoStepVerifier,proto3" json:"two_step_verifier,omitempty"`
+	Cache                  *UserCache             `protobuf:"bytes,9,opt,name=cache,proto3" json:"cache,omitempty"`
+	SessionBlockList       *SessionBlockList      `protobuf:"bytes,10,opt,name=session_block_list,json=sessionBlockList,proto3" json:"session_block_list,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *User) Reset() {
+	*x = User{}
+	mi := &file_config_v1_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *User) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*User) ProtoMessage() {}
+
+func (x *User) ProtoReflect() protoreflect.Message {
+	mi := &file_config_v1_user_proto_msgTypes[4]
 	if x != nil {
-		return x.AppId
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
+	return file_config_v1_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *User) GetListenAddr() string {
+	if x != nil {
+		return x.ListenAddr
 	}
 	return ""
 }
 
-func (x *UserWechatMini) GetSecret() string {
+func (x *User) GetListenPort() int32 {
 	if x != nil {
-		return x.Secret
+		return x.ListenPort
+	}
+	return 0
+}
+
+func (x *User) GetPasswordHasher() int32 {
+	if x != nil {
+		return x.PasswordHasher
+	}
+	return 0
+}
+
+func (x *User) GetSessionBlockListPrefix() string {
+	if x != nil {
+		return x.SessionBlockListPrefix
 	}
 	return ""
+}
+
+func (x *User) GetEnableAuth() []v11.AuthType {
+	if x != nil {
+		return x.EnableAuth
+	}
+	return nil
+}
+
+func (x *User) GetAuthLimiter() *UserAuthLimiter {
+	if x != nil {
+		return x.AuthLimiter
+	}
+	return nil
+}
+
+func (x *User) GetJwt() *UserJwt {
+	if x != nil {
+		return x.Jwt
+	}
+	return nil
+}
+
+func (x *User) GetTwoStepVerifier() *TokenVerify {
+	if x != nil {
+		return x.TwoStepVerifier
+	}
+	return nil
+}
+
+func (x *User) GetCache() *UserCache {
+	if x != nil {
+		return x.Cache
+	}
+	return nil
+}
+
+func (x *User) GetSessionBlockList() *SessionBlockList {
+	if x != nil {
+		return x.SessionBlockList
+	}
+	return nil
 }
 
 var File_config_v1_user_proto protoreflect.FileDescriptor
 
 const file_config_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x14config/v1/user.proto\x12\tconfig.v1\x1a\x13enums/v1/user.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1egoogle/protobuf/duration.proto\"\xfa\x01\n" +
+	"\x14config/v1/user.proto\x12\tconfig.v1\x1a\x13enums/v1/user.proto\x1a$validation/v1/predefined_rules.proto\x1a\x1bbuf/validate/validate.proto\x1a\x16common/v1/common.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17config/v1/captcha.proto\"\xfa\x01\n" +
 	"\x0fUserAuthLimiter\x12\x16\n" +
 	"\x06prefix\x18\x01 \x01(\tR\x06prefix\x12\x1d\n" +
 	"\n" +
@@ -294,7 +399,9 @@ const file_config_v1_user_proto_rawDesc = "" +
 	"\fsign_in_rule\x18\x03 \x01(\v2\x14.common.v1.LimitRuleR\n" +
 	"signInRule\x127\n" +
 	"\frefresh_rule\x18\x04 \x01(\v2\x14.common.v1.LimitRuleR\vrefreshRule\x12?\n" +
-	"\x11sign_in_err_rules\x18\x05 \x03(\v2\x14.common.v1.LimitRuleR\x0esignInErrRules\"\x88\x02\n" +
+	"\x11sign_in_err_rules\x18\x05 \x03(\v2\x14.common.v1.LimitRuleR\x0esignInErrRules\"*\n" +
+	"\x10SessionBlockList\x12\x16\n" +
+	"\x06prefix\x18\x01 \x01(\tR\x06prefix\"\xb8\x02\n" +
 	"\aUserJwt\x12\"\n" +
 	"\x06issuer\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x06issuer\x12)\n" +
@@ -302,20 +409,29 @@ const file_config_v1_user_proto_rawDesc = "" +
 	"secret_key\x18\x02 \x01(\tB\n" +
 	"\xbaH\ar\x05\xa0\xa1\xe9\x03\x01R\tsecretKey\x12\x1f\n" +
 	"\vsign_method\x18\x03 \x01(\tR\n" +
-	"signMethod\x12D\n" +
+	"signMethod\x12.\n" +
+	"\x13max_active_sessions\x18\x04 \x01(\x05R\x11maxActiveSessions\x12D\n" +
 	"\n" +
-	"access_ttl\x18\x04 \x01(\v2\x19.google.protobuf.DurationB\n" +
+	"access_ttl\x18\x05 \x01(\v2\x19.google.protobuf.DurationB\n" +
 	"\xbaH\a\xaa\x01\x042\x02\b<R\taccessTtl\x12G\n" +
-	"\vrefresh_ttl\x18\x05 \x01(\v2\x19.google.protobuf.DurationB\v\xbaH\b\xaa\x01\x052\x03\b\xd8\x04R\n" +
-	"refreshTtl\"3\n" +
-	"\rUserBlockList\x12\"\n" +
-	"\x06prefix\x18\x01 \x01(\tB\n" +
-	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x06prefix\"W\n" +
-	"\x0eUserWechatMini\x12!\n" +
-	"\x06app_id\x18\x01 \x01(\tB\n" +
-	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x05appId\x12\"\n" +
-	"\x06secret\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05\x90\xa1\xe9\x03\x01R\x06secretB\x93\x01\n" +
+	"\vrefresh_ttl\x18\x06 \x01(\v2\x19.google.protobuf.DurationB\v\xbaH\b\xaa\x01\x052\x03\b\xd8\x04R\n" +
+	"refreshTtl\"\v\n" +
+	"\tUserCache\"\x81\x04\n" +
+	"\x04User\x12\x1f\n" +
+	"\vlisten_addr\x18\x01 \x01(\tR\n" +
+	"listenAddr\x12\x1f\n" +
+	"\vlisten_port\x18\x02 \x01(\x05R\n" +
+	"listenPort\x12'\n" +
+	"\x0fpassword_hasher\x18\x03 \x01(\x05R\x0epasswordHasher\x129\n" +
+	"\x19session_block_list_prefix\x18\x04 \x01(\tR\x16sessionBlockListPrefix\x123\n" +
+	"\venable_auth\x18\x05 \x03(\x0e2\x12.enums.v1.AuthTypeR\n" +
+	"enableAuth\x12=\n" +
+	"\fauth_limiter\x18\x06 \x01(\v2\x1a.config.v1.UserAuthLimiterR\vauthLimiter\x12$\n" +
+	"\x03jwt\x18\a \x01(\v2\x12.config.v1.UserJwtR\x03jwt\x12B\n" +
+	"\x11two_step_verifier\x18\b \x01(\v2\x16.config.v1.TokenVerifyR\x0ftwoStepVerifier\x12*\n" +
+	"\x05cache\x18\t \x01(\v2\x14.config.v1.UserCacheR\x05cache\x12I\n" +
+	"\x12session_block_list\x18\n" +
+	" \x01(\v2\x1b.config.v1.SessionBlockListR\x10sessionBlockListB\x93\x01\n" +
 	"\rcom.config.v1B\tUserProtoP\x01Z2github.com/byteflowing/base/gen/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 
@@ -331,26 +447,35 @@ func file_config_v1_user_proto_rawDescGZIP() []byte {
 	return file_config_v1_user_proto_rawDescData
 }
 
-var file_config_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_config_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_config_v1_user_proto_goTypes = []any{
 	(*UserAuthLimiter)(nil),     // 0: config.v1.UserAuthLimiter
-	(*UserJwt)(nil),             // 1: config.v1.UserJwt
-	(*UserBlockList)(nil),       // 2: config.v1.UserBlockList
-	(*UserWechatMini)(nil),      // 3: config.v1.UserWechatMini
-	(*v1.LimitRule)(nil),        // 4: common.v1.LimitRule
-	(*durationpb.Duration)(nil), // 5: google.protobuf.Duration
+	(*SessionBlockList)(nil),    // 1: config.v1.SessionBlockList
+	(*UserJwt)(nil),             // 2: config.v1.UserJwt
+	(*UserCache)(nil),           // 3: config.v1.UserCache
+	(*User)(nil),                // 4: config.v1.User
+	(*v1.LimitRule)(nil),        // 5: common.v1.LimitRule
+	(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
+	(v11.AuthType)(0),           // 7: enums.v1.AuthType
+	(*TokenVerify)(nil),         // 8: config.v1.TokenVerify
 }
 var file_config_v1_user_proto_depIdxs = []int32{
-	4, // 0: config.v1.UserAuthLimiter.sign_in_rule:type_name -> common.v1.LimitRule
-	4, // 1: config.v1.UserAuthLimiter.refresh_rule:type_name -> common.v1.LimitRule
-	4, // 2: config.v1.UserAuthLimiter.sign_in_err_rules:type_name -> common.v1.LimitRule
-	5, // 3: config.v1.UserJwt.access_ttl:type_name -> google.protobuf.Duration
-	5, // 4: config.v1.UserJwt.refresh_ttl:type_name -> google.protobuf.Duration
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5,  // 0: config.v1.UserAuthLimiter.sign_in_rule:type_name -> common.v1.LimitRule
+	5,  // 1: config.v1.UserAuthLimiter.refresh_rule:type_name -> common.v1.LimitRule
+	5,  // 2: config.v1.UserAuthLimiter.sign_in_err_rules:type_name -> common.v1.LimitRule
+	6,  // 3: config.v1.UserJwt.access_ttl:type_name -> google.protobuf.Duration
+	6,  // 4: config.v1.UserJwt.refresh_ttl:type_name -> google.protobuf.Duration
+	7,  // 5: config.v1.User.enable_auth:type_name -> enums.v1.AuthType
+	0,  // 6: config.v1.User.auth_limiter:type_name -> config.v1.UserAuthLimiter
+	2,  // 7: config.v1.User.jwt:type_name -> config.v1.UserJwt
+	8,  // 8: config.v1.User.two_step_verifier:type_name -> config.v1.TokenVerify
+	3,  // 9: config.v1.User.cache:type_name -> config.v1.UserCache
+	1,  // 10: config.v1.User.session_block_list:type_name -> config.v1.SessionBlockList
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_user_proto_init() }
@@ -358,13 +483,14 @@ func file_config_v1_user_proto_init() {
 	if File_config_v1_user_proto != nil {
 		return
 	}
+	file_config_v1_captcha_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_v1_user_proto_rawDesc), len(file_config_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

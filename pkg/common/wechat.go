@@ -28,6 +28,9 @@ type WechatManager struct {
 }
 
 func NewWechatManager(c *configv1.Wechat) *WechatManager {
+	if c == nil {
+		return nil
+	}
 	count := len(c.Credentials)
 	clients := make(map[string]*mini.Client, count)
 	accessTokens := make(map[string]*commonv1.WechatGetAccessToken, count)

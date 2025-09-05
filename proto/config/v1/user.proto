@@ -7,6 +7,7 @@ import "validation/v1/predefined_rules.proto";
 import "buf/validate/validate.proto";
 import "common/v1/common.proto";
 import "google/protobuf/duration.proto";
+import "config/v1/captcha.proto";
 
 message UserAuthLimiter {
   string prefix = 1;
@@ -16,6 +17,10 @@ message UserAuthLimiter {
   repeated common.v1.LimitRule sign_in_err_rules = 5;
 }
 
+message SessionBlockList {
+  string prefix = 1;
+}
+
 message UserJwt {
   // token签发者
   string issuer = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
@@ -23,20 +28,24 @@ message UserJwt {
   string secret_key = 2 [(buf.validate.field).string.(validation.v1.required_50) = true];
   // 签名方法
   string sign_method = 3;
+  int32 max_active_sessions = 4;
   // 访问token有效时间
-  google.protobuf.Duration access_ttl = 4 [(buf.validate.field).duration.gte = {seconds: 60}];
+  google.protobuf.Duration access_ttl = 5 [(buf.validate.field).duration.gte = {seconds: 60}];
   // 刷新token有效时间
-  google.protobuf.Duration refresh_ttl = 5 [(buf.validate.field).duration.gte = {seconds: 600}];
+  google.protobuf.Duration refresh_ttl = 6 [(buf.validate.field).duration.gte = {seconds: 600}];
 }
 
-message UserBlockList {
-  // 前缀
-  string prefix = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
-}
+message UserCache {}
 
-message UserWechatMini {
-  // 小程序 appId
-  string app_id = 1 [(buf.validate.field).string.(validation.v1.required_20) = true];
-  // 小程序 appSecret
-  string secret = 2 [(buf.validate.field).string.(validation.v1.required_20) = true];
+message User {
+  string listen_addr = 1;
+  int32 listen_port = 2;
+  int32 password_hasher = 3;
+  string session_block_list_prefix = 4;
+  repeated enums.v1.AuthType enable_auth = 5;
+  UserAuthLimiter auth_limiter = 6;
+  UserJwt jwt = 7;
+  config.v1.TokenVerify two_step_verifier = 8;
+  UserCache cache = 9;
+  SessionBlockList session_block_list = 10;
 }

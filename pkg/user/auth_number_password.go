@@ -20,7 +20,7 @@ type NumberPassword struct {
 	limiter    *AuthLimiter
 }
 
-func NewNumberPassword(passHasher *crypto.PasswordHasher, repo Repo, query *query.Query, jwtService *JwtService, limiter *AuthLimiter) Authenticator {
+func NewNumberPassword(passHasher *crypto.PasswordHasher, repo Repo, jwtService *JwtService, limiter *AuthLimiter) Authenticator {
 	return &NumberPassword{
 		passHasher: passHasher,
 		repo:       repo,
