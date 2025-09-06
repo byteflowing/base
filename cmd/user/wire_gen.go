@@ -8,12 +8,13 @@ package main
 
 import (
 	"github.com/byteflowing/base/dal"
-	"github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/base/pkg/msg/mail"
 	"github.com/byteflowing/base/pkg/msg/sms"
 	"github.com/byteflowing/base/pkg/user"
+	"github.com/byteflowing/proto/gen/go/config/v1"
+	"github.com/byteflowing/proto/gen/go/services/user/v1"
 	"github.com/google/wire"
 )
 
@@ -21,36 +22,36 @@ import (
 
 func NewWithConfig(confFile string) *user.Impl {
 	config := user.NewConfig(confFile)
-	configv1User := config.User
-	userCache := configv1User.Cache
-	redis := config.Redis
-	redisRedis := common.NewRDB(redis)
-	cache := user.NewCache(userCache, redisRedis)
+	userv1User := config.User
+	userCache := userv1User.Cache
+	redisConfig := config.Redis
+	redis := common.NewRDB(redisConfig)
+	cache := user.NewCache(userCache, redis)
 	repo := user.NewRepo(cache)
-	db := config.Db
-	gormDB := common.NewDb(db)
-	query := dal.New(gormDB)
-	userJwt := configv1User.Jwt
-	userAuthLimiter := configv1User.AuthLimiter
-	authLimiter := user.NewAuthLimiter(userAuthLimiter, redisRedis)
-	sessionBlockList := configv1User.SessionBlockList
-	blockList := user.NewSessionBlockList(sessionBlockList, redisRedis)
+	dbConfig := config.Db
+	db := common.NewDb(dbConfig)
+	query := dal.New(db)
+	userJwt := userv1User.Jwt
+	userAuthLimiter := userv1User.AuthLimiter
+	authLimiter := user.NewAuthLimiter(userAuthLimiter, redis)
+	sessionBlockList := userv1User.SessionBlockList
+	blockList := user.NewSessionBlockList(sessionBlockList, redis)
 	jwtService := user.NewJwtService(userJwt, repo, authLimiter, blockList)
-	tokenVerify := configv1User.TwoStepVerifier
-	twoStepVerifier := user.NewTwoStepVerifier(tokenVerify, redisRedis)
-	globalId := config.GlobalId
-	globalIdGenerator := common.NewGlobalIdGenerator(globalId)
-	shortId := config.ShortId
-	shortIDGenerator := common.NewShortIDGenerator(globalIdGenerator, shortId)
-	configv1Captcha := config.Captcha
-	configv1Sms := config.Sms
-	smsSms := sms.New(configv1Sms)
-	configv1Mail := config.Mail
-	mailMail := mail.New(configv1Mail)
-	captchaCaptcha := captcha.NewCaptcha(configv1Captcha, redisRedis, smsSms, mailMail)
+	tokenVerify := userv1User.TwoStepVerifier
+	twoStepVerifier := user.NewTwoStepVerifier(tokenVerify, redis)
+	globalIdConfig := config.GlobalId
+	globalIdGenerator := common.NewGlobalIdGenerator(globalIdConfig)
+	shortIdConfig := config.ShortId
+	shortIDGenerator := common.NewShortIDGenerator(globalIdGenerator, shortIdConfig)
+	captchav1Captcha := config.Captcha
+	smsv1Sms := config.Sms
+	smsSms := sms.New(smsv1Sms)
+	mailv1Mail := config.Mail
+	mailMail := mail.New(mailv1Mail)
+	captchaCaptcha := captcha.NewCaptcha(captchav1Captcha, redis, smsSms, mailMail)
 	wechat := config.Wechat
 	wechatManager := common.NewWechatManager(wechat)
-	impl := user.New(configv1User, repo, query, jwtService, twoStepVerifier, shortIDGenerator, globalIdGenerator, captchaCaptcha, wechatManager, authLimiter)
+	impl := user.New(userv1User, repo, query, jwtService, twoStepVerifier, shortIDGenerator, globalIdGenerator, captchaCaptcha, wechatManager, authLimiter)
 	return impl
 }
 
@@ -58,4 +59,4 @@ func NewWithConfig(confFile string) *user.Impl {
 
 var publicSet = wire.NewSet(common.NewDb, common.NewRDB, common.NewDistributedLock, common.NewGlobalIdGenerator, common.NewShortIDGenerator, common.NewWechatManager, captcha.NewSmsCaptcha, captcha.NewMailCaptcha, captcha.NewCaptcha, sms.New, mail.New, dal.New)
 
-var userProviderSet = wire.NewSet(user.NewCache, user.NewRepo, user.NewJwtService, user.NewTwoStepVerifier, user.NewAuthLimiter, user.New, user.NewSessionBlockList, user.NewConfig, wire.FieldsOf(new(*configv1.Config), "Sms", "Mail", "Captcha", "GlobalId", "ShortId", "Wechat", "Db", "Redis", "DistributedLock", "User"), wire.FieldsOf(new(*configv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"))
+var userProviderSet = wire.NewSet(user.NewCache, user.NewRepo, user.NewJwtService, user.NewTwoStepVerifier, user.NewAuthLimiter, user.New, user.NewSessionBlockList, user.NewConfig, wire.FieldsOf(new(*configv1.Config), "Sms", "Mail", "Captcha", "GlobalId", "ShortId", "Wechat", "Db", "Redis", "DistributedLock", "User"), wire.FieldsOf(new(*userv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"))

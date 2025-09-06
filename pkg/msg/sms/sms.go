@@ -5,24 +5,23 @@ import (
 	"errors"
 
 	"github.com/byteflowing/base/ecode"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messagev1 "github.com/byteflowing/base/gen/msg/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	smsv1 "github.com/byteflowing/proto/gen/go/sms/v1"
 )
 
 type Provider interface {
-	SendSms(ctx context.Context, req *messagev1.SendSmsReq) (err error)
+	SendSms(ctx context.Context, req *smsv1.SendSmsReq) (err error)
 }
 
 type Sms interface {
-	SendSms(ctx context.Context, req *messagev1.SendSmsReq) (resp *messagev1.SendSmsResp, err error)
+	SendSms(ctx context.Context, req *smsv1.SendSmsReq) (resp *smsv1.SendSmsResp, err error)
 }
 
 type Impl struct {
 	providers map[enumsv1.SmsVendor]map[string]Provider
 }
 
-func New(c *configv1.Sms) Sms {
+func New(c *smsv1.Sms) Sms {
 	if c == nil {
 		return nil
 	}
@@ -39,7 +38,7 @@ func New(c *configv1.Sms) Sms {
 	}
 }
 
-func (i *Impl) SendSms(ctx context.Context, req *messagev1.SendSmsReq) (resp *messagev1.SendSmsResp, err error) {
+func (i *Impl) SendSms(ctx context.Context, req *smsv1.SendSmsReq) (resp *smsv1.SendSmsResp, err error) {
 	p, err := i.getProvider(req.Vendor, req.Account)
 	if err != nil {
 		return nil, err
@@ -51,7 +50,7 @@ func (i *Impl) SendSms(ctx context.Context, req *messagev1.SendSmsReq) (resp *me
 	return nil, err
 }
 
-func newProvider(c *configv1.SmsProvider) Provider {
+func newProvider(c *smsv1.SmsProvider) Provider {
 	vendor := c.GetVendor()
 	switch vendor {
 	case enumsv1.SmsVendor_SMS_VENDOR_ALIYUN:

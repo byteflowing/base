@@ -7,12 +7,9 @@ import (
 	"sync"
 	"time"
 
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/3rd/tencent/mini"
-	"github.com/byteflowing/go-common/trans"
+	wechatv1 "github.com/byteflowing/proto/gen/go/wechat/v1"
 	"golang.org/x/sync/singleflight"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -22,24 +19,21 @@ const (
 
 type WechatManager struct {
 	clients      map[string]*mini.Client
-	accessTokens map[string]*commonv1.WechatGetAccessToken
+	accessTokens map[string]*wechatv1.WechatGetAccessTokenResp
 	mux          sync.RWMutex
 	sf           *singleflight.Group
 }
 
-func NewWechatManager(c *configv1.Wechat) *WechatManager {
+func NewWechatManager(c *wechatv1.Wechat) *WechatManager {
 	if c == nil {
 		return nil
 	}
 	count := len(c.Credentials)
 	clients := make(map[string]*mini.Client, count)
-	accessTokens := make(map[string]*commonv1.WechatGetAccessToken, count)
+	accessTokens := make(map[string]*wechatv1.WechatGetAccessTokenResp, count)
 	sf := new(singleflight.Group)
 	for _, credential := range c.Credentials {
-		clients[credential.Appid] = mini.NewMiniClient(&mini.Opts{
-			AppID:  credential.Appid,
-			Secret: credential.Secret,
-		})
+		clients[credential.Appid] = mini.NewMiniClient(credential)
 	}
 	return &WechatManager{
 		clients:      clients,
@@ -48,25 +42,15 @@ func NewWechatManager(c *configv1.Wechat) *WechatManager {
 	}
 }
 
-func (w *WechatManager) WechatSignIn(ctx context.Context, req *commonv1.WechatSignInReq) (resp *commonv1.WechatSignInResp, err error) {
+func (w *WechatManager) WechatSignIn(ctx context.Context, req *wechatv1.WechatSignInReq) (resp *wechatv1.WechatSignInResp, err error) {
 	client, err := w.getClient(req.Appid)
 	if err != nil {
 		return nil, err
 	}
-	res, err := client.WechatLogin(ctx, &mini.WechatLoginReq{Code: req.Code})
-	if err != nil {
-		return nil, err
-	}
-	resp = &commonv1.WechatSignInResp{
-		Appid:      req.Appid,
-		Openid:     res.OpenID,
-		SessionKey: res.SessionKey,
-		UnionId:    res.UnionID,
-	}
-	return resp, nil
+	return client.WechatLogin(ctx, req)
 }
 
-func (w *WechatManager) WechatCheckSignStatus(ctx context.Context, req *commonv1.WechatCheckSignInStatusReq) (resp *commonv1.WechatCheckSignInStatusResp, err error) {
+func (w *WechatManager) WechatCheckSignStatus(ctx context.Context, req *wechatv1.WechatCheckSignInStatusReq) (resp *wechatv1.WechatCheckSignInStatusResp, err error) {
 	client, err := w.getClient(req.Appid)
 	if err != nil {
 		return nil, err
@@ -79,11 +63,11 @@ func (w *WechatManager) WechatCheckSignStatus(ctx context.Context, req *commonv1
 	if err != nil {
 		return nil, err
 	}
-	resp = &commonv1.WechatCheckSignInStatusResp{Ok: ok}
+	resp = &wechatv1.WechatCheckSignInStatusResp{Ok: ok}
 	return resp, nil
 }
 
-func (w *WechatManager) WechatGetPhoneNumber(ctx context.Context, req *commonv1.WechatGetPhoneNumberReq) (resp *commonv1.WechatGetPhoneNumberResp, err error) {
+func (w *WechatManager) WechatGetPhoneNumber(ctx context.Context, req *wechatv1.WechatGetPhoneNumberReq) (resp *wechatv1.WechatGetPhoneNumberResp, err error) {
 	client, err := w.getClient(req.Appid)
 	if err != nil {
 		return nil, err
@@ -92,22 +76,12 @@ func (w *WechatManager) WechatGetPhoneNumber(ctx context.Context, req *commonv1.
 	if err != nil {
 		return nil, err
 	}
-	phoneRes, err := client.GetPhoneNumber(ctx, &mini.GetPhoneNumberReq{
+	return client.GetPhoneNumber(ctx, &wechatv1.WechatGetPhoneNumberReq{
 		AccessToken: res.AccessToken,
 		Code:        req.Code,
-		OpenID:      trans.Ref(req.Openid),
+		Openid:      req.Openid,
+		Appid:       req.Appid,
 	})
-	if err != nil {
-		return nil, err
-	}
-	if phoneRes.PhoneInfo != nil {
-		resp = &commonv1.WechatGetPhoneNumberResp{
-			PhoneNumber:     phoneRes.PhoneInfo.PhoneNumber,
-			PurePhoneNumber: phoneRes.PhoneInfo.PurePhoneNumber,
-			CountryCode:     phoneRes.PhoneInfo.CountryCode,
-		}
-	}
-	return resp, nil
 }
 
 func (w *WechatManager) getClient(appid string) (*mini.Client, error) {
@@ -118,7 +92,7 @@ func (w *WechatManager) getClient(appid string) (*mini.Client, error) {
 	return client, nil
 }
 
-func (w *WechatManager) getAccessToken(ctx context.Context, appid string) (resp *commonv1.WechatGetAccessToken, err error) {
+func (w *WechatManager) getAccessToken(ctx context.Context, appid string) (resp *wechatv1.WechatGetAccessTokenResp, err error) {
 	if resp, ok := w.getAccessTokenFromMap(appid); ok {
 		if w.needRefreshAccessToken(resp) {
 			go func() {
@@ -140,11 +114,11 @@ func (w *WechatManager) getAccessToken(ctx context.Context, appid string) (resp 
 	if err != nil {
 		return nil, err
 	}
-	resp = v.(*commonv1.WechatGetAccessToken)
+	resp = v.(*wechatv1.WechatGetAccessTokenResp)
 	return
 }
 
-func (w *WechatManager) refreshAccessToken(ctx context.Context, appid string) (resp *commonv1.WechatGetAccessToken, err error) {
+func (w *WechatManager) refreshAccessToken(ctx context.Context, appid string) (resp *wechatv1.WechatGetAccessTokenResp, err error) {
 	w.mux.Lock()
 	defer w.mux.Unlock()
 	resp, ok := w.accessTokens[appid]
@@ -155,20 +129,16 @@ func (w *WechatManager) refreshAccessToken(ctx context.Context, appid string) (r
 	if err != nil {
 		return nil, err
 	}
-	resp = &commonv1.WechatGetAccessToken{
-		AccessToken: res.AccessToken,
-		Expiration:  timestamppb.New(time.Now().Add(time.Duration(res.ExpiresIn) * time.Second)),
-	}
-	w.accessTokens[appid] = resp
+	w.accessTokens[appid] = res
 	return resp, nil
 }
 
-func (w *WechatManager) needRefreshAccessToken(resp *commonv1.WechatGetAccessToken) bool {
+func (w *WechatManager) needRefreshAccessToken(resp *wechatv1.WechatGetAccessTokenResp) bool {
 	expireAt := resp.Expiration.AsTime().Unix()
 	return expireAt-time.Now().Unix() <= renewAccessTokenBefore
 }
 
-func (w *WechatManager) getAccessTokenFromMap(appid string) (resp *commonv1.WechatGetAccessToken, ok bool) {
+func (w *WechatManager) getAccessTokenFromMap(appid string) (resp *wechatv1.WechatGetAccessTokenResp, ok bool) {
 	w.mux.RLock()
 	defer w.mux.RUnlock()
 	resp, ok = w.accessTokens[appid]
@@ -184,10 +154,10 @@ func (w *WechatManager) getAccessTokenFromMap(appid string) (resp *commonv1.Wech
 	return
 }
 
-func (w *WechatManager) getAccessTokenFromTencent(ctx context.Context, appid string) (resp *mini.GetAccessTokenResp, err error) {
+func (w *WechatManager) getAccessTokenFromTencent(ctx context.Context, appid string) (resp *wechatv1.WechatGetAccessTokenResp, err error) {
 	client, err := w.getClient(appid)
 	if err != nil {
 		return nil, err
 	}
-	return client.GetStableAccessToken(ctx, &mini.GetAccessTokenReq{})
+	return client.GetStableAccessToken(ctx, &wechatv1.WechatGetAccessTokenReq{})
 }

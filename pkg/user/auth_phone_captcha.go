@@ -8,13 +8,13 @@ import (
 
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messagev1 "github.com/byteflowing/base/gen/msg/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/trans"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type PhoneCaptcha struct {
@@ -55,11 +55,11 @@ func (p *PhoneCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 	if req.CaptchaToken == "" {
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
-	_, err = p.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &messagev1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	})
 	if err != nil {
 		return nil, err
@@ -93,11 +93,11 @@ func (p *PhoneCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.
 	if req.PhoneNumber == nil || req.PhoneNumber.Number == "" || req.PhoneNumber.CountryCode == "" {
 		return nil, ecode.ErrPhoneIsEmpty
 	}
-	_, err = p.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    req.Credential,
-		Number:     &messagev1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.PhoneNumber},
+		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.PhoneNumber},
 	})
 	if err != nil {
 		return nil, err
@@ -144,11 +144,11 @@ func (p *PhoneCaptcha) Bind(ctx context.Context, tx *query.Query, req *userv1.Bi
 	if req.Phone == nil || req.Phone.Number == "" || req.Phone.CountryCode == "" {
 		return nil, ecode.ErrPhoneIsEmpty
 	}
-	_, err = p.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    trans.StringValue(req.Captcha),
-		Number:     &messagev1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	})
 	if err != nil {
 		return nil, err

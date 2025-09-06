@@ -7,24 +7,22 @@ import (
 	"strings"
 
 	"github.com/byteflowing/base/ecode"
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsV1 "github.com/byteflowing/base/gen/enums/v1"
-	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/idx"
+	"github.com/byteflowing/go-common/ratelimit"
 	"github.com/byteflowing/go-common/redis"
-	"github.com/byteflowing/go-common/trans"
-	"google.golang.org/protobuf/types/known/durationpb"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	enumsV1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	limiterv1 "github.com/byteflowing/proto/gen/go/limiter/v1"
 )
 
 type captcha struct {
-	config  *configv1.CaptchaProvider
+	config  *captchav1.CaptchaProvider
 	rdb     *redis.Redis
-	limiter *redis.Limiter
+	limiter *ratelimit.RedisLimiter
 }
 
-func newCaptcha(rdb *redis.Redis, c *configv1.CaptchaProvider) *captcha {
-	limiter := redis.NewLimiter(rdb, c.Prefix, common.ConvertLimitsToWindows(c.Limits))
+func newCaptcha(rdb *redis.Redis, c *captchav1.CaptchaProvider) *captcha {
+	limiter := ratelimit.NewRedisLimiter(rdb, c.Prefix, c.Limits)
 	return &captcha{
 		config:  c,
 		rdb:     rdb,
@@ -32,7 +30,7 @@ func newCaptcha(rdb *redis.Redis, c *configv1.CaptchaProvider) *captcha {
 	}
 }
 
-func (c *captcha) send(ctx context.Context, target, val string, fn func() error) (token string, rule *commonv1.LimitRule, err error) {
+func (c *captcha) send(ctx context.Context, target, val string, fn func() error) (token string, rule *limiterv1.LimitRule, err error) {
 	ok, rule, err := c.allow(ctx, target)
 	if err != nil {
 		return "", nil, err
@@ -111,18 +109,12 @@ func (c *captcha) allowVerify(ctx context.Context, token string) (ok bool, err e
 	return c.rdb.AllowFixedLimit(ctx, key, c.config.Keeping.AsDuration(), uint32(c.config.ErrTryLimit))
 }
 
-func (c *captcha) allow(ctx context.Context, target string) (ok bool, rule *commonv1.LimitRule, err error) {
-	ok, w, after, err := c.limiter.Allow(ctx, target)
+func (c *captcha) allow(ctx context.Context, target string) (ok bool, rule *limiterv1.LimitRule, err error) {
+	ok, rule, err = c.limiter.Allow(ctx, target)
 	if err != nil {
 		return false, nil, err
 	}
 	if !ok {
-		rule = &commonv1.LimitRule{
-			Duration:   durationpb.New(w.Duration),
-			Limit:      int32(w.Limit),
-			Tag:        w.Tag,
-			RetryAfter: trans.Ref(after),
-		}
 		return false, rule, nil
 	}
 	return true, nil, nil

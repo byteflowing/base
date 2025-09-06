@@ -4,23 +4,19 @@ import (
 	"context"
 	"time"
 
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	messagev1 "github.com/byteflowing/base/gen/msg/v1"
 	"github.com/byteflowing/go-common/3rd/bytedance/volc"
 	"github.com/byteflowing/go-common/ratelimit"
+	smsv1 "github.com/byteflowing/proto/gen/go/sms/v1"
 )
 
 type Volc struct {
-	config      *configv1.SmsProvider
+	config      *smsv1.SmsProvider
 	cli         *volc.Sms
 	rateLimiter *ratelimit.Limiter
 }
 
-func NewVolc(c *configv1.SmsProvider) *Volc {
-	cli := volc.NewSms(&volc.SmsOpts{
-		AccessKeyId:     c.AccessKey,
-		AccessKeySecret: c.SecretKey,
-	})
+func NewVolc(c *smsv1.SmsProvider) *Volc {
+	cli := volc.NewSms(c)
 	return &Volc{
 		config:      c,
 		cli:         cli,
@@ -28,16 +24,10 @@ func NewVolc(c *configv1.SmsProvider) *Volc {
 	}
 }
 
-func (v *Volc) SendSms(ctx context.Context, req *messagev1.SendSmsReq) (err error) {
+func (v *Volc) SendSms(ctx context.Context, req *smsv1.SendSmsReq) (err error) {
 	if err = v.rateLimiter.Wait(ctx); err != nil {
 		return
 	}
-	_, err = v.cli.SendSms(&volc.SendSmsReq{
-		SmsAccount:    v.config.Account,
-		Sign:          req.SignName,
-		TemplateID:    req.TemplateCode,
-		TemplateParam: req.TemplateParams,
-		PhoneNumber:   req.PhoneNumber.Number,
-	})
+	_, err = v.cli.SendSms(req)
 	return
 }

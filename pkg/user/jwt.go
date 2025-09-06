@@ -7,10 +7,10 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/trans"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -28,7 +28,7 @@ type JwtService struct {
 }
 
 func NewJwtService(
-	config *configv1.UserJwt,
+	config *userv1.UserJwt,
 	repo Repo,
 	authLimiter *AuthLimiter,
 	sessionBlockList BlockList,
@@ -65,7 +65,7 @@ func (s *JwtService) GenerateToken(ctx context.Context, tx *query.Query, req *Ge
 			return "", "", nil, nil, err
 		}
 	}
-	accessToken, refreshToken, accessClaims, refreshClaims, err := s.generateJwtToken(ctx, req)
+	accessToken, refreshToken, accessClaims, refreshClaims, err := s.generateJwtToken(req)
 	if err != nil {
 		return "", "", nil, nil, err
 	}
@@ -116,7 +116,7 @@ func (s *JwtService) RefreshToken(ctx context.Context, tx *query.Query, refreshT
 	if isDisabled(userBasic) {
 		return "", "", nil, nil, ecode.ErrUserDisabled
 	}
-	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(ctx, &GenerateJwtReq{
+	newAccessToken, newRefreshToken, newAccessClaims, newRefreshClaims, err = s.generateJwtToken(&GenerateJwtReq{
 		UserBasic:      userBasic,
 		ExtraJwtClaims: extraClaims,
 		AuthType:       enumsv1.AuthType(refreshClaim.AuthType),
@@ -155,7 +155,7 @@ func (s *JwtService) TTLFromExpiredAt(expiredAt int64) time.Duration {
 	return time.Duration(exp) * time.Second
 }
 
-func (s *JwtService) generateJwtToken(ctx context.Context, req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, refreshClaims *JwtClaims, err error) {
+func (s *JwtService) generateJwtToken(req *GenerateJwtReq) (accessToken, refreshToken string, accessClaims, refreshClaims *JwtClaims, err error) {
 	now := time.Now()
 	accessClaims = s.createClaims(now, enumsv1.TokenType_TOKEN_TYPE_ACCESS, req)
 	refreshClaims = s.createClaims(now, enumsv1.TokenType_TOKEN_TYPE_REFRESH, req)

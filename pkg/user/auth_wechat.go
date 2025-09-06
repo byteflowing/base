@@ -9,11 +9,11 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/trans"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
+	wechatv1 "github.com/byteflowing/proto/gen/go/wechat/v1"
 )
 
 type WeChat struct {
@@ -44,7 +44,7 @@ func (w *WeChat) AuthType() enumsv1.AuthType {
 	return enumsv1.AuthType_AUTH_TYPE_WECHAT
 }
 
-func (w *WeChat) SignUp(ctx context.Context, tx *query.Query, req *userv1.SignUpReq) (*userv1.SignUpResp, error) {
+func (w *WeChat) SignUp(_ context.Context, _ *query.Query, _ *userv1.SignUpReq) (*userv1.SignUpResp, error) {
 	return nil, ecode.ErrUnImplemented
 }
 
@@ -53,7 +53,7 @@ func (w *WeChat) SignIn(ctx context.Context, tx *query.Query, req *userv1.SignIn
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	// 1. 换取微信登录信息
-	res, err := w.wechatMgr.WechatSignIn(ctx, &commonv1.WechatSignInReq{
+	res, err := w.wechatMgr.WechatSignIn(ctx, &wechatv1.WechatSignInReq{
 		Appid: req.Identifier,
 		Code:  req.Credential,
 	})
@@ -172,7 +172,7 @@ func (w *WeChat) Bind(ctx context.Context, tx *query.Query, req *userv1.BindUser
 		return nil, ecode.ErrUserAuthTypeMisMatch
 	}
 	// 1. 换取微信登录信息
-	res, err := w.wechatMgr.WechatSignIn(ctx, &commonv1.WechatSignInReq{
+	res, err := w.wechatMgr.WechatSignIn(ctx, &wechatv1.WechatSignInReq{
 		Appid: trans.StringValue(req.AppId),
 		Code:  trans.StringValue(req.Code),
 	})

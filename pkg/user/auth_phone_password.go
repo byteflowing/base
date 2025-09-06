@@ -8,9 +8,9 @@ import (
 
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/go-common/crypto"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type PhonePassword struct {

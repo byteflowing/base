@@ -3,8 +3,8 @@ module github.com/byteflowing/base
 go 1.25.1
 
 require (
-	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1
-	github.com/byteflowing/go-common v0.0.0-20250905033712-50c0f16a7a50
+	github.com/byteflowing/go-common v1.0.1-0.20250906133902-2f91e3612a3e
+	github.com/byteflowing/proto v0.0.0-20250906125756-b11d32d85143
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/wire v0.7.0
 	golang.org/x/sync v0.16.0
@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.8-20250717185734-6c6e0d3c608e.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.11 // indirect

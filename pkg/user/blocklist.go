@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/redis"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type BlockList interface {
@@ -20,7 +20,7 @@ type SessionBlockList struct {
 	prefix string
 }
 
-func NewSessionBlockList(c *configv1.SessionBlockList, rdb *redis.Redis) BlockList {
+func NewSessionBlockList(c *userv1.SessionBlockList, rdb *redis.Redis) BlockList {
 	return &SessionBlockList{
 		rdb:    rdb,
 		prefix: c.Prefix,

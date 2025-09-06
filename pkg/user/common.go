@@ -6,10 +6,10 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/go-common/crypto"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
+	typesv1 "github.com/byteflowing/proto/gen/go/types/v1"
 )
 
 func isDisabled(userBasic *model.UserBasic) bool {
@@ -107,7 +107,7 @@ func checkUserBasicUnique(
 	tx *query.Query,
 	repo Repo,
 	biz string,
-	phone *commonv1.PhoneNumber,
+	phone *typesv1.PhoneNumber,
 	number *string,
 	email *string,
 ) (err error) {

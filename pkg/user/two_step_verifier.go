@@ -6,16 +6,16 @@ import (
 	"fmt"
 
 	"github.com/byteflowing/base/ecode"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/redis"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type TwoStepVerifier struct {
-	config *configv1.TokenVerify
+	config *userv1.TokenVerify
 	rdb    *redis.Redis
 }
 
-func NewTwoStepVerifier(config *configv1.TokenVerify, rdb *redis.Redis) *TwoStepVerifier {
+func NewTwoStepVerifier(config *userv1.TokenVerify, rdb *redis.Redis) *TwoStepVerifier {
 	return &TwoStepVerifier{
 		config: config,
 		rdb:    rdb,

@@ -8,13 +8,13 @@ import (
 
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messagev1 "github.com/byteflowing/base/gen/msg/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/trans"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type EmailCaptcha struct {
@@ -55,11 +55,11 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 	if req.CaptchaToken == "" {
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
-	if _, err = e.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &messagev1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
+		Number:     &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
 	}); err != nil {
 		return nil, err
 	}
@@ -89,11 +89,11 @@ func (e *EmailCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.
 	if len(req.Credential) == 0 {
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
-	if _, err = e.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    req.Credential,
-		Number:     &messagev1.VerifyCaptchaReq_Email{Email: req.Identifier},
+		Number:     &captchav1.VerifyCaptchaReq_Email{Email: req.Identifier},
 	}); err != nil {
 		return nil, err
 	}
@@ -136,11 +136,11 @@ func (e *EmailCaptcha) Bind(ctx context.Context, tx *query.Query, req *userv1.Bi
 	if req.Email == nil {
 		return nil, ecode.ErrEmailIsEmpty
 	}
-	if _, err = e.captcha.VerifyCaptcha(ctx, &messagev1.VerifyCaptchaReq{
+	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
 		Token:      trans.Deref(req.CaptchaToken),
 		Captcha:    trans.StringValue(req.Captcha),
-		Number:     &messagev1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
+		Number:     &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
 	}); err != nil {
 		return nil, err
 	}

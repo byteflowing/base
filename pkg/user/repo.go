@@ -9,21 +9,21 @@ import (
 
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/go-common/orm"
 	"github.com/byteflowing/go-common/slicex"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
+	typesv1 "github.com/byteflowing/proto/gen/go/types/v1"
 )
 
 type Repo interface {
 	GetUserBasicByNumber(ctx context.Context, tx *query.Query, number string) (basic *model.UserBasic, err error)
-	GetUserBasicByPhone(ctx context.Context, tx *query.Query, biz string, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error)
+	GetUserBasicByPhone(ctx context.Context, tx *query.Query, biz string, phone *typesv1.PhoneNumber) (basic *model.UserBasic, err error)
 	GetUserBasicByEmail(ctx context.Context, tx *query.Query, biz string, email string) (basic *model.UserBasic, err error)
 	GetUserBasicByUID(ctx context.Context, tx *query.Query, uid int64) (basic *model.UserBasic, err error)
 	GetUserAuthByOpenID(ctx context.Context, tx *query.Query, openid string) (auth *model.UserAuth, err error)
 	GetOneUserAuthByUnionID(ctx context.Context, tx *query.Query, biz, unionid string) (auth *model.UserAuth, err error)
-	GetUidByPhone(ctx context.Context, tx *query.Query, biz string, phone *commonv1.PhoneNumber) (uid int64, err error)
+	GetUidByPhone(ctx context.Context, tx *query.Query, biz string, phone *typesv1.PhoneNumber) (uid int64, err error)
 	GetUidByEmail(ctx context.Context, tx *query.Query, biz string, email string) (uid int64, err error)
 	CreateUserBasic(ctx context.Context, tx *query.Query, user *model.UserBasic) (err error)
 	CreateUserAuth(ctx context.Context, tx *query.Query, user *model.UserAuth) (err error)
@@ -37,7 +37,7 @@ type Repo interface {
 	UpdateSignInLogsStatus(ctx context.Context, tx *query.Query, ids []int64, status enumsv1.SessionStatus) (err error)
 	CheckUserNumberExists(ctx context.Context, tx *query.Query, number string) (exist bool, err error)
 	CheckEmailExists(ctx context.Context, tx *query.Query, biz string, email string) (exist bool, err error)
-	CheckPhoneExists(ctx context.Context, tx *query.Query, biz string, number *commonv1.PhoneNumber) (exist bool, err error)
+	CheckPhoneExists(ctx context.Context, tx *query.Query, biz string, number *typesv1.PhoneNumber) (exist bool, err error)
 	PagingGetSignInLogs(ctx context.Context, tx *query.Query, req *userv1.PagingGetSignInLogsReq) (resp *orm.PageResult[model.UserSignLog], err error)
 	PagingGetUsers(ctx context.Context, tx *query.Query, req *userv1.PagingGetUsersReq) (resp *orm.PageResult[model.UserBasic], err error)
 	DeleteUserBasic(ctx context.Context, tx *query.Query, uid int64) error
@@ -69,7 +69,7 @@ func (repo *GenRepo) GetUserBasicByNumber(ctx context.Context, tx *query.Query, 
 	return
 }
 
-func (repo *GenRepo) GetUserBasicByPhone(ctx context.Context, tx *query.Query, biz string, phone *commonv1.PhoneNumber) (basic *model.UserBasic, err error) {
+func (repo *GenRepo) GetUserBasicByPhone(ctx context.Context, tx *query.Query, biz string, phone *typesv1.PhoneNumber) (basic *model.UserBasic, err error) {
 	q := tx.UserBasic
 	basic, err = q.WithContext(ctx).
 		Where(
@@ -95,7 +95,7 @@ func (repo *GenRepo) GetUserBasicByEmail(ctx context.Context, tx *query.Query, b
 	return
 }
 
-func (repo *GenRepo) GetUidByPhone(ctx context.Context, tx *query.Query, biz string, phone *commonv1.PhoneNumber) (uid int64, err error) {
+func (repo *GenRepo) GetUidByPhone(ctx context.Context, tx *query.Query, biz string, phone *typesv1.PhoneNumber) (uid int64, err error) {
 	q := tx.UserBasic
 	if err = q.WithContext(ctx).Select(q.ID).Where(
 		q.Biz.Eq(biz),
@@ -170,7 +170,7 @@ func (repo *GenRepo) UpdateUserAuth(ctx context.Context, tx *query.Query, auth *
 	return
 }
 
-func (repo *GenRepo) CheckPhoneExists(ctx context.Context, tx *query.Query, biz string, number *commonv1.PhoneNumber) (exist bool, err error) {
+func (repo *GenRepo) CheckPhoneExists(ctx context.Context, tx *query.Query, biz string, number *typesv1.PhoneNumber) (exist bool, err error) {
 	q := tx.UserBasic
 	_, err = q.WithContext(ctx).Select(q.ID).Where(
 		q.Biz.Eq(biz),

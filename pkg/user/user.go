@@ -15,16 +15,16 @@ import (
 	"github.com/byteflowing/base/dal/model"
 	"github.com/byteflowing/base/dal/query"
 	"github.com/byteflowing/base/ecode"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	msgv1 "github.com/byteflowing/base/gen/msg/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/captcha"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/config"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/idx"
 	"github.com/byteflowing/go-common/trans"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 type Authenticator interface {
@@ -36,7 +36,7 @@ type Authenticator interface {
 }
 
 type Impl struct {
-	config        *configv1.User
+	config        *userv1.User
 	authHandlers  map[enumsv1.AuthType]Authenticator
 	repo          Repo
 	query         *query.Query
@@ -59,7 +59,7 @@ func NewConfig(filePath string) *configv1.Config {
 }
 
 func New(
-	config *configv1.User,
+	config *userv1.User,
 	repo Repo,
 	query *query.Query,
 	jwtService *JwtService,
@@ -328,11 +328,11 @@ func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) 
 }
 
 func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error) {
-	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+	if _, err = i.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &msgv1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	}); err != nil {
 		return nil, err
 	}
@@ -354,11 +354,11 @@ func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (res
 }
 
 func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (resp *userv1.ChangeEmailResp, err error) {
-	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+	if _, err = i.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: req.Sender,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &msgv1.VerifyCaptchaReq_Email{Email: req.NewEmail},
+		Number:     &captchav1.VerifyCaptchaReq_Email{Email: req.NewEmail},
 	}); err != nil {
 		return nil, err
 	}
@@ -487,11 +487,11 @@ func (i *Impl) ChangeUserExt(ctx context.Context, req *userv1.ChangeUserExtReq) 
 }
 
 func (i *Impl) VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (resp *userv1.VerifyPhoneResp, err error) {
-	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+	if _, err = i.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &msgv1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	}); err != nil {
 		return nil, err
 	}
@@ -510,11 +510,11 @@ func (i *Impl) VerifyPhone(ctx context.Context, req *userv1.VerifyPhoneReq) (res
 }
 
 func (i *Impl) VerifyEmail(ctx context.Context, req *userv1.VerifyEmailReq) (resp *userv1.VerifyEmailResp, err error) {
-	if _, err = i.captcha.VerifyCaptcha(ctx, &msgv1.VerifyCaptchaReq{
+	if _, err = i.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
 		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
 		Token:      req.CaptchaToken,
 		Captcha:    req.Captcha,
-		Number:     &msgv1.VerifyCaptchaReq_Email{Email: req.Email},
+		Number:     &captchav1.VerifyCaptchaReq_Email{Email: req.Email},
 	}); err != nil {
 		return nil, err
 	}

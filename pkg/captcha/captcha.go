@@ -4,26 +4,25 @@ import (
 	"context"
 	"errors"
 
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messageV1 "github.com/byteflowing/base/gen/msg/v1"
 	"github.com/byteflowing/base/pkg/msg/mail"
 	"github.com/byteflowing/base/pkg/msg/sms"
 	"github.com/byteflowing/go-common/redis"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
 )
 
 type Provider interface {
-	Send(ctx context.Context, req *messageV1.SendCaptchaReq) (resp *messageV1.SendCaptchaResp, err error)
-	Verify(ctx context.Context, req *messageV1.VerifyCaptchaReq) (resp *messageV1.VerifyCaptchaResp, err error)
+	Send(ctx context.Context, req *captchav1.SendCaptchaReq) (resp *captchav1.SendCaptchaResp, err error)
+	Verify(ctx context.Context, req *captchav1.VerifyCaptchaReq) (resp *captchav1.VerifyCaptchaResp, err error)
 }
 
 type Captcha interface {
-	SendCaptcha(ctx context.Context, req *messageV1.SendCaptchaReq) (resp *messageV1.SendCaptchaResp, err error)
-	VerifyCaptcha(ctx context.Context, req *messageV1.VerifyCaptchaReq) (resp *messageV1.VerifyCaptchaResp, err error)
+	SendCaptcha(ctx context.Context, req *captchav1.SendCaptchaReq) (resp *captchav1.SendCaptchaResp, err error)
+	VerifyCaptcha(ctx context.Context, req *captchav1.VerifyCaptchaReq) (resp *captchav1.VerifyCaptchaResp, err error)
 }
 
 func NewCaptcha(
-	c *configv1.Captcha,
+	c *captchav1.Captcha,
 	rdb *redis.Redis,
 	sms sms.Sms,
 	mail mail.Mail,
@@ -56,7 +55,7 @@ type Impl struct {
 	providers map[enumsv1.MessageSenderType]Provider
 }
 
-func (i *Impl) SendCaptcha(ctx context.Context, req *messageV1.SendCaptchaReq) (resp *messageV1.SendCaptchaResp, err error) {
+func (i *Impl) SendCaptcha(ctx context.Context, req *captchav1.SendCaptchaReq) (resp *captchav1.SendCaptchaResp, err error) {
 	sender, err := i.getSender(req.SenderType)
 	if err != nil {
 		return nil, err
@@ -64,7 +63,7 @@ func (i *Impl) SendCaptcha(ctx context.Context, req *messageV1.SendCaptchaReq) (
 	return sender.Send(ctx, req)
 }
 
-func (i *Impl) VerifyCaptcha(ctx context.Context, req *messageV1.VerifyCaptchaReq) (resp *messageV1.VerifyCaptchaResp, err error) {
+func (i *Impl) VerifyCaptcha(ctx context.Context, req *captchav1.VerifyCaptchaReq) (resp *captchav1.VerifyCaptchaResp, err error) {
 	sender, err := i.getSender(req.SenderType)
 	if err != nil {
 		return nil, err

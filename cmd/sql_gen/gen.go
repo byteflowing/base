@@ -1,13 +1,15 @@
-package main
+package sql_gen
 
 import (
+	"gorm.io/gen"
+
 	"github.com/byteflowing/go-common/config"
 	"github.com/byteflowing/go-common/orm"
-	"gorm.io/gen"
+	dbv1 "github.com/byteflowing/proto/gen/go/db/v1"
 )
 
 func main() {
-	c := &orm.Config{}
+	c := &dbv1.DbConfig{}
 	if err := config.ReadConfig("./config.db.yaml", c); err != nil {
 		panic(err)
 	}

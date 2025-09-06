@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/redis"
+	dbv1 "github.com/byteflowing/proto/gen/go/db/v1"
 )
 
 type DistributedLock interface {
@@ -14,7 +14,7 @@ type DistributedLock interface {
 	ReNew(ctx context.Context, target, identifier string) error
 }
 
-func NewDistributedLock(rdb *redis.Redis, c *configv1.DistributedLock) DistributedLock {
+func NewDistributedLock(rdb *redis.Redis, c *dbv1.DistributedLock) DistributedLock {
 	return &RedisDistributedLock{
 		rdb:    rdb,
 		config: c,
@@ -23,7 +23,7 @@ func NewDistributedLock(rdb *redis.Redis, c *configv1.DistributedLock) Distribut
 
 type RedisDistributedLock struct {
 	rdb    *redis.Redis
-	config *configv1.DistributedLock
+	config *dbv1.DistributedLock
 }
 
 func (r *RedisDistributedLock) Lock(ctx context.Context, target string) (identifier string, err error) {

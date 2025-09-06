@@ -3,9 +3,9 @@ package common
 import (
 	"time"
 
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
 	"github.com/byteflowing/go-common/idx"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	idxv1 "github.com/byteflowing/proto/gen/go/idx/v1"
 )
 
 const (
@@ -16,7 +16,7 @@ type GlobalIdGenerator interface {
 	GetID() (int64, error)
 }
 
-func NewGlobalIdGenerator(c *configv1.GlobalId) GlobalIdGenerator {
+func NewGlobalIdGenerator(c *idxv1.GlobalIdConfig) GlobalIdGenerator {
 	if c.Mode == enumsv1.GlobalIdMode_GLOBAL_ID_MODE_LOCAL {
 		return &LocalGlobalIdGenerator{
 			idGen: newLocalGlobalId(c.StartTime.AsTime()),

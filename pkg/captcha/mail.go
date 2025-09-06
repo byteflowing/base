@@ -5,11 +5,10 @@ import (
 	"errors"
 
 	"github.com/byteflowing/base/ecode"
-	configv1 "github.com/byteflowing/base/gen/config/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	messageV1 "github.com/byteflowing/base/gen/msg/v1"
 	"github.com/byteflowing/base/pkg/msg/mail"
 	"github.com/byteflowing/go-common/redis"
+	captchav1 "github.com/byteflowing/proto/gen/go/captcha/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
 )
 
 type MailCaptcha struct {
@@ -17,14 +16,14 @@ type MailCaptcha struct {
 	captcha *captcha
 }
 
-func NewMailCaptcha(rdb *redis.Redis, mail mail.Mail, c *configv1.CaptchaProvider) *MailCaptcha {
+func NewMailCaptcha(rdb *redis.Redis, mail mail.Mail, c *captchav1.CaptchaProvider) *MailCaptcha {
 	return &MailCaptcha{
 		mail:    mail,
 		captcha: newCaptcha(rdb, c),
 	}
 }
 
-func (m *MailCaptcha) Send(ctx context.Context, req *messageV1.SendCaptchaReq) (resp *messageV1.SendCaptchaResp, err error) {
+func (m *MailCaptcha) Send(ctx context.Context, req *captchav1.SendCaptchaReq) (resp *captchav1.SendCaptchaResp, err error) {
 	if req.SenderType != enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL {
 		return nil, errors.New("sender type must be MAIL")
 	}
@@ -42,8 +41,8 @@ func (m *MailCaptcha) Send(ctx context.Context, req *messageV1.SendCaptchaReq) (
 	if err != nil {
 		return nil, err
 	}
-	resp = &messageV1.SendCaptchaResp{
-		Data: &messageV1.SendCaptchaResp_Data{
+	resp = &captchav1.SendCaptchaResp{
+		Data: &captchav1.SendCaptchaResp_Data{
 			Token: token,
 			Limit: limit,
 		},
@@ -51,7 +50,7 @@ func (m *MailCaptcha) Send(ctx context.Context, req *messageV1.SendCaptchaReq) (
 	return resp, nil
 }
 
-func (m *MailCaptcha) Verify(ctx context.Context, req *messageV1.VerifyCaptchaReq) (resp *messageV1.VerifyCaptchaResp, err error) {
+func (m *MailCaptcha) Verify(ctx context.Context, req *captchav1.VerifyCaptchaReq) (resp *captchav1.VerifyCaptchaResp, err error) {
 	if req.SenderType != enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL {
 		return nil, errors.New("sender type must be MAIL")
 	}

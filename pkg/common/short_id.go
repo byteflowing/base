@@ -1,8 +1,8 @@
 package common
 
 import (
-	configv1 "github.com/byteflowing/base/gen/config/v1"
 	"github.com/byteflowing/go-common/idx"
+	idxv1 "github.com/byteflowing/proto/gen/go/idx/v1"
 )
 
 type ShortIDGenerator struct {
@@ -10,12 +10,8 @@ type ShortIDGenerator struct {
 	globalIDGen GlobalIdGenerator
 }
 
-func NewShortIDGenerator(globalIDGen GlobalIdGenerator, c *configv1.ShortId) *ShortIDGenerator {
-	shortIDGenerator, err := idx.NewShortIdGenerator(&idx.ShotIDGeneratorOpts{
-		Alphabet:  c.Alphabet,
-		MinLength: uint8(c.MinLength),
-		Blocklist: c.BlockList,
-	})
+func NewShortIDGenerator(globalIDGen GlobalIdGenerator, c *idxv1.ShortIdConfig) *ShortIDGenerator {
+	shortIDGenerator, err := idx.NewShortIdGenerator(c)
 	if err != nil {
 		panic(err)
 	}

@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package enums.v1;
-
-enum GlobalIdMode {
-  GLOBAL_ID_MODE_UNSPECIFIED = 0;
-  GLOBAL_ID_MODE_LOCAL = 1; // 本地模式
-}

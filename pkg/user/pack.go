@@ -4,12 +4,12 @@ import (
 	"time"
 
 	"github.com/byteflowing/base/dal/model"
-	commonv1 "github.com/byteflowing/base/gen/common/v1"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
 	"github.com/byteflowing/base/pkg/common"
 	"github.com/byteflowing/go-common/crypto"
 	"github.com/byteflowing/go-common/trans"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
+	typesv1 "github.com/byteflowing/proto/gen/go/types/v1"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -244,7 +244,7 @@ func userBasicToUserInfo(userBasic *model.UserBasic) (basic *userv1.UserInfo) {
 		}
 	}
 	if userBasic.Phone != "" {
-		info.PhoneNumber = &commonv1.PhoneNumber{
+		info.PhoneNumber = &typesv1.PhoneNumber{
 			CountryCode: userBasic.PhoneCountryCode,
 			Number:      userBasic.Phone,
 		}
@@ -253,7 +253,7 @@ func userBasicToUserInfo(userBasic *model.UserBasic) (basic *userv1.UserInfo) {
 		info.Email = trans.Ref(userBasic.Email)
 	}
 	if userBasic.CountryCode != "" {
-		info.Region = &commonv1.AdminRegion{
+		info.Region = &typesv1.AdminRegion{
 			CountryCode:  userBasic.CountryCode,
 			ProvinceCode: userBasic.ProvinceCode,
 			CityCode:     userBasic.CityCode,

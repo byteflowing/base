@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/byteflowing/base/dal/model"
-	enumsv1 "github.com/byteflowing/base/gen/enums/v1"
-	userv1 "github.com/byteflowing/base/gen/user/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
+	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/protobuf/types/known/anypb"
 )
