@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/byteflowing/go-common v1.0.1-0.20250906133902-2f91e3612a3e
-	github.com/byteflowing/proto v0.0.0-20250907102804-18af4bdd6b0a
+	github.com/byteflowing/proto v0.0.0-20250907161419-3566e9b8cfdb
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/wire v0.7.0
 	golang.org/x/sync v0.16.0
