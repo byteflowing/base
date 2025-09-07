@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/byteflowing/go-common v1.0.1-0.20250906133902-2f91e3612a3e
-	github.com/byteflowing/proto v0.0.0-20250907070414-53c599b4be6d
+	github.com/byteflowing/proto v0.0.0-20250907102804-18af4bdd6b0a
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/wire v0.7.0
 	golang.org/x/sync v0.16.0
@@ -12,7 +12,7 @@ require (
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	gorm.io/gen v0.3.27
-	gorm.io/gorm v1.30.2
+	gorm.io/gorm v1.30.3
 	gorm.io/plugin/dbresolver v1.6.2
 )
 

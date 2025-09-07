@@ -56,10 +56,11 @@ func (p *PhoneCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
 	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
-		Token:      req.CaptchaToken,
-		Captcha:    req.Captcha,
-		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:       req.CaptchaToken,
+		Captcha:     req.Captcha,
+		CaptchaType: req.CaptchaType,
+		Number:      &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	})
 	if err != nil {
 		return nil, err
@@ -94,10 +95,11 @@ func (p *PhoneCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.
 		return nil, ecode.ErrPhoneIsEmpty
 	}
 	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
-		Token:      trans.Deref(req.CaptchaToken),
-		Captcha:    req.Credential,
-		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.PhoneNumber},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:       trans.Deref(req.CaptchaToken),
+		Captcha:     req.Credential,
+		CaptchaType: req.CaptchaType,
+		Number:      &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.PhoneNumber},
 	})
 	if err != nil {
 		return nil, err
@@ -145,10 +147,11 @@ func (p *PhoneCaptcha) Bind(ctx context.Context, tx *query.Query, req *userv1.Bi
 		return nil, ecode.ErrPhoneIsEmpty
 	}
 	_, err = p.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
-		Token:      trans.Deref(req.CaptchaToken),
-		Captcha:    trans.StringValue(req.Captcha),
-		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:       trans.Deref(req.CaptchaToken),
+		Captcha:     trans.StringValue(req.Captcha),
+		CaptchaType: trans.StringValue(req.CaptchaType),
+		Number:      &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	})
 	if err != nil {
 		return nil, err

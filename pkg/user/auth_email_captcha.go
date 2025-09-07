@@ -137,10 +137,11 @@ func (e *EmailCaptcha) Bind(ctx context.Context, tx *query.Query, req *userv1.Bi
 		return nil, ecode.ErrEmailIsEmpty
 	}
 	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
-		Token:      trans.Deref(req.CaptchaToken),
-		Captcha:    trans.StringValue(req.Captcha),
-		Number:     &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:       trans.Deref(req.CaptchaToken),
+		Captcha:     trans.StringValue(req.Captcha),
+		CaptchaType: trans.StringValue(req.CaptchaType),
+		Number:      &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
 	}); err != nil {
 		return nil, err
 	}

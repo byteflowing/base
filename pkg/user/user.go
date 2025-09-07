@@ -254,7 +254,7 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) 
 		return nil, ecode.ErrParams
 	}
 	token := idx.UUIDv4()
-	if err = i.tokenVerifier.Store(ctx, token, uid); err != nil {
+	if err = i.tokenVerifier.Store(ctx, token, uid, req.Param.SenderType, req.Param.CaptchaType); err != nil {
 		return nil, err
 	}
 	resp = &userv1.VerifyCaptchaResp{
@@ -304,7 +304,7 @@ func (i *Impl) ChangePassword(ctx context.Context, req *userv1.ChangePasswordReq
 }
 
 func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) (resp *userv1.ResetPasswordResp, err error) {
-	uid, err := i.tokenVerifier.Verify(ctx, req.ResetToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ResetToken, req.CaptchaSender, req.CaptchaType)
 	if err != nil {
 		return nil, err
 	}
@@ -322,21 +322,22 @@ func (i *Impl) ResetPassword(ctx context.Context, req *userv1.ResetPasswordReq) 
 		if err = i.revokeSessions(ctx, tx, uid, enumsv1.SessionStatus_SESSION_STATUS_RESET_PASSWORD_OUT, ""); err != nil {
 			return err
 		}
-		return i.tokenVerifier.Delete(ctx, req.ResetToken)
+		return i.tokenVerifier.Delete(ctx, req.ResetToken, req.CaptchaSender, req.CaptchaType)
 	})
 	return nil, err
 }
 
 func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (resp *userv1.ChangePhoneResp, err error) {
 	if _, err = i.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
-		Token:      req.CaptchaToken,
-		Captcha:    req.Captcha,
-		Number:     &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+		Token:       req.CaptchaToken,
+		Captcha:     req.Captcha,
+		CaptchaType: req.CaptchaType,
+		Number:      &captchav1.VerifyCaptchaReq_PhoneNumber{PhoneNumber: req.Phone},
 	}); err != nil {
 		return nil, err
 	}
-	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken, enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS, req.CaptchaType)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +349,7 @@ func (i *Impl) ChangePhone(ctx context.Context, req *userv1.ChangePhoneReq) (res
 		}); err != nil {
 			return err
 		}
-		return i.tokenVerifier.Delete(ctx, req.ChangeToken)
+		return i.tokenVerifier.Delete(ctx, req.ChangeToken, enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS, req.CaptchaType)
 	})
 	return nil, err
 }
@@ -362,7 +363,7 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 	}); err != nil {
 		return nil, err
 	}
-	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken)
+	uid, err := i.tokenVerifier.Verify(ctx, req.ChangeToken, req.Sender, req.Captcha)
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +374,7 @@ func (i *Impl) ChangeEmail(ctx context.Context, req *userv1.ChangeEmailReq) (res
 		}); err != nil {
 			return err
 		}
-		return i.tokenVerifier.Delete(ctx, req.ChangeToken)
+		return i.tokenVerifier.Delete(ctx, req.ChangeToken, req.Sender, req.Captcha)
 	})
 	return nil, err
 }
