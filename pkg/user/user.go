@@ -731,19 +731,19 @@ func (i *Impl) revokeSessions(ctx context.Context, tx *query.Query, uid int64, r
 	}
 	var ids []int64
 	var items []*BlockItem
-	for _, log := range activeLogs {
-		if log.AccessSessionID == exceptSessionId {
+	for _, activeLog := range activeLogs {
+		if activeLog.AccessSessionID == exceptSessionId {
 			continue
 		}
-		ids = append(ids, log.ID)
+		ids = append(ids, activeLog.ID)
 		items = append(items,
 			&BlockItem{
-				Target: log.AccessSessionID,
-				TTL:    i.jwtService.TTLFromExpiredAt(log.AccessExpiredAt),
+				Target: activeLog.AccessSessionID,
+				TTL:    i.jwtService.TTLFromExpiredAt(activeLog.AccessExpiredAt),
 			},
 			&BlockItem{
-				Target: log.RefreshSessionID,
-				TTL:    i.jwtService.TTLFromExpiredAt(log.RefreshExpiredAt),
+				Target: activeLog.RefreshSessionID,
+				TTL:    i.jwtService.TTLFromExpiredAt(activeLog.RefreshExpiredAt),
 			},
 		)
 	}
