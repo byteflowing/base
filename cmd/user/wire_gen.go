@@ -51,7 +51,7 @@ func NewWithConfig(confFile string) *user.Impl {
 	captchaCaptcha := captcha.NewCaptcha(captchav1Captcha, redis, smsSms, mailMail)
 	wechat := config.Wechat
 	wechatManager := common.NewWechatManager(wechat)
-	impl := user.New(userv1User, repo, query, jwtService, twoStepVerifier, shortIDGenerator, globalIdGenerator, captchaCaptcha, wechatManager, authLimiter)
+	impl := user.New(config, repo, query, jwtService, twoStepVerifier, shortIDGenerator, globalIdGenerator, captchaCaptcha, wechatManager, authLimiter)
 	return impl
 }
 

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
-	"net"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -36,7 +34,7 @@ type Authenticator interface {
 }
 
 type Impl struct {
-	config        *userv1.User
+	config        *configv1.Config
 	authHandlers  map[enumsv1.AuthType]Authenticator
 	repo          Repo
 	query         *query.Query
@@ -59,7 +57,7 @@ func NewConfig(filePath string) *configv1.Config {
 }
 
 func New(
-	config *userv1.User,
+	config *configv1.Config,
 	repo Repo,
 	query *query.Query,
 	jwtService *JwtService,
@@ -70,9 +68,9 @@ func New(
 	wechat *common.WechatManager,
 	authLimiter *AuthLimiter,
 ) *Impl {
-	var authHandlers = make(map[enumsv1.AuthType]Authenticator, len(config.EnableAuth))
-	passHasher := crypto.NewPasswordHasher(int(config.PasswordHasher))
-	for _, authType := range config.EnableAuth {
+	var authHandlers = make(map[enumsv1.AuthType]Authenticator, len(config.User.EnableAuth))
+	passHasher := crypto.NewPasswordHasher(int(config.User.PasswordHasher))
+	for _, authType := range config.User.EnableAuth {
 		switch authType {
 		case enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD:
 			authHandlers[authType] = NewNumberPassword(passHasher, repo, jwtService, authLimiter)
@@ -105,26 +103,8 @@ func New(
 	}
 }
 
-// Start 当单独作为grpc服务的时候调用本方法可以启动grpc server
-// TODO: 添加zap日志库，设置日志中间件
-func (i *Impl) Start() {
-	s := grpc.NewServer()
-	userv1.RegisterUserServiceServer(s, i)
-	if len(i.config.ListenAddr) == 0 || i.config.ListenPort <= 0 {
-		panic(errors.New("config.listen_addr and config.listen_port must be positive"))
-	}
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", i.config.ListenAddr, i.config.ListenPort))
-	if err != nil {
-		panic(err)
-	}
-	i.grpServer = s
-	if err = s.Serve(lis); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (i *Impl) Stop() {
-	i.grpServer.GracefulStop()
+func (i *Impl) GetConfig() *configv1.Config {
+	return i.config
 }
 
 func (i *Impl) CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp *userv1.CreateUserResp, err error) {
