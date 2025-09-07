@@ -30,7 +30,12 @@ func newCaptcha(rdb *redis.Redis, c *captchav1.CaptchaProvider) *captcha {
 	}
 }
 
-func (c *captcha) send(ctx context.Context, target, val string, fn func() error) (token string, rule *limiterv1.LimitRule, err error) {
+func (c *captcha) send(
+	ctx context.Context,
+	target, val, captchaType string,
+	sender enumsV1.MessageSenderType,
+	fn func() error,
+) (token string, rule *limiterv1.LimitRule, err error) {
 	ok, rule, err := c.allow(ctx, target)
 	if err != nil {
 		return "", nil, err
@@ -42,7 +47,7 @@ func (c *captcha) send(ctx context.Context, target, val string, fn func() error)
 		return "", nil, err
 	}
 	token = idx.UUIDv4()
-	key := c.getCaptchaKey(token)
+	key := c.getCaptchaKey(token, sender, captchaType)
 	v := fmt.Sprintf("%s:%s", target, val)
 	err = c.rdb.Set(ctx, key, v, c.config.Keeping.AsDuration()).Err()
 	if err != nil {
@@ -51,12 +56,16 @@ func (c *captcha) send(ctx context.Context, target, val string, fn func() error)
 	return token, nil, nil
 }
 
-func (c *captcha) verify(ctx context.Context, target, token, captcha string, sender enumsV1.MessageSenderType) (ok bool, err error) {
+func (c *captcha) verify(
+	ctx context.Context,
+	target, token, captcha, captchaType string,
+	sender enumsV1.MessageSenderType,
+) (ok bool, err error) {
 	ok, err = c.allowVerify(ctx, token)
 	if err != nil {
 		return false, err
 	}
-	key := c.getCaptchaKey(token)
+	key := c.getCaptchaKey(token, sender, captchaType)
 	if !ok {
 		// 错误次数过多删除验证码
 		if err = c.rdb.Del(ctx, key).Err(); err != nil {
@@ -96,8 +105,15 @@ func (c *captcha) verify(ctx context.Context, target, token, captcha string, sen
 	return ok, nil
 }
 
-func (c *captcha) getCaptchaKey(token string) string {
-	return fmt.Sprintf("%s:{%s}", c.config.Prefix, token)
+func (c *captcha) getCaptchaKey(
+	token string,
+	sender enumsV1.MessageSenderType,
+	captchaType string,
+) string {
+	// prefix:sender:captchaType:token
+	// e.g. captcha:1:2:xxxxxxxxx
+	// e.g. captcha:1:login:xxxxxxx
+	return fmt.Sprintf("%s:%d:%s:{%s}", c.config.Prefix, sender, captchaType, token)
 }
 
 func (c *captcha) getCaptchaErrKey(token string) string {

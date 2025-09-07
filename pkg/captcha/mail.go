@@ -34,10 +34,16 @@ func (m *MailCaptcha) Send(ctx context.Context, req *captchav1.SendCaptchaReq) (
 	if len(mailReq.To) != 1 {
 		return nil, errors.New("send captcha mail address to must be 1")
 	}
-	token, limit, err := m.captcha.send(ctx, mailReq.To[0].Address, req.Captcha, func() error {
-		_, err = m.mail.SendMail(ctx, mailReq)
-		return err
-	})
+	token, limit, err := m.captcha.send(
+		ctx,
+		mailReq.To[0].Address,
+		req.Captcha,
+		req.CaptchaType,
+		req.SenderType,
+		func() error {
+			_, err = m.mail.SendMail(ctx, mailReq)
+			return err
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +64,14 @@ func (m *MailCaptcha) Verify(ctx context.Context, req *captchav1.VerifyCaptchaRe
 	if mailAddr == "" {
 		return nil, errors.New("email address is empty")
 	}
-	ok, err := m.captcha.verify(ctx, mailAddr, req.Token, req.Captcha, enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL)
+	ok, err := m.captcha.verify(
+		ctx,
+		mailAddr,
+		req.Token,
+		req.Captcha,
+		req.CaptchaType,
+		enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+	)
 	if err != nil {
 		return nil, err
 	}

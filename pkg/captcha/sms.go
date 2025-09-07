@@ -34,10 +34,16 @@ func (s *SmsCaptcha) Send(ctx context.Context, req *captchav1.SendCaptchaReq) (r
 		return nil, errors.New("sms request is nil")
 	}
 	target := getPhoneTarget(smsReq.PhoneNumber)
-	token, limit, err := s.captcha.send(ctx, target, req.Captcha, func() error {
-		_, err = s.sms.SendSms(ctx, smsReq)
-		return err
-	})
+	token, limit, err := s.captcha.send(
+		ctx,
+		target,
+		req.Captcha,
+		req.CaptchaType,
+		req.SenderType,
+		func() error {
+			_, err = s.sms.SendSms(ctx, smsReq)
+			return err
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +61,14 @@ func (s *SmsCaptcha) Verify(ctx context.Context, req *captchav1.VerifyCaptchaReq
 		return nil, errors.New("sender type must be SMS")
 	}
 	target := getPhoneTarget(req.GetPhoneNumber())
-	ok, err := s.captcha.verify(ctx, target, req.Token, req.Captcha, enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS)
+	ok, err := s.captcha.verify(
+		ctx,
+		target,
+		req.Token,
+		req.Captcha,
+		req.CaptchaType,
+		enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_SMS,
+	)
 	if err != nil {
 		return nil, err
 	}
