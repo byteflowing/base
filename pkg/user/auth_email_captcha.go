@@ -56,10 +56,11 @@ func (e *EmailCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 		return nil, ecode.ErrUserCaptchaTokenIsEmpty
 	}
 	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
-		Token:      req.CaptchaToken,
-		Captcha:    req.Captcha,
-		Number:     &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:       req.CaptchaToken,
+		Captcha:     req.Captcha,
+		CaptchaType: req.CaptchaType,
+		Number:      &captchav1.VerifyCaptchaReq_Email{Email: trans.StringValue(req.Email)},
 	}); err != nil {
 		return nil, err
 	}
@@ -90,10 +91,11 @@ func (e *EmailCaptcha) SignIn(ctx context.Context, tx *query.Query, req *userv1.
 		return nil, ecode.ErrUserCaptchaIsEmpty
 	}
 	if _, err = e.captcha.VerifyCaptcha(ctx, &captchav1.VerifyCaptchaReq{
-		SenderType: enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
-		Token:      trans.Deref(req.CaptchaToken),
-		Captcha:    req.Credential,
-		Number:     &captchav1.VerifyCaptchaReq_Email{Email: req.Identifier},
+		SenderType:  enumsv1.MessageSenderType_MESSAGE_SENDER_TYPE_MAIL,
+		Token:       trans.Deref(req.CaptchaToken),
+		Captcha:     req.Credential,
+		CaptchaType: req.CaptchaType,
+		Number:      &captchav1.VerifyCaptchaReq_Email{Email: req.Identifier},
 	}); err != nil {
 		return nil, err
 	}
