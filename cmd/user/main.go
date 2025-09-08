@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -18,24 +19,28 @@ import (
 func main() {
 	configPath := flag.String("config", "config.db.yaml", "path to config file")
 	flag.Parse()
-	sigListener := signalx.NewSignalListener()
+	signalListener := signalx.NewSignalListener(30 * time.Second)
 	userImpl := NewWithConfig(*configPath)
-	userService := &UserService{
-		config: userImpl.GetConfig(),
-		user:   userImpl,
-	}
-	sigListener.Register(userService)
-	sigListener.Listen()
+	userService := newSrv(userImpl, userImpl.GetConfig())
+	signalListener.Register(userService)
+	signalListener.Listen()
 	log.Printf("exit")
 }
 
-type UserService struct {
+type srv struct {
 	user      *user.Impl
 	config    *configv1.Config
 	grpServer *grpc.Server
 }
 
-func (u *UserService) Start() {
+func newSrv(user *user.Impl, config *configv1.Config) *srv {
+	return &srv{
+		user:   user,
+		config: config,
+	}
+}
+
+func (u *srv) Start() {
 	s := grpc.NewServer()
 	userv1.RegisterUserServiceServer(s, u.user)
 	userConfig := u.config.GetUser()
@@ -52,6 +57,6 @@ func (u *UserService) Start() {
 	}
 }
 
-func (u *UserService) Stop() {
+func (u *srv) Stop() {
 	u.grpServer.GracefulStop()
 }
