@@ -11,20 +11,23 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/byteflowing/base/pkg/user"
+	"github.com/byteflowing/go-common/logx"
 	"github.com/byteflowing/go-common/signalx"
 	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
 	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
 )
 
 func main() {
-	configPath := flag.String("config", "config.db.yaml", "path to config file")
+	configPath := flag.String("config", "./config.dev.yaml", "user -config config.yaml")
 	flag.Parse()
-	signalListener := signalx.NewSignalListener(30 * time.Second)
 	userImpl := NewWithConfig(*configPath)
-	userService := newSrv(userImpl, userImpl.GetConfig())
+	config := userImpl.GetConfig()
+	logx.Init(config.LogConfig)
+	userService := newSrv(userImpl, config)
+	signalListener := signalx.NewSignalListener(30 * time.Second)
 	signalListener.Register(userService)
 	signalListener.Listen()
-	log.Printf("exit")
+	log.Println("user service exited")
 }
 
 type srv struct {
@@ -59,4 +62,5 @@ func (u *srv) Start() {
 
 func (u *srv) Stop() {
 	u.grpServer.GracefulStop()
+	log.Println(logx.Sync())
 }

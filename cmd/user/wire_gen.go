@@ -59,4 +59,17 @@ func NewWithConfig(confFile string) *user.Impl {
 
 var publicSet = wire.NewSet(common.NewDb, common.NewRDB, common.NewDistributedLock, common.NewGlobalIdGenerator, common.NewShortIDGenerator, common.NewWechatManager, captcha.NewSmsCaptcha, captcha.NewMailCaptcha, captcha.NewCaptcha, sms.New, mail.New, dal.New)
 
-var userProviderSet = wire.NewSet(user.NewCache, user.NewRepo, user.NewJwtService, user.NewTwoStepVerifier, user.NewAuthLimiter, user.New, user.NewSessionBlockList, user.NewConfig, wire.FieldsOf(new(*configv1.Config), "Sms", "Mail", "Captcha", "GlobalId", "ShortId", "Wechat", "Db", "Redis", "DistributedLock", "User"), wire.FieldsOf(new(*userv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"))
+var userProviderSet = wire.NewSet(user.NewCache, user.NewRepo, user.NewJwtService, user.NewTwoStepVerifier, user.NewAuthLimiter, user.New, user.NewSessionBlockList, user.NewConfig, wire.FieldsOf(
+	new(*configv1.Config),
+	"Sms",
+	"Mail",
+	"Captcha",
+	"GlobalId",
+	"ShortId",
+	"Wechat",
+	"Db",
+	"Redis",
+	"DistributedLock",
+	"User",
+), wire.FieldsOf(new(*userv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"),
+)

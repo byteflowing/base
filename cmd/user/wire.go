@@ -39,7 +39,19 @@ var userProviderSet = wire.NewSet(
 	user.New,
 	user.NewSessionBlockList,
 	user.NewConfig,
-	wire.FieldsOf(new(*configv1.Config), "Sms", "Mail", "Captcha", "GlobalId", "ShortId", "Wechat", "Db", "Redis", "DistributedLock", "User"),
+	wire.FieldsOf(
+		new(*configv1.Config),
+		"Sms",
+		"Mail",
+		"Captcha",
+		"GlobalId",
+		"ShortId",
+		"Wechat",
+		"Db",
+		"Redis",
+		"DistributedLock",
+		"User",
+	),
 	wire.FieldsOf(new(*userv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"),
 )
 
