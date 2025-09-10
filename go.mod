@@ -3,7 +3,7 @@ module github.com/byteflowing/base
 go 1.25.1
 
 require (
-	github.com/byteflowing/go-common v1.0.1-0.20250909155008-d98be242b4ae
+	github.com/byteflowing/go-common v1.0.1-0.20250910021459-bdc50815346c
 	github.com/byteflowing/proto v0.0.0-20250909154438-78b19a08d249
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/wire v0.7.0

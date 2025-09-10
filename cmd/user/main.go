@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/byteflowing/base/pkg/user"
+	"github.com/byteflowing/base/version"
 	"github.com/byteflowing/go-common/logx"
 	"github.com/byteflowing/go-common/signalx"
 	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
@@ -23,11 +24,13 @@ func main() {
 	userImpl := NewWithConfig(*configPath)
 	config := userImpl.GetConfig()
 	logx.Init(config.LogConfig)
+	version.PrintFullVersion()
 	userService := newSrv(userImpl, config)
 	signalListener := signalx.NewSignalListener(30 * time.Second)
 	signalListener.Register(userService)
 	signalListener.Listen()
 	log.Println("user service exited")
+	version.PrintFullVersion()
 }
 
 type srv struct {

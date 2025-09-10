@@ -155,8 +155,8 @@ github.com/bytedance/sonic v1.14.1 h1:FBMC0zVz5XUmE4z9wF4Jey0An5FueFvOsTKKKtwIl7
 github.com/bytedance/sonic v1.14.1/go.mod h1:gi6uhQLMbTdeP0muCnrjHLeCUPyb70ujhnNlhOylAFc=
 github.com/bytedance/sonic/loader v0.3.0 h1:dskwH8edlzNMctoruo8FPTJDF3vLtDT0sXZwvZJyqeA=
 github.com/bytedance/sonic/loader v0.3.0/go.mod h1:N8A3vUdtUebEY2/VQC0MyhYeKUFosQU6FxH2JmUe6VI=
-github.com/byteflowing/go-common v1.0.1-0.20250909155008-d98be242b4ae h1:bRwSO5wW0K1yO/1wUJarX4IJggMK+QoTOfpn/LgsA5k=
-github.com/byteflowing/go-common v1.0.1-0.20250909155008-d98be242b4ae/go.mod h1:FFLQxViGlDiJ0TZqYK5wBoDrw/yRsRp//UpTTXXaO8w=
+github.com/byteflowing/go-common v1.0.1-0.20250910021459-bdc50815346c h1:f5NZVft5HvIhEkEtz4rVdqklM5CGLokOFH5NjSh2Oww=
+github.com/byteflowing/go-common v1.0.1-0.20250910021459-bdc50815346c/go.mod h1:FFLQxViGlDiJ0TZqYK5wBoDrw/yRsRp//UpTTXXaO8w=
 github.com/byteflowing/proto v0.0.0-20250909154438-78b19a08d249 h1:Qv9VzkNytWRt/8aLrlHK0qnsfbmy7OMyJl2S1PZztks=
 github.com/byteflowing/proto v0.0.0-20250909154438-78b19a08d249/go.mod h1:vGWu87ZwKNBYmreWgW6B20HHE6PMGJeb3McTVdRGAM8=
 github.com/casbin/casbin/v2 v2.37.0/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
