@@ -28,7 +28,7 @@ type JwtService struct {
 }
 
 func NewJwtService(
-	config *userv1.UserJwt,
+	config *userv1.UserJwtConfig,
 	repo Repo,
 	authLimiter *AuthLimiter,
 	sessionBlockList BlockList,

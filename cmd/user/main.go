@@ -8,14 +8,17 @@ import (
 	"net"
 	"time"
 
+	"buf.build/go/protovalidate"
 	"google.golang.org/grpc"
 
 	"github.com/byteflowing/base/pkg/user"
+	"github.com/byteflowing/base/pkg/utils"
 	"github.com/byteflowing/base/version"
 	"github.com/byteflowing/go-common/logx"
 	"github.com/byteflowing/go-common/signalx"
 	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
 	userv1 "github.com/byteflowing/proto/gen/go/services/user/v1"
+	protovalidatemiddleware "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 )
 
 func main() {
@@ -47,8 +50,6 @@ func newSrv(user *user.Impl, config *configv1.Config) *srv {
 }
 
 func (u *srv) Start() {
-	s := grpc.NewServer()
-	userv1.RegisterUserServiceServer(s, u.user)
 	userConfig := u.config.GetUser()
 	if len(userConfig.ListenAddr) == 0 || userConfig.ListenPort <= 0 {
 		panic(errors.New("config.listen_addr and config.listen_port must be positive"))
@@ -57,6 +58,18 @@ func (u *srv) Start() {
 	if err != nil {
 		panic(err)
 	}
+	protoValid, err := protovalidate.New()
+	if err != nil {
+		panic(err)
+	}
+	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			protovalidatemiddleware.UnaryServerInterceptor(protoValid), // protoValidate验证参数
+			utils.UnaryLogIDInterceptor(u.config.LogConfig),            // 将调用方传递的logId写入ctx中
+			utils.UnaryLoggingInterceptor(u.config.LogConfig),          // log level为debug时记录请求及响应的日志
+		),
+	)
+	userv1.RegisterUserServiceServer(s, u.user)
 	u.grpServer = s
 	if err = s.Serve(lis); err != nil {
 		log.Fatal(err)

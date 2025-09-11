@@ -11,6 +11,6 @@ type CacheImpl struct {
 	rdb *redis.Redis
 }
 
-func NewCache(c *userv1.UserCache, rdb *redis.Redis) Cache {
+func NewCache(c *userv1.UserCacheConfig, rdb *redis.Redis) Cache {
 	return &CacheImpl{}
 }

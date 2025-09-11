@@ -22,7 +22,7 @@ type Captcha interface {
 }
 
 func NewCaptcha(
-	c *captchav1.Captcha,
+	c *captchav1.CaptchaConfig,
 	rdb *redis.Redis,
 	sms sms.Sms,
 	mail mail.Mail,

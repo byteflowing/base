@@ -12,11 +12,11 @@ import (
 )
 
 type TwoStepVerifier struct {
-	config *userv1.TokenVerify
+	config *userv1.TokenVerifyConfig
 	rdb    *redis.Redis
 }
 
-func NewTwoStepVerifier(config *userv1.TokenVerify, rdb *redis.Redis) *TwoStepVerifier {
+func NewTwoStepVerifier(config *userv1.TokenVerifyConfig, rdb *redis.Redis) *TwoStepVerifier {
 	return &TwoStepVerifier{
 		config: config,
 		rdb:    rdb,

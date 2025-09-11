@@ -48,10 +48,8 @@ func (m *MailCaptcha) Send(ctx context.Context, req *captchav1.SendCaptchaReq) (
 		return nil, err
 	}
 	resp = &captchav1.SendCaptchaResp{
-		Data: &captchav1.SendCaptchaResp_Data{
-			Token: token,
-			Limit: limit,
-		},
+		Token: token,
+		Limit: limit,
 	}
 	return resp, nil
 }

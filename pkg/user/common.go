@@ -42,9 +42,7 @@ func checkPasswordAndGenToken(
 		}
 		if !allow {
 			resp = &userv1.SignInResp{
-				Data: &userv1.SignInResp_Data{
-					Rule: rule,
-				},
+				Rule: rule,
 			}
 			return resp, ecode.ErrUserPasswordWrongTooMany
 		}
@@ -74,11 +72,9 @@ func checkPasswordAndGenToken(
 		return nil, err
 	}
 	resp = &userv1.SignInResp{
-		Data: &userv1.SignInResp_Data{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
-			UserInfo:     userBasicToUserInfo(userBasic),
-		},
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		UserInfo:     userBasicToUserInfo(userBasic),
 	}
 	return resp, nil
 }

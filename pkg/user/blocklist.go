@@ -20,7 +20,7 @@ type SessionBlockList struct {
 	prefix string
 }
 
-func NewSessionBlockList(c *userv1.SessionBlockList, rdb *redis.Redis) BlockList {
+func NewSessionBlockList(c *userv1.SessionBlockListConfig, rdb *redis.Redis) BlockList {
 	return &SessionBlockList{
 		rdb:    rdb,
 		prefix: c.Prefix,

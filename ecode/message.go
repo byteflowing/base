@@ -1,11 +1,12 @@
 package ecode
 
-import "github.com/byteflowing/go-common/ecode"
-
-// 100 - 999 message模块
+import (
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
 var (
-	ErrCaptchaNotExist      = ecode.NewCode(100, "ERR_CAPTCHA_NOT_EXIST")       // 验证码不存在
-	ErrCaptchaTooManyErrors = ecode.NewCode(101, "ERR_CAPTCHA_TOO_MANY_ERRORS") // 验证码失败次数过多
-	ErrCaptchaMisMatch      = ecode.NewCode(102, "ERR_CAPTCHA_MISMATCH")        // 验证码不匹配
+	ErrCaptchaNotExist      = status.New(codes.InvalidArgument, "ERR_CAPTCHA_NOT_EXIST").Err()         // 没有验证码
+	ErrCaptchaTooManyErrors = status.New(codes.ResourceExhausted, "ERR_CAPTCHA_TOO_MANY_ERRORS").Err() // 验证码失败次数过多
+	ErrCaptchaMisMatch      = status.New(codes.InvalidArgument, "ERR_CAPTCHA_MISMATCH").Err()          // 验证码不匹配
 )

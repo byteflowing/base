@@ -1,26 +1,27 @@
 package ecode
 
-import "github.com/byteflowing/go-common/ecode"
+import (
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
-// 0 - 99 公共错误
 var (
-	StatusOK            = ecode.NewCode(0, "OK")                      // 正常
-	ErrParams           = ecode.NewCode(1, "ERR_PARAMS")              // 参数错误
-	ErrInternal         = ecode.NewCode(2, "ERR_INTERNAL")            // 内部错误
-	ErrNotFound         = ecode.NewCode(3, "ERR_NOT_FOUND")           // 资源不存在
-	ErrUnauthorized     = ecode.NewCode(4, "ERR_UNAUTHORIZED")        // 未认证
-	ErrPermission       = ecode.NewCode(5, "ERR_PERMISSION")          // 无权限
-	ErrTimeout          = ecode.NewCode(6, "ERR_TIMEOUT")             // 超时
-	ErrTooManyRequests  = ecode.NewCode(7, "ERR_TOO_MANY_REQUESTS")   // 请求过多
-	ErrUnImplemented    = ecode.NewCode(8, "ERR_UNIMPLEMENTED")       // 未实现
-	ErrPhoneNotMatch    = ecode.NewCode(9, "ERR_PHONE_NOT_MATCH")     // 手机不匹配
-	ErrEmailNotMatch    = ecode.NewCode(10, "ERR_EMAIL_NOT_MATCH")    // 邮箱不匹配
-	ErrPhoneIsEmpty     = ecode.NewCode(11, "ERR_PHONE_IS_EMPTY")     // 手机号码为空
-	ErrEmailIsEmpty     = ecode.NewCode(12, "ERR_EMAIL_IS_EMPTY")     // 邮箱为空
-	ErrPhoneNotExist    = ecode.NewCode(13, "ERR_PHONE_NOT_EXIST")    // 手机号码不存在
-	ErrEmailNotExist    = ecode.NewCode(14, "ERR_EMAIL_NOT_EXIST")    // 邮箱不存在
-	ErrPhoneExists      = ecode.NewCode(15, "ERR_PHONE_EXISTS")       // 手机已存在
-	ErrEmailExists      = ecode.NewCode(16, "ERR_EMAIL_EXISTS")       // 邮箱已存在
-	ErrEmailAlreadyBind = ecode.NewCode(17, "ERR_EMAIL_ALREADY_BIND") // 邮箱已绑定
-	ErrPhoneAlreadyBind = ecode.NewCode(18, "ERR_PHONE_ALREADY_BIND") // 手机已绑定
+	ErrInternal         = status.New(codes.Internal, "ERR_INTERNAL").Err()                   // 内部错误
+	ErrNotFound         = status.New(codes.NotFound, "ERR_NOT_FOUND").Err()                  // 资源不存在
+	ErrUnauthenticated  = status.New(codes.Unauthenticated, "ERR_UNAUTHORIZED").Err()        // 未认证
+	ErrPermission       = status.New(codes.PermissionDenied, "ERR_PERMISSION").Err()         // 无权限
+	ErrTimeout          = status.New(codes.DeadlineExceeded, "ERR_TIMEOUT").Err()            // 超时
+	ErrTooManyRequests  = status.New(codes.ResourceExhausted, "ERR_TOO_MANY_REQUESTS").Err() // 请求过多
+	ErrUnImplemented    = status.New(codes.Unimplemented, "ERR_UNIMPLEMENTED").Err()         // 未实现
+	ErrParams           = status.New(codes.InvalidArgument, "ERR_PARAMS").Err()              // 参数错误
+	ErrPhoneNotMatch    = status.New(codes.InvalidArgument, "ERR_PHONE_NOT_MATCH").Err()     // 手机不匹配
+	ErrEmailNotMatch    = status.New(codes.InvalidArgument, "ERR_EMAIL_NOT_MATCH").Err()     // 邮箱不匹配
+	ErrPhoneIsEmpty     = status.New(codes.InvalidArgument, "ERR_PHONE_IS_EMPTY").Err()      // 手机号码为空
+	ErrEmailIsEmpty     = status.New(codes.InvalidArgument, "ERR_EMAIL_IS_EMPTY").Err()      // 邮箱为空
+	ErrPhoneNotExist    = status.New(codes.InvalidArgument, "ERR_PHONE_NOT_EXIST").Err()     // 手机号码不存在
+	ErrEmailNotExist    = status.New(codes.InvalidArgument, "ERR_EMAIL_NOT_EXIST").Err()     // 邮箱不存在
+	ErrPhoneExists      = status.New(codes.InvalidArgument, "ERR_PHONE_EXISTS").Err()        // 手机已存在
+	ErrEmailExists      = status.New(codes.InvalidArgument, "ERR_EMAIL_EXISTS").Err()        // 邮箱已存在
+	ErrEmailAlreadyBind = status.New(codes.AlreadyExists, "ERR_EMAIL_ALREADY_BIND").Err()    // 邮箱已绑定
+	ErrPhoneAlreadyBind = status.New(codes.AlreadyExists, "ERR_PHONE_ALREADY_BIND").Err()    // 手机已绑定
 )

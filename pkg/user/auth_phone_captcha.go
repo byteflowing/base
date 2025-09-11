@@ -76,7 +76,7 @@ func (p *PhoneCaptcha) SignUp(ctx context.Context, tx *query.Query, req *userv1.
 		return nil, err
 	}
 	resp = &userv1.SignUpResp{
-		Data: &userv1.SignUpResp_Data{UserInfo: userBasicToUserInfo(userBasic)},
+		UserInfo: userBasicToUserInfo(userBasic),
 	}
 	return resp, nil
 }

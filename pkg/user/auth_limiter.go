@@ -20,7 +20,7 @@ type AuthLimiter struct {
 	errLimiter *ratelimit.RedisLimiter
 }
 
-func NewAuthLimiter(c *userv1.UserAuthLimiter, rdb *redis.Redis) *AuthLimiter {
+func NewAuthLimiter(c *userv1.UserAuthLimiterConfig, rdb *redis.Redis) *AuthLimiter {
 	errLimiter := ratelimit.NewRedisLimiter(rdb, c.ErrPrefix, c.SignInErrRules)
 	var rules = make(map[enumsv1.UserAuthLimitType]*limiterv1.LimitRule, 2)
 	rules[enumsv1.UserAuthLimitType_USER_AUTH_LIMIT_TYPE_SIGN_IN] = c.SignInRule

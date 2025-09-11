@@ -21,7 +21,7 @@ type Impl struct {
 	providers map[enumsv1.SmsVendor]map[string]Provider
 }
 
-func New(c *smsv1.Sms) Sms {
+func New(c *smsv1.SmsConfig) Sms {
 	if c == nil {
 		return nil
 	}

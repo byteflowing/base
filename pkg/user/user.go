@@ -119,7 +119,7 @@ func (i *Impl) CreateUser(ctx context.Context, req *userv1.CreateUserReq) (resp 
 		return nil, err
 	}
 	resp = &userv1.CreateUserResp{
-		Data: &userv1.CreateUserResp_Data{Uid: userBasic.ID},
+		Uid: userBasic.ID,
 	}
 	return
 }
@@ -183,9 +183,7 @@ func (i *Impl) GetUserAuth(ctx context.Context, req *userv1.GetUserAuthReq) (res
 		userAuth[i] = userAuthModelToAuth(a)
 	}
 	resp = &userv1.GetUserAuthResp{
-		Data: &userv1.GetUserAuthResp_Data{
-			Auth: userAuth,
-		},
+		Auth: userAuth,
 	}
 	return
 }
@@ -211,10 +209,8 @@ func (i *Impl) SendCaptcha(ctx context.Context, req *userv1.SendCaptchaReq) (res
 		return nil, err
 	}
 	resp = &userv1.SendCaptchaResp{
-		Data: &userv1.SendCaptchaResp_Data{
-			Token: res.Data.Token,
-			Limit: res.Data.Limit,
-		},
+		Token: res.Token,
+		Limit: res.Limit,
 	}
 	return
 }
@@ -238,7 +234,7 @@ func (i *Impl) VerifyCaptcha(ctx context.Context, req *userv1.VerifyCaptchaReq) 
 		return nil, err
 	}
 	resp = &userv1.VerifyCaptchaResp{
-		Data: &userv1.VerifyCaptchaResp_Data{Token: token},
+		Token: token,
 	}
 	return
 }
@@ -569,10 +565,8 @@ func (i *Impl) Refresh(ctx context.Context, req *userv1.RefreshReq) (resp *userv
 		return nil, err
 	}
 	resp = &userv1.RefreshResp{
-		Data: &userv1.RefreshResp_Data{
-			NewAccessToken:  access,
-			NewRefreshToken: refresh,
-		},
+		NewAccessToken:  access,
+		NewRefreshToken: refresh,
 	}
 	return resp, nil
 }
@@ -590,20 +584,18 @@ func (i *Impl) VerifyToken(ctx context.Context, req *userv1.VerifyTokenReq) (res
 		return nil, err
 	}
 	resp = &userv1.VerifyTokenResp{
-		Data: &userv1.VerifyTokenResp_Data{
-			UserInfo: &userv1.UserProfile{
-				Uid:       claims.Uid,
-				Number:    claims.Number,
-				Biz:       claims.Biz,
-				UserType:  claims.UserType,
-				UserLevel: claims.UserLevel,
-				AuthType:  enumsv1.AuthType(claims.AuthType),
-				Appid:     claims.AppId,
-				Openid:    claims.OpenId,
-				Unionid:   claims.UnionId,
-				SessionId: claims.ID,
-				Extra:     claims.Extra,
-			},
+		UserInfo: &userv1.UserProfile{
+			Uid:       claims.Uid,
+			Number:    claims.Number,
+			Biz:       claims.Biz,
+			UserType:  claims.UserType,
+			UserLevel: claims.UserLevel,
+			AuthType:  enumsv1.AuthType(claims.AuthType),
+			Appid:     claims.AppId,
+			Openid:    claims.OpenId,
+			Unionid:   claims.UnionId,
+			SessionId: claims.ID,
+			Extra:     claims.Extra,
 		},
 	}
 	return resp, nil
@@ -619,9 +611,7 @@ func (i *Impl) GetActiveSignInLogs(ctx context.Context, req *userv1.GetActiveSig
 		logs[i] = userSignInModelToSignInLog(log)
 	}
 	resp = &userv1.GetActiveSignInLogsResp{
-		Data: &userv1.GetActiveSignInLogsResp_Data{
-			Logs: logs,
-		},
+		Logs: logs,
 	}
 	return resp, nil
 }
@@ -636,13 +626,11 @@ func (i *Impl) PagingGetSignInLogs(ctx context.Context, req *userv1.PagingGetSig
 		logs[i] = userSignInModelToSignInLog(log)
 	}
 	resp = &userv1.PagingGetSignInLogsResp{
-		Data: &userv1.PagingGetSignInLogsResp_Data{
-			Logs:       logs,
-			Page:       res.Page,
-			Size:       res.PageSize,
-			Total:      res.Total,
-			TotalPages: res.TotalPages,
-		},
+		Logs:       logs,
+		Page:       res.Page,
+		Size:       res.PageSize,
+		Total:      res.Total,
+		TotalPages: res.TotalPages,
 	}
 	return resp, nil
 }
@@ -657,13 +645,11 @@ func (i *Impl) PagingGetUsers(ctx context.Context, req *userv1.PagingGetUsersReq
 		users[i] = userBasicToUserInfo(user)
 	}
 	resp = &userv1.PagingGetUsersResp{
-		Data: &userv1.PagingGetUsersResp_Data{
-			Users:      users,
-			Page:       res.Page,
-			Size:       res.PageSize,
-			Total:      res.Total,
-			TotalPages: res.TotalPages,
-		},
+		Users:      users,
+		Page:       res.Page,
+		Size:       res.PageSize,
+		Total:      res.Total,
+		TotalPages: res.TotalPages,
 	}
 	return resp, nil
 }

@@ -24,7 +24,7 @@ type WechatManager struct {
 	sf           *singleflight.Group
 }
 
-func NewWechatManager(c *wechatv1.Wechat) *WechatManager {
+func NewWechatManager(c *wechatv1.WechatConfig) *WechatManager {
 	if c == nil {
 		return nil
 	}
