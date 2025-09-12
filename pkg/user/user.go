@@ -69,7 +69,7 @@ func New(
 	authLimiter *AuthLimiter,
 ) *Impl {
 	var authHandlers = make(map[enumsv1.AuthType]Authenticator, len(config.User.EnableAuth))
-	passHasher := crypto.NewPasswordHasher(int(config.User.PasswordHasher))
+	passHasher := crypto.NewPasswordHasher(int(config.User.PasswordHasherCost))
 	for _, authType := range config.User.EnableAuth {
 		switch authType {
 		case enumsv1.AuthType_AUTH_TYPE_NUMBER_PASSWORD:

@@ -52,7 +52,7 @@ var userProviderSet = wire.NewSet(
 		"DistributedLock",
 		"User",
 	),
-	wire.FieldsOf(new(*userv1.User), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"),
+	wire.FieldsOf(new(*userv1.UserConfig), "AuthLimiter", "Jwt", "TwoStepVerifier", "Cache", "SessionBlockList"),
 )
 
 func NewWithConfig(confFile string) *user.Impl {

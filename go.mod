@@ -5,7 +5,7 @@ go 1.25.1
 require (
 	buf.build/go/protovalidate v0.14.0
 	github.com/byteflowing/go-common v1.0.1-0.20250911072728-5e857292609d
-	github.com/byteflowing/proto v0.0.0-20250911072613-8d3a3f0fc156
+	github.com/byteflowing/proto v0.0.0-20250912034527-d4970ddb5a93
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/wire v0.7.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
