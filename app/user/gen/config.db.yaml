@@ -1,0 +1,10 @@
+db_type: DB_TYPE_POSTGRES
+postgres:
+  host: "127.0.0.1"
+  user: "postgres"
+  password: "Postgres123456"
+  db_name: "postgres"
+  ssl_mode: false
+  port: 5432
+  time_zone: "Asia/Shanghai"
+  schema:   "public"
