@@ -30,8 +30,8 @@ mail:
 captcha:
   providers:
     - sender: 1 # 短信
-      prefix: "grpc_base:cap:sms"
-      err_prefix: "grpc_base:cap:sms:err"
+      prefix: "base:cap:sms"
+      err_prefix: "base:cap:sms:err"
       keeping: "300s"
       case_sensitive: false
       err_try_limit: 3
@@ -46,8 +46,8 @@ captcha:
           limit: 10
           tag: "24h10"
     - sender: 2 # 邮件
-      prefix: "grpc_base:cap:mail"
-      err_prefix: "grpc_base:cap:mail:err"
+      prefix: "base:cap:mail"
+      err_prefix: "base:cap:mail:err"
       keeping: "600s"
       case_sensitive: false
       err_try_limit: 3
@@ -122,10 +122,10 @@ redis:
   password: ${BASE_REDIS_PASSWORD:-}
   db: ${BASE_REDIS_DB:-1}
   protocol: 3
-  client_name: ${BASE_SERVICE_NAME:-grpc_base}
+  client_name: ${BASE_SERVICE_NAME:-base}
 distributed_lock:
   ttl: "10s"
-  prefix: "grpc_base:lock"
+  prefix: "base:lock"
 log_config:
   mode: 1 # 1-dev 2-prod
   format: 2 #1-json 2-console
@@ -133,7 +133,7 @@ log_config:
   report_caller: true
   caller_skip: 1
   add_stack_trace_level: 4
-  service_name: ${BASE_SERVICE_NAME:-grpc_base}
+  service_name: ${BASE_SERVICE_NAME:-base}
   ctx_log_id_key: "log_id"
   log_id_key: "log_id"
   record_all_errors: true
@@ -155,7 +155,7 @@ log_config:
 #        - 5
 #        - 6
 #      log_file:
-#        log_file: "/log/grpc_base.log"
+#        log_file: "/log/base.log"
 #        max_size: 500 # 单位M
 #        max_age: 7 # 单位天
 #        max_backups: 10 # 单位个
@@ -173,8 +173,8 @@ user:
     - 5 # 邮箱验证码验证登录
     - 6 # 微信授权码验证登录
   auth_limiter:
-    prefix: "grpc_base:limit:_auth"
-    err_prefix: "grpc_base:limit:_auth:err"
+    prefix: "base:limit:_auth"
+    err_prefix: "base:limit:_auth:err"
     sign_in_rule:
       duration: "300s"
       limit: 3
@@ -194,18 +194,18 @@ user:
         limit: 10
         tag: "24h10"
   jwt:
-    issuer: ${BASE_SERVICE_NAME:-grpc_base}
+    issuer: ${BASE_SERVICE_NAME:-base}
     secret_key: ${BASE_JWT_SECRET_KEY:-}
     sign_method: ${BASE_JWT_SIGN_METHOD:-HS256}
     max_active_sessions: 10
     access_ttl: ${BASE_JWT_ACCESS_TTL:-15m}
     refresh_ttl: ${BASE_JWT_REFRESH_TTL:168h}
   two_step_verifier:
-    prefix: "grpc_base:cap:two"
+    prefix: "base:cap:two"
     keeping: "600s"
   cache:
   session_block_list:
-    prefix: "grpc_base:bkl:sess"
+    prefix: "base:bkl:sess"
 
 
 

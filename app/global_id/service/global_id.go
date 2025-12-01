@@ -1,35 +1,37 @@
-package global_id
+package service
 
 import (
 	"context"
 
 	"github.com/byteflowing/base/pkg/globalid"
+	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
 	globalidv1 "github.com/byteflowing/proto/gen/go/global_id/v1"
 )
 
-type GlobalIdGenerator struct {
+type GlobalIDService struct {
 	idGen *globalid.Generator
 
 	globalidv1.UnimplementedGlobalIdServiceServer
 }
 
-// New 创建globaId generator实例
+// NewGlobalIDService 创建globaId generator实例
 // 通过GetId接口获取单个全局id
 // 通过GetIds接口获取多个全局id
 // generator是sonyflake的封装，Decompose ToTime等方法，可以使用pkg/globalid中的对应的方法
-func New(cfg *globalidv1.GlobalIdConfig) *globalid.Generator {
+func NewGlobalIDService(cfg *configv1.Config) *GlobalIDService {
+	c := cfg.GlobalId
 	generator, err := globalid.NewGlobalIDGenerator(&globalid.Config{
-		StartTime:      cfg.StartTime.AsTime(),
-		MachineID:      getMachineID(cfg),
-		CheckMachineID: checkMachineID(cfg),
+		StartTime:      c.StartTime.AsTime(),
+		MachineID:      getMachineID(c),
+		CheckMachineID: checkMachineID(c),
 	})
 	if err != nil {
 		panic(err)
 	}
-	return generator
+	return &GlobalIDService{idGen: generator}
 }
 
-func (g *GlobalIdGenerator) GetId(ctx context.Context, req *globalidv1.GetIdReq) (*globalidv1.GetIdResp, error) {
+func (g *GlobalIDService) GetId(ctx context.Context, req *globalidv1.GetIdReq) (*globalidv1.GetIdResp, error) {
 	_id, err := g.idGen.NextID()
 	if err != nil {
 		return nil, err
@@ -37,7 +39,7 @@ func (g *GlobalIdGenerator) GetId(ctx context.Context, req *globalidv1.GetIdReq)
 	return &globalidv1.GetIdResp{Id: _id}, nil
 }
 
-func (g *GlobalIdGenerator) GetIds(ctx context.Context, req *globalidv1.GetIdsReq) (*globalidv1.GetIdsResp, error) {
+func (g *GlobalIDService) GetIds(ctx context.Context, req *globalidv1.GetIdsReq) (*globalidv1.GetIdsResp, error) {
 	var ids []int64
 	for i := 0; i < int(req.Num); i++ {
 		_id, err := g.idGen.NextID()

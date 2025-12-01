@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+	"runtime/debug"
 )
 
 // Version information.
@@ -19,14 +20,15 @@ func GetVersion() string {
 	return fmt.Sprintf("%s-%s-%s", Version, GitBranch, BuildHash)
 }
 
-func GetProductVersion() string {
-	return Version
-}
-
-func PrintFullVersion() {
-	fmt.Println("Service:			", Service)
-	fmt.Println("Version:        	", Version)
-	fmt.Println("Git Branch: 		", GitBranch)
-	fmt.Println("Git Commit:		", BuildHash)
-	fmt.Println("Build Time (UTC): 	", BuildTS)
+func PrintVersion() {
+	goVersion := "unknown"
+	if buildInfo, ok := debug.ReadBuildInfo(); ok {
+		goVersion = buildInfo.GoVersion
+	}
+	fmt.Printf("%-16s %s\n", "Name", Service)
+	fmt.Printf("%-16s %s\n", "Version", Version)
+	fmt.Printf("%-16s %s\n", "Git Branch", GitBranch)
+	fmt.Printf("%-16s %s\n", "Build Hash", BuildHash)
+	fmt.Printf("%-16s %s\n", "Build Time(UTC)", BuildTS)
+	fmt.Printf("%-16s %s\n", "Go Version", goVersion)
 }

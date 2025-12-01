@@ -10,13 +10,13 @@ import (
 
 func main() {
 	c := &configv1.DbConfig{}
-	if err := config.ReadProtoConfig("./config.db.yaml", c); err != nil {
+	if err := config.ReadProtoConfig("config.db.yaml", c); err != nil {
 		panic(err)
 	}
 	_db := db.New(c)
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "../../dal/query",
-		ModelPkgPath:      "../../dal/model",
+		OutPath:           "../dal/query",
+		ModelPkgPath:      "../dal/model",
 		WithUnitTest:      false,
 		FieldNullable:     true,
 		FieldCoverable:    true,
@@ -27,7 +27,7 @@ func main() {
 	})
 	g.UseDB(_db)
 	g.ApplyBasic(
-		g.GenerateModelAs("user_basic", "UserBasic"),
+		g.GenerateModelAs("user_account", "UserAccount"),
 		g.GenerateModelAs("user_auth", "UserAuth"),
 		g.GenerateModelAs("user_sign_log", "UserSignLog"),
 	)

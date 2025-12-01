@@ -21,7 +21,15 @@ func NewAli(c *msgv1.SmsProvider) *Ali {
 	}
 }
 
-func (a *Ali) SendSingleSms(ctx context.Context, req *msgv1.SendSmsReq) (err error) {
+func (a *Ali) SendSingleSms(_ context.Context, req *msgv1.SendSmsReq) (err error) {
 	_, err = a.cli.SendSms(req)
 	return err
+}
+
+func (a *Ali) QuerySmsStatistics(ctx context.Context, req *msgv1.QuerySmsStatisticsReq) (*msgv1.QuerySmsStatisticsResp, error) {
+	return a.cli.QuerySendStatistics(req)
+}
+
+func (a *Ali) QuerySmsSendDetail(ctx context.Context, req *msgv1.QuerySmsSendDetailReq) (*msgv1.QuerySmsSendDetailResp, error) {
+	return a.cli.QuerySendDetail(req)
 }

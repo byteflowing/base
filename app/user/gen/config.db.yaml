@@ -7,4 +7,4 @@ postgres:
   ssl_mode: false
   port: 5432
   time_zone: "Asia/Shanghai"
-  schema:   "public"
+  schema: "public"
