@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 
-	"github.com/byteflowing/base/pkg/utils/slicex"
-	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
 	"google.golang.org/grpc"
 
 	"github.com/byteflowing/base/app/geo"
@@ -13,8 +11,10 @@ import (
 	"github.com/byteflowing/base/app/message"
 	"github.com/byteflowing/base/app/user"
 	"github.com/byteflowing/base/pkg/logx"
+	"github.com/byteflowing/base/pkg/utils/slicex"
 	"github.com/byteflowing/base/singleton"
 	configv1 "github.com/byteflowing/proto/gen/go/config/v1"
+	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
 	geov1 "github.com/byteflowing/proto/gen/go/geo/v1"
 	globalidv1 "github.com/byteflowing/proto/gen/go/global_id/v1"
 	mapsv1 "github.com/byteflowing/proto/gen/go/maps/v1"
