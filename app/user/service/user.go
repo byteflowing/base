@@ -299,7 +299,7 @@ func newAuthProvider(config *configv1.Config) map[enumsv1.SignInType]auth.Auth {
 		case enumsv1.SignInType_SIGN_IN_TYPE_WECHAT_MINI:
 			authMap[v.Type] = tencent.NewWechatManager(v.Wechat)
 		case enumsv1.SignInType_SIGN_IN_TYPE_HUAWEI:
-			shortID := common.NewShortID(global_id.NewOnce(config), singleton.NewShortID(config.ShortId))
+			shortID := common.NewIDService(global_id.NewOnce(config), singleton.NewShortID(config.ShortId))
 			authMap[v.Type] = huawei.NewAccountManager(
 				config.User.KeyPrefix,
 				singleton.NewRDB(config.Redis),

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/byteflowing/base/app/user/common"
 	"github.com/byteflowing/base/app/user/dal/model"
 	"github.com/byteflowing/base/app/user/dal/query"
@@ -16,13 +18,12 @@ import (
 	enumsv1 "github.com/byteflowing/proto/gen/go/enums/v1"
 	huaweiv1 "github.com/byteflowing/proto/gen/go/huawei/v1"
 	userv1 "github.com/byteflowing/proto/gen/go/user/v1"
-	"gorm.io/gorm"
 )
 
 type AccountManager struct {
 	appTokenKey string
 	clientID    string
-	shortId     *common.ShortID
+	idService   *common.IDService
 	cli         *account.Account
 	rdb         *redis.Redis
 	lock        *redis.Lock
@@ -31,7 +32,7 @@ type AccountManager struct {
 func NewAccountManager(
 	keyPrefix string,
 	rdb *redis.Redis,
-	shortId *common.ShortID,
+	idService *common.IDService,
 	config *huaweiv1.AccountConfig,
 ) *AccountManager {
 	cli := account.New(config.ClientId, config.ClientSecret)
@@ -44,7 +45,7 @@ func NewAccountManager(
 			TTL:    30 * time.Second,
 			Wait:   10 * time.Millisecond,
 		}),
-		shortId:     shortId,
+		idService:   idService,
 		appTokenKey: keyPrefix + ":hw_app_token:" + config.ClientId,
 		clientID:    config.ClientId,
 	}
@@ -64,7 +65,11 @@ func (am *AccountManager) Authenticate(ctx context.Context, req *userv1.SignInRe
 		return nil, err
 	}
 	if user == nil {
-		number, err := am.shortId.GetShortID(ctx)
+		number, err := am.idService.GetShortID(ctx)
+		if err != nil {
+			return nil, err
+		}
+		id, err := am.idService.GetGlobalID(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -73,6 +78,7 @@ func (am *AccountManager) Authenticate(ctx context.Context, req *userv1.SignInRe
 			agent = &userv1.Agent{}
 		}
 		user = &model.UserAccount{
+			ID:               id,
 			TenantID:         req.GetTenantId(),
 			Number:           number,
 			PhoneCountryCode: am.parseCountryCode(result.PhoneCountryCode),
