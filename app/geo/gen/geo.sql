@@ -14,9 +14,9 @@ CREATE TABLE geo_country
     updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(), -- 更新时间
     deleted_at    TIMESTAMPTZ                         -- 删除时间
 );
-CREATE UNIQUE INDEX uniq_geo_region_country_cca2 ON geo_country (cca2);
-CREATE UNIQUE INDEX uniq_geo_region_country_cca3 ON geo_country (cca3);
-CREATE UNIQUE INDEX uniq_geo_region_country_ccn3 ON geo_country (ccn3);
+CREATE UNIQUE INDEX idx_uniq_geo_region_country_cca2 ON geo_country (cca2);
+CREATE UNIQUE INDEX idx_uniq_geo_region_country_cca3 ON geo_country (cca3);
+CREATE UNIQUE INDEX idx_uniq_geo_region_country_ccn3 ON geo_country (ccn3);
 CREATE INDEX idx_geo_country_multi_lang ON geo_country (multi_lang);
 
 CREATE TABLE geo_region
@@ -34,7 +34,7 @@ CREATE TABLE geo_region
     deleted_at   TIMESTAMPTZ                         -- 删除时间
 );
 CREATE INDEX idx_geo_region_parent_code ON geo_region (parent_code);
-CREATE UNIQUE INDEX uniq_geo_region_country_code_source ON geo_region (country_cca2, code, source);
+CREATE UNIQUE INDEX idx_uniq_geo_region_country_code_source ON geo_region (country_cca2, code, source);
 CREATE INDEX idx_geo_region_multi_lang ON geo_region (multi_lang);
 
 CREATE TABLE geo_phone_code
@@ -48,7 +48,7 @@ CREATE TABLE geo_phone_code
     updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ
 );
-CREATE UNIQUE INDEX uniq_geo_phone_cca2 ON geo_phone_code (phone_code, name);
+CREATE UNIQUE INDEX idx_uniq_geo_phone_cca2 ON geo_phone_code (phone_code, name);
 CREATE INDEX idx_geo_phone_code_multi_lang ON geo_phone_code (multi_lang);
 
 

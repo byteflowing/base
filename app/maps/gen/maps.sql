@@ -13,8 +13,8 @@ CREATE TABLE map_account
     updated_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
     deleted_at TIMESTAMPTZ
 );
-CREATE UNIQUE INDEX map_account_object_name ON map_account (object_id, name);
-CREATE INDEX map_account_uni_created_status ON map_account (created_at DESC, status);
+CREATE UNIQUE INDEX idx_uniq_map_account_object_id_name ON map_account (object_id, name);
+CREATE INDEX idx_union_map_account_created_status ON map_account (created_at DESC, status);
 
 CREATE TABLE map_interface
 (
@@ -27,7 +27,7 @@ CREATE TABLE map_interface
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at     TIMESTAMPTZ
 );
-CREATE UNIQUE INDEX map_interface_unique_map_id_interface_type ON map_interface (map_id, interface_type);
+CREATE UNIQUE INDEX idx_uniq_map_interface_map_id_interface_type ON map_interface (map_id, interface_type);
 
 CREATE TABLE map_interface_count
 (
@@ -41,6 +41,6 @@ CREATE TABLE map_interface_count
     updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     deleted_at     TIMESTAMPTZ
 );
-CREATE UNIQUE INDEX map_interface_count_unique_count_interface_type ON map_interface_count (map_id, interface_type);
-CREATE INDEX map_interface_count_day ON map_interface_count (day);
-CREATE INDEX map_interface_count_created_at ON map_interface_count (created_at);
+CREATE UNIQUE INDEX idx_uniq_map_interface_map_id_interface_type ON map_interface_count (map_id, interface_type);
+CREATE INDEX idx_map_interface_count_day ON map_interface_count (day);
+CREATE INDEX idx_map_interface_count_created_at ON map_interface_count (created_at);

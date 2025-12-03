@@ -34,10 +34,10 @@ CREATE TABLE user_account
     password_updated_at TIMESTAMPTZ,                         -- '密码更改时间'
     ext                 JSON                                 -- '扩展字段'
 );
-CREATE UNIQUE INDEX idx_user_account_number ON user_account (tenant_id, number);
-CREATE UNIQUE INDEX idx_user_account_email ON user_account (tenant_id, email);
-CREATE UNIQUE INDEX idx_user_account_phone ON user_account (tenant_id, phone_country_code, phone);
-CREATE INDEX idx_user_account_region ON user_account (country_code, province_code, city_code, district_code);
+CREATE UNIQUE INDEX idx_uniq_user_account_number ON user_account (tenant_id, number);
+CREATE UNIQUE INDEX idx_uniq_user_account_email ON user_account (tenant_id, email);
+CREATE UNIQUE INDEX idx_uniq_user_account_phone ON user_account (tenant_id, phone_country_code, phone);
+CREATE INDEX idx_union_user_account_region ON user_account (country_code, province_code, city_code, district_code);
 
 CREATE TABLE user_auth
 (
@@ -57,7 +57,7 @@ CREATE INDEX idx_user_auth_uid ON user_auth (uid);
 CREATE INDEX idx_user_auth_app_id ON user_auth (appid);
 CREATE INDEX idx_user_auth_tenant_id ON user_auth (tenant_id);
 CREATE INDEX idx_user_auth_union_id ON user_auth (union_id);
-CREATE UNIQUE INDEX idx_uni_user_auth_open_id ON user_auth (open_id);
+CREATE UNIQUE INDEX idx_uniq_user_auth_open_id ON user_auth (open_id);
 
 
 CREATE TABLE user_sign_log
@@ -80,6 +80,6 @@ CREATE TABLE user_sign_log
     created_at         TIMESTAMPTZ NOT NULL DEFAULT now(), -- '创建时间'
     deleted_at         TIMESTAMPTZ                         -- '删除时间'
 );
-CREATE INDEX idx_user_sign_log_uni_uid_created_at ON user_sign_log (tenant_id, uid, created_at DESC);
-CREATE UNIQUE INDEX idx_user_sign_log_access_token_id ON user_sign_log (access_jti);
-CREATE UNIQUE INDEX idx_user_sign_log_refresh_token_id ON user_sign_log (refresh_jti);
+CREATE INDEX idx_union_user_sign_log_tenant_uid_created_at ON user_sign_log (tenant_id, uid, created_at DESC);
+CREATE UNIQUE INDEX idx_uniq_user_sign_log_access_token_id ON user_sign_log (access_jti);
+CREATE UNIQUE INDEX idx_uniq_user_sign_log_refresh_token_id ON user_sign_log (refresh_jti);
