@@ -143,7 +143,7 @@ func getPostgresSSLMode(config *configv1.DbPostgres) string {
 }
 
 func getPostgresDSN(config *configv1.DbPostgres) string {
-	const format = "host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s search_path=%s"
+	const format = "host=%s user=%s password='%s' dbname=%s port=%d sslmode=%s TimeZone=%s search_path=%s"
 	return fmt.Sprintf(
 		format,
 		config.Host,
