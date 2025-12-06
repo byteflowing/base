@@ -143,18 +143,17 @@ func getPostgresSSLMode(config *configv1.DbPostgres) string {
 }
 
 func getPostgresDSN(config *configv1.DbPostgres) string {
-	const format = "host=%s, user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s search_path=%s"
-	return fmt.Sprintf(
-		format,
-		config.Host,
-		config.User,
-		config.Password,
-		config.DbName,
-		config.Port,
-		getPostgresSSLMode(config),
-		config.TimeZone,
-		config.Schema,
-	)
+	var dsn string
+	if config.Password == "" {
+		// Handle empty password case
+		dsn = fmt.Sprintf("host=%s user=%s password='' dbname=%s port=%d sslmode=%s TimeZone=%s search_path=%s",
+			config.Host, config.User, config.DbName, config.Port, getPostgresSSLMode(config), config.TimeZone, config.Schema)
+	} else {
+		// Normal case with password
+		dsn = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s search_path=%s",
+			config.Host, config.User, config.Password, config.DbName, config.Port, getPostgresSSLMode(config), config.TimeZone, config.Schema)
+	}
+	return dsn
 }
 
 func getSQLServerDSN(config *configv1.DbSQLServer) string {
